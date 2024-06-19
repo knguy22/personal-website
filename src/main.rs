@@ -10,5 +10,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
     let csv_file: String = "data.csv".to_string();
     let _ = import_csv::read_csv(&csv_file);
-    db::init().await
+    let _ = db::init().await;
+    Ok(())
 }
