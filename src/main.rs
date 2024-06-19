@@ -1,29 +1,18 @@
-use chrono::{DateTime, Utc};
+mod novel_entry;
 
-enum Status {
-    Reading,
-    Completed,
-    Waiting,
-    Dropped,
-    Hiatus,
-}
+use sqlx::postgres::PgPoolOptions;
 
-enum Chapters {
-    Web(u32),
-    Novel{volume: u32, chapter: u32, part: u32},
-}
+#[tokio::main]
+async fn main() -> Result<(), sqlx::Error> {
+    let pool = PgPoolOptions::new()
+            .max_connections(5)
+            .connect("postgres://postgres:doubl@localhost/test").await?;
+    
+    let row: (i64,) = sqlx::query_as("SELECT $1")
+        .bind(150_i64)
+        .fetch_one(&pool).await?;
 
-struct NovelEntry {
-    country: String,
-    title: String,
-    chapter: Chapters,
-    rating: u32,
-    status: Status,
-    tags: Vec<String>,
-    notes: String,
-    date_modified: DateTime<Utc>,
-}
+    assert_eq!(row.0, 150);
 
-fn main() -> () {
-
+    Ok(())
 }
