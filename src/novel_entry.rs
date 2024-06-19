@@ -51,7 +51,17 @@ impl fmt::Display for Chapters {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self {
             Chapters::Web(i) => write!(f, "{}", i.to_string()),
-            Chapters::Novel { volume, chapter, part } => write!(f, "v{:?}c{:?}p{:?}", volume, chapter, part),
+            Chapters::Novel { volume, chapter, part } => {
+                if *part != 0 {
+                    write!(f, "v{:?}c{:?}p{:?}", volume, chapter, part)
+                }
+                else if *chapter != 0 {
+                    write!(f, "v{:?}c{:?}", volume, chapter)
+                }
+                else {
+                    write!(f, "v{:?}", volume)
+                }
+            },
             Chapters::Invalid => write!(f, "Invalid"),
         }
     }
