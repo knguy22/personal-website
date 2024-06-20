@@ -15,7 +15,7 @@ pub async fn init() -> Result<DatabaseConnection, Box<dyn Error>> {
             .acquire_timeout(Duration::from_secs(5))
             .idle_timeout(Duration::from_secs(5))
             .max_lifetime(Duration::from_secs(5))
-            .set_schema_search_path("my_schema"); // Setting default PostgreSQL schema
+            .set_schema_search_path("public");
     let db = Database::connect(conn_opt).await?;
     println!("Connected");
 
@@ -40,7 +40,7 @@ pub async fn insert_novel_entries_into_table(db: &DatabaseConnection, rows: &Vec
         to_insert.push(novel_entry_to_model(row));
     }
 
-    println!("Trying to insert  with size: {}",to_insert.len());
+    println!("Trying to insert with size: {}",to_insert.len());
     let res = Novels::insert_many(to_insert).exec(db).await?;
     println!("Last Insert Id: {}", res.last_insert_id);
 
