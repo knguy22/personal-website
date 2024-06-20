@@ -31,8 +31,8 @@ fn novel_entry_to_model(novel: &NovelEntry) -> novels::Model {
         chapter: Some(novel.chapter.to_str()), 
         rating: Some(novel.rating as i32), 
         status: Some(novel.status.to_str()), 
-        tags: Some("".to_string()), 
+        tags: serde_json::to_value(novel.tags.clone()).unwrap(),
         notes: Some(novel.notes.clone()), 
-        date_modified: Some(novel.date_modified.naive_utc()),
+        date_modified: novel.date_modified.naive_utc(),
     }
 }
