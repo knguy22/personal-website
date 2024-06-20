@@ -3187,6 +3187,7 @@ dependencies = [
  "csv",
  "dotenv",
  "sea-orm",
+ "serde_json",
  "sqlx",
  "sqlx-cli",
  "strum 0.26.2",

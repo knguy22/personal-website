@@ -10,10 +10,10 @@ pub struct Model {
     pub title: String,
     pub rating: Option<i32>,
     pub status: Option<String>,
-    pub tags: Option<String>,
     pub notes: Option<String>,
-    pub date_modified: Option<DateTime>,
+    pub date_modified: DateTime,
     pub chapter: Option<String>,
+    pub tags: Json,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
