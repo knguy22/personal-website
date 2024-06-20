@@ -1,6 +1,6 @@
-use std::error::Error;
-use std::env;
-use std::time::Duration;
+use std::{error::Error, env, time::Duration};
+use crate::novel_entry::{self, NovelEntry};
+use crate::entity::novels;
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 
 pub async fn init() -> Result<DatabaseConnection, Box<dyn Error>> {
@@ -16,7 +16,9 @@ pub async fn init() -> Result<DatabaseConnection, Box<dyn Error>> {
             .set_schema_search_path("my_schema"); // Setting default PostgreSQL schema
     let db = Database::connect(conn_opt).await?;
 
-    // init webnovel table
-
     Ok(db)
+}
+
+pub async fn insert_csv_into_table(db: DatabaseConnection, table_name: &String, rows: &Vec<NovelEntry>) {
+
 }
