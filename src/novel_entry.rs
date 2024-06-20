@@ -1,10 +1,7 @@
-use core::fmt;
 use chrono::{DateTime, Utc};
-use std::fmt::Formatter;
 use strum;
 
-#[derive(PartialEq)]
-#[derive(strum::EnumString)]
+#[derive(Clone, Debug, PartialEq, strum::EnumString)]
 pub enum Status {
     Reading,
     Completed,
@@ -14,13 +11,14 @@ pub enum Status {
     Invalid,
 }
 
-#[derive(PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum Chapters {
     Web(u32),
     Novel{volume: u32, chapter: u32, part: u32},
     Invalid,
 }
 
+#[derive(Clone, Debug)]
 pub struct NovelEntry {
     pub country: String,
     pub title: String,
@@ -31,63 +29,6 @@ pub struct NovelEntry {
     pub notes: String,
     pub date_modified: DateTime<Utc>,
 }
-
-// formatters
-
-impl fmt::Display for Status {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        match self {
-            Status::Reading => write!(f, "R"),
-            Status::Completed => write!(f, "C"),
-            Status::Waiting => write!(f, "W"),
-            Status::Dropped => write!(f, "D"),
-            Status::Hiatus => write!(f, "H"),
-            Status::Invalid => write!(f, "I"),
-        }
-    }
-}
-
-impl fmt::Display for Chapters {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        match self {
-            Chapters::Web(i) => write!(f, "{}", i.to_string()),
-            Chapters::Novel { volume, chapter, part } => {
-                if *part != 0 {
-                    write!(f, "v{:?}c{:?}p{:?}", volume, chapter, part)
-                }
-                else if *chapter != 0 {
-                    write!(f, "v{:?}c{:?}", volume, chapter)
-                }
-                else {
-                    write!(f, "v{:?}", volume)
-                }
-            },
-            Chapters::Invalid => write!(f, "Invalid"),
-        }
-    }
-}
-
-impl fmt::Display for NovelEntry {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        let mut tags_str = String::new();
-        for tag in self.tags.iter() {
-            tags_str.push_str(&tag);
-        }
-
-        write!(f, "Country: {}, Title: {}, Chapter: {}, Rating: {}, Status: {}, Tags: {}, Notes: {}, Date_Modified: {}", 
-            self.country, 
-            self.title,
-            self.chapter,
-            self.rating,
-            self.status,
-            tags_str,
-            self.notes,
-            self.date_modified
-        )
-    }
-}
-
-// other impls
 
 impl Chapters {
     pub fn new(s: &String) -> Chapters {
