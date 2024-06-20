@@ -8,12 +8,12 @@ pub struct Model {
     pub country: Option<String>,
     #[sea_orm(primary_key, auto_increment = false)]
     pub title: String,
-    pub chapter: Option<i32>,
     pub rating: Option<i32>,
     pub status: Option<String>,
     pub tags: Option<String>,
     pub notes: Option<String>,
     pub date_modified: Option<DateTime>,
+    pub chapter: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

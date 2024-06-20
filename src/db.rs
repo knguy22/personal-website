@@ -1,5 +1,5 @@
 use std::{error::Error, env, time::Duration};
-use crate::novel_entry::{self, NovelEntry};
+use crate::novel_entry::{self, NovelEntry, Chapters};
 use crate::entity::novels;
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 
@@ -20,5 +20,19 @@ pub async fn init() -> Result<DatabaseConnection, Box<dyn Error>> {
 }
 
 pub async fn insert_csv_into_table(db: DatabaseConnection, table_name: &String, rows: &Vec<NovelEntry>) {
+    for row in rows {
+    }
+}
 
+fn novel_entry_to_model(novel: &NovelEntry) -> novels::Model {
+    novels::Model { 
+        country: Some(novel.country.clone()), 
+        title: novel.title.clone(), 
+        chapter: Some(novel.chapter.to_str()), 
+        rating: Some(novel.rating as i32), 
+        status: Some(novel.status.to_str()), 
+        tags: Some("".to_string()), 
+        notes: Some(novel.notes.clone()), 
+        date_modified: Some(novel.date_modified.naive_utc()),
+    }
 }

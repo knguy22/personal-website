@@ -49,6 +49,16 @@ impl Chapters {
         }
         Chapters::Novel { volume: v, chapter: c, part: p }
     }
+
+    pub fn to_str(&self) -> String {
+        match self {
+            Chapters::Web(i)=> i.to_string(),
+            Chapters::Novel {volume: v, chapter: c, part: p} => {
+                format!("v{}c{}p{}", v, c, p)
+            },
+            Chapters::Invalid => "".to_string()
+        }
+    }
 }
 
 impl Status {
@@ -60,6 +70,17 @@ impl Status {
             'D' => Status::Dropped,
             'H' => Status::Hiatus,
             _ => Status::Invalid,
+        }
+    }
+
+    pub fn to_str(&self) -> String {
+        match self {
+            Status::Reading => "Reading".to_string(),
+            Status::Completed => "Completed".to_string(),
+            Status::Waiting => "Waiting".to_string(),
+            Status::Dropped => "Dropped".to_string(),
+            Status::Hiatus => "Hiatus".to_string(),
+            Status::Invalid => "Invalid".to_string(),
         }
     }
 }
