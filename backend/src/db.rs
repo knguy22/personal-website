@@ -40,10 +40,7 @@ pub async fn insert_novel_entries_into_table(db: &DatabaseConnection, rows: &Vec
         to_insert.push(novel_entry_to_model(row));
     }
 
-    println!("Trying to insert with size: {}",to_insert.len());
-    let res = Novels::insert_many(to_insert).exec(db).await?;
-    println!("Last Insert Id: {}", res.last_insert_id);
-
+    let _ = Novels::insert_many(to_insert).exec(db).await?;
     Ok(())
 }
 
