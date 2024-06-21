@@ -1,7 +1,8 @@
 use chrono::{DateTime, Utc};
 use strum;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq, strum::EnumString)]
+#[derive(Clone, Debug, PartialEq, strum::EnumString, Deserialize, Serialize)]
 pub enum Status {
     Reading,
     Completed,
@@ -11,14 +12,14 @@ pub enum Status {
     Invalid,
 }
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub enum Chapters {
     Web(u32),
     Novel{volume: u32, chapter: u32, part: u32},
     Invalid,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NovelEntry {
     pub country: String,
     pub title: String,
