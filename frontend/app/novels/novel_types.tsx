@@ -29,23 +29,25 @@ interface Invalid {
   kind: "Invalid",
 }
 
-export function create_chapter(jsonChapter: any): Chapter {
-  if (isJSON(jsonChapter)) {
-    if ("Web" in jsonChapter) {
-      return { kind: "Web", Web: jsonChapter.Web };
-    } 
-    // else if ("Novel" in jsonChapter) {
-    else {
-      return { kind: "Novel", Novel: 
-        {
-          volume: jsonChapter.Novel.volume,
-          chapter: jsonChapter.Novel.chapter,
-          part: jsonChapter.Novel.part
-        }
-      };
-    }
+export function create_chapter(chapter: unknown): Chapter {
+  if (!isJSON(chapter)) {
+    return { kind: "Invalid" };
   }
-  return { kind: "Invalid" };
+
+  const jsonChapter = chapter as {[key: string]: any };
+  if ("Web" in jsonChapter) {
+    return { kind: "Web", Web: jsonChapter.Web };
+  } 
+  // else if ("Novel" in jsonChapter) {
+  else {
+    return { kind: "Novel", Novel: 
+      {
+        volume: jsonChapter.Novel.volume,
+        chapter: jsonChapter.Novel.chapter,
+        part: jsonChapter.Novel.part
+      }
+    };
+  }
 }
 
 export function format_chapter(chapter: Chapter): String {
@@ -59,7 +61,7 @@ export function format_chapter(chapter: Chapter): String {
   }
 }
 
-function isJSON(obj: any): boolean {
+function isJSON(obj: unknown): boolean {
   const value = typeof obj !== "string" ? JSON.stringify(obj) : obj;
   try {
     JSON.parse(value);
