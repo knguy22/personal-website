@@ -16,7 +16,7 @@ For reference, I am using a VPS with Almalinux 8.
 
 ```sh
 server {
-    server_name  node.tericcabrel.com;
+    server_name  any_server_name;
     index index.html index.htm;
     access_log /var/log/nginx/nodeapp.log;
     error_log  /var/log/nginx/nodeapp-error.log error;
