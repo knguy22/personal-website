@@ -13,7 +13,7 @@ export default async function novels() {
 }
 
 async function fetch_novels() {
-  const response = await fetch('http://localhost:3000/novels');
+  const response = await fetch('http://127.0.0.1:3000/novels');
   if (!response.ok) {
     throw new Error('Failed to fetch novels');
   }
