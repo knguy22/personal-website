@@ -1,24 +1,14 @@
-import Image from "next/image";
 import React from 'react'
+import {NovelEntry, create_chapter, format_chapter} from './novel_types.tsx';
 import "./local.css"
 
-type NovelEntry = {
-    country: String,
-    title: String,
-    chapter: JSON,
-    rating: Number,
-    status: String,
-    tags: String,
-    notes: String,
-    date_modified: Date,
-}
 
 export default async function novels() {
   const data: JSON[] = await fetch_novels();
   const novels: NovelEntry[] = data.map((novel: any) => ({
     country: novel.country,
     title: novel.title,
-    chapter: novel.chapter,
+    chapter: create_chapter(novel.chapter),
     rating: novel.rating,
     status: novel.status,
     tags: novel.tags,
@@ -45,10 +35,10 @@ export default async function novels() {
           <tr key={index}>
             <td>{novel.country}</td>
             <td>{novel.title}</td>
-            <td>{JSON.stringify(novel.chapter)}</td>
+            <td>{format_chapter(novel.chapter)}</td>
             <td>{String(novel.rating)}</td>
             <td>{novel.status}</td>
-            <td>{novel.tags}</td>
+            <td>{novel.tags.join(',')}</td>
             <td>{novel.notes}</td>
             <td>{String(novel.date_modified)}</td>
           </tr>
@@ -63,6 +53,5 @@ async function fetch_novels(): Promise<JSON[]> {
   if (!response.ok) {
     throw new Error('Failed to fetch novels');
   }
-
   return await response.json();
 }
