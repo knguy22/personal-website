@@ -1,0 +1,14 @@
+table {
+    width: 95%;
+    border: solid 2px black;
+    border-spacing: 0px;
+    padding: 0px;
+    margin-bottom: 25px;
+    table-layout: fixed;
+    text-align: center;
+}
+
+table th, table td {
+    border: solid 1px white;
+    margin: 2px;
+}

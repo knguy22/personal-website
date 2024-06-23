@@ -1,7 +1,7 @@
 import React from 'react'
-import {NovelEntry, create_chapter, format_chapter} from './novel_types.tsx';
+import {NovelEntry, create_chapter} from '../types/novel_types.tsx';
+import {NovelEntryRow} from './components.tsx';
 import "./local.css"
-
 
 export default async function novels() {
   const data: JSON[] = await fetch_novels();
@@ -32,16 +32,7 @@ export default async function novels() {
       </thead>
       <tbody>
         {novels.map((novel: NovelEntry, index: number) => (
-          <tr key={index}>
-            <td>{novel.country}</td>
-            <td>{novel.title}</td>
-            <td>{format_chapter(novel.chapter)}</td>
-            <td>{String(novel.rating)}</td>
-            <td>{novel.status}</td>
-            <td>{novel.tags.join(',')}</td>
-            <td>{novel.notes}</td>
-            <td>{String(novel.date_modified)}</td>
-          </tr>
+          <NovelEntryRow key={index} novel={novel}/>
         ))}
       </tbody>
     </table>

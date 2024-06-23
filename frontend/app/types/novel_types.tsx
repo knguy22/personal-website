@@ -29,6 +29,21 @@ interface Invalid {
   kind: "Invalid",
 }
 
+export function parse_novels(chapter: JSON[]): NovelEntry[] {
+  const novels: NovelEntry[] = chapter.map((novel: any) => ({
+    country: novel.country,
+    title: novel.title,
+    chapter: create_chapter(novel.chapter),
+    rating: novel.rating,
+    status: novel.status,
+    tags: novel.tags,
+    notes: novel.notes,
+    date_modified: novel.date_modified
+  }));
+
+  return novels;
+}
+
 export function create_chapter(chapter: unknown): Chapter {
   if (!isJSON(chapter)) {
     return { kind: "Invalid" };
