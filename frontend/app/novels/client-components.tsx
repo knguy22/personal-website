@@ -4,10 +4,11 @@ import React, {useState, useEffect} from 'react';
 import {NovelEntry, NovelEntryCol, compare_chapter, format_chapter, parse_novels} from '../types/novel_types.tsx';
 
 export function ClientPage() {
-  const [novels, setNovels] = useState<NovelEntry[] | null>(null);
   const [isLoading, setLoading] = useState(true);
+  const [novels, setNovels] = useState<NovelEntry[] | null>(null);
   const [isUp, setIsUp] = useState(false);
   const [sort_col, setSortCol] = useState<NovelEntryCol>("rating");
+  const [search_content, setSearchContent] = useState<string>("");
 
   // load novels once
   useEffect(() => {
@@ -38,7 +39,8 @@ export function ClientPage() {
   return (
     <>
       <SortByDropdown {...{setIsUp: setIsUp, isUp: isUp, setSortCol: setSortCol}}/>
-      <NovelsTable {...{isUp: isUp, novels: novels, sort_col: sort_col}}/>
+      <SearchBar {...{setContent: setSearchContent}}/>
+      <NovelsTable {...{isUp: isUp, novels: novels, sort_col: sort_col, search_content: search_content}}/>
     </>
   );
 };
@@ -47,9 +49,18 @@ type NovelsTableProps = {
   isUp: boolean,
   novels: NovelEntry[],
   sort_col: NovelEntryCol,
+  search_content: string,
 }
 
-function NovelsTable({isUp, novels, sort_col}: NovelsTableProps) {
+function NovelsTable({isUp, novels, sort_col, search_content}: NovelsTableProps) {
+  // filter the novels
+  novels = novels.filter((novel) => {
+    if (novel.title.toLowerCase().includes(search_content.toLowerCase())) {
+      return true;
+    }
+    return false;
+  });
+
   // check sort_col is valid
   if (!(sort_col in novels[0])) {
     console.log("Invalid sort column: ", sort_col);
@@ -144,5 +155,19 @@ export function SortByDropdown({setIsUp, isUp, setSortCol}: SortByDropdownProps)
         type="submit">{isUp ? "↑" : "↓"}
       </button>
     </>
+  );
+}
+
+type SearchBarProps = {
+  setContent: React.Dispatch<React.SetStateAction<string>>,
+}
+
+export function SearchBar({setContent}: SearchBarProps) {
+  return (
+    <input 
+      type="text" 
+      placeholder="Search By Params"
+      onChange={(e) => setContent(e.target.value)}
+    />
   );
 }

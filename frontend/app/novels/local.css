@@ -13,7 +13,8 @@ table th, table td {
     margin: 2px;
 }
 
-select {
+select, input {
     background-color: black;
+    border: solid 1px white;
     color: white;
 }
