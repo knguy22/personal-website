@@ -8,17 +8,21 @@ export function NovelsTable() {
   const [isLoading, setLoading] = useState(true)
 
   useEffect(() => {
-    const novels_url = process.env.NEXT_PUBLIC_API_URL + '/api/novels';
-    fetch(novels_url)
-      .then(response => response.json())
-      .then(novels => convert_novels(novels))
-      .then(novels => {
-        setNovels(novels);
+    const fetchNovels = async () => {
+      const novels_url = process.env.NEXT_PUBLIC_API_URL + '/novels';
+      try {
+        const response = await fetch(novels_url);
+        const novelsData = await response.json();
+        const convertedNovels = convert_novels(novelsData);
+        setNovels(convertedNovels);
+      } catch (error) {
+        console.log(error);
+      } finally {
         setLoading(false);
-      })
-      .catch(error => {
-        setLoading(false);
-      });
+      }
+    };
+
+    fetchNovels();
   }, []);
 
   if (isLoading) {
