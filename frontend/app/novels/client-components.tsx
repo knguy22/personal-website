@@ -14,8 +14,11 @@ export function NovelsTable() {
       .then(novels => convert_novels(novels))
       .then(novels => {
         setNovels(novels);
-        setLoading(false)
-    })
+        setLoading(false);
+      })
+      .catch(error => {
+        setLoading(false);
+      });
   }, []);
 
   if (isLoading) {
