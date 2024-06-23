@@ -3,10 +3,12 @@
 import React, {useState, useEffect} from 'react';
 import {NovelEntry, create_chapter, format_chapter} from '../types/novel_types.tsx';
 
-export function NovelsTable() {
+export function ClientPage() {
   const [novels, setNovels] = useState<NovelEntry[] | null>(null);
-  const [isLoading, setLoading] = useState(true)
+  const [isLoading, setLoading] = useState(true);
+  const [isUp, setIsUp] = useState(false);
 
+  // load novels once
   useEffect(() => {
     const fetchNovels = async () => {
       const novels_url = process.env.NEXT_PUBLIC_API_URL + '/novels';
@@ -34,29 +36,40 @@ export function NovelsTable() {
 
   return (
     <>
-    <SortByDropdown {...{isUp: true}}/>
-    <table>
-    <thead>
-        <tr>
-        <th>Country</th>
-        <th>Title</th>
-        <th>Chapter</th>
-        <th>Rating</th>
-        <th>Status</th>
-        <th>Tags</th>
-        <th>Notes</th>
-        <th>Date Modified</th>
-        </tr>
-    </thead>
-    <tbody>
-        {novels.map((novel: NovelEntry, index: number) => (
-        <NovelEntryRow key={index} novel={novel}/>
-        ))}
-    </tbody>
-    </table>
+      <SortByDropdown {...{setState: setIsUp, isUp: isUp}}/>
+      <NovelsTable {...{isUp: isUp, novels: novels}}/>
     </>
   );
 };
+
+type NovelsTableProps = {
+  isUp: boolean,
+  novels: NovelEntry[],
+}
+
+function NovelsTable({isUp, novels}: NovelsTableProps) {
+  return (
+    <table>
+    <thead>
+      <tr>
+      <th>Country</th>
+      <th>Title</th>
+      <th>Chapter</th>
+      <th>Rating</th>
+      <th>Status</th>
+      <th>Tags</th>
+      <th>Notes</th>
+      <th>Date Modified</th>
+      </tr>
+    </thead>
+    <tbody>
+      {novels.map((novel: NovelEntry, index: number) => (
+      <NovelEntryRow key={index} novel={novel}/>
+      ))}
+    </tbody>
+    </table>
+  );
+}
 
 function convert_novels(novels: NovelEntry[]): NovelEntry[] {
   return novels.map((novel: NovelEntry) => ({
@@ -91,10 +104,11 @@ export function NovelEntryRow({ novel}: NovelEntryRowProps) {
 }
 
 type SortByDropdownProps = {
-  isUp: boolean
+  setState: React.Dispatch<React.SetStateAction<boolean>>,
+  isUp: boolean,
 }
 
-export function SortByDropdown({isUp}: SortByDropdownProps) {
+export function SortByDropdown({setState, isUp}: SortByDropdownProps) {
   return (
     <>
       <select>
@@ -107,7 +121,10 @@ export function SortByDropdown({isUp}: SortByDropdownProps) {
         <option value="notes">Notes</option>
         <option value="date_modified">Date Modified</option>
       </select>
-      <button type="submit">{isUp ? "↑" : "↓"}</button>
+      <button 
+        onClick={() => setState(!isUp)}
+        type="submit">{isUp ? "↑" : "↓"}
+      </button>
     </>
-  )
+  );
 }
