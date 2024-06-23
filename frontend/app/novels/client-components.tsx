@@ -136,7 +136,7 @@ export function NovelEntryRow({ novel}: NovelEntryRowProps) {
         <td>{format_chapter(novel.chapter)}</td>
         <td>{String(novel.rating)}</td>
         <td>{novel.status}</td>
-        <td>{novel.tags.join(',')}</td>
+        <td>{novel.tags.join(',\n')}</td>
         <td>{novel.notes}</td>
         <td>{String(novel.date_modified)}</td>
         </tr>

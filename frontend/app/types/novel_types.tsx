@@ -71,14 +71,14 @@ export function compare_chapter(chapter1: Chapter, chapter2: Chapter): number {
   throw new Error("Invalid chapters: " + chapter1.kind + ", " + chapter2.kind);
 }
 
-export function parse_novels(chapter: JSON[]): NovelEntry[] {
-  const novels: NovelEntry[] = chapter.map((novel: any) => ({
+export function parse_novels(unprocessed_novels: NovelEntry[]): NovelEntry[] {
+  const novels: NovelEntry[] = unprocessed_novels.map((novel: any) => ({
     country: novel.country,
     title: novel.title,
     chapter: create_chapter(novel.chapter),
     rating: novel.rating,
     status: novel.status,
-    tags: novel.tags,
+    tags: process_tags(novel.tags),
     notes: novel.notes,
     date_modified: novel.date_modified
   }));
@@ -86,7 +86,7 @@ export function parse_novels(chapter: JSON[]): NovelEntry[] {
   return novels;
 }
 
-export function create_chapter(chapter: unknown): Chapter {
+function create_chapter(chapter: unknown): Chapter {
   if (!isJSON(chapter)) {
     return { kind: "Invalid" };
   }
@@ -105,6 +105,14 @@ export function create_chapter(chapter: unknown): Chapter {
       }
     };
   }
+}
+
+function process_tags(tags: String[]): String[] {
+  // remove trailing or leading spaces
+  for (let i = 0; i < tags.length; i++) {
+    tags[i] = tags[i].trim();
+  }
+  return tags;
 }
 
 export function format_chapter(chapter: Chapter): String {
