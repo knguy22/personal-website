@@ -62,13 +62,14 @@ function NovelsTable({isUp, novels, sort_col, search_content}: NovelsTableProps)
   });
 
   // check sort_col is valid
-  if (!(sort_col in novels[0])) {
+  if (novels.length == 0) {
+    console.log("No novels found"); 
+  } else if (!(sort_col in novels[0])) {
     console.log("Invalid sort column: ", sort_col);
   } else {
     console.log("Valid sort column: ", sort_col);
   }
   console.log("Is up: ", isUp);
-
 
   // sort the novels
   const sorted_novels = novels.sort((a, b) => {
