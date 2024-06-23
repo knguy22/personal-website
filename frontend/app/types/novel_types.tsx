@@ -1,12 +1,14 @@
+export type NovelEntryCol = "country" | "title" | "chapter" | "rating" | "status" | "tags" | "notes" | "date_modified";
+
 export type NovelEntry = {
-    country: String,
-    title: String,
-    chapter: Chapter,
-    rating: Number,
-    status: String,
-    tags: String[],
-    notes: String,
-    date_modified: Date,
+  country: String,
+  title: String,
+  chapter: Chapter,
+  rating: Number,
+  status: String,
+  tags: String[],
+  notes: String,
+  date_modified: Date,
 }
 
 export type Chapter = Web | Novel | Invalid;
@@ -27,6 +29,46 @@ interface Novel {
 
 interface Invalid {
   kind: "Invalid",
+}
+
+export function compare_chapter(chapter1: Chapter, chapter2: Chapter): number {
+  // handle all invalid
+  if (chapter1.kind == "Invalid" && chapter2.kind == "Invalid") {
+    return 0;
+  }
+  else if (chapter1.kind == "Invalid") {
+    return -1;
+  }
+  else if (chapter2.kind == "Invalid") {
+    return 1;
+  }
+
+  // handle all web
+  if (chapter1.kind == "Web" && chapter2.kind == "Web") {
+    return Number(chapter1.Web) > Number(chapter2.Web) ? 1 : -1;
+  }
+  else if (chapter1.kind == "Web") {
+    return 1;
+  }
+  else if (chapter2.kind == "Web") {
+    return -1;
+  }
+
+  // handle all novel; both chapters must be novels at this point
+  if (chapter1.kind == "Novel" && chapter2.kind == "Novel") {
+    if (chapter1.Novel.volume != chapter2.Novel.volume) {
+      return chapter1.Novel.volume > chapter2.Novel.volume ? 1 : -1;
+    }
+    if (chapter1.Novel.chapter != chapter2.Novel.chapter) {
+      return chapter1.Novel.chapter > chapter2.Novel.chapter ? 1 : -1;
+    }
+    if (chapter1.Novel.part != chapter2.Novel.part) {
+      return chapter1.Novel.part > chapter2.Novel.part ? 1 : -1;
+    }
+    return 0;
+  }
+
+  throw new Error("Invalid chapters: " + chapter1.kind + ", " + chapter2.kind);
 }
 
 export function parse_novels(chapter: JSON[]): NovelEntry[] {
@@ -72,7 +114,7 @@ export function format_chapter(chapter: Chapter): String {
     case "Novel":
       return `V${chapter.Novel.volume}C${chapter.Novel.chapter}P${chapter.Novel.part}`;
     case "Invalid":
-      return "Invalid";
+      return "";
   }
 }
 

@@ -1,12 +1,13 @@
 'use client';
 
 import React, {useState, useEffect} from 'react';
-import {NovelEntry, create_chapter, format_chapter} from '../types/novel_types.tsx';
+import {NovelEntry, NovelEntryCol, compare_chapter, format_chapter, parse_novels} from '../types/novel_types.tsx';
 
 export function ClientPage() {
   const [novels, setNovels] = useState<NovelEntry[] | null>(null);
   const [isLoading, setLoading] = useState(true);
   const [isUp, setIsUp] = useState(false);
+  const [sort_col, setSortCol] = useState<NovelEntryCol>("rating");
 
   // load novels once
   useEffect(() => {
@@ -15,7 +16,7 @@ export function ClientPage() {
       try {
         const response = await fetch(novels_url);
         const novelsData = await response.json();
-        const convertedNovels = convert_novels(novelsData);
+        const convertedNovels = parse_novels(novelsData);
         setNovels(convertedNovels);
       } catch (error) {
         console.log(error);
@@ -36,8 +37,8 @@ export function ClientPage() {
 
   return (
     <>
-      <SortByDropdown {...{setState: setIsUp, isUp: isUp}}/>
-      <NovelsTable {...{isUp: isUp, novels: novels}}/>
+      <SortByDropdown {...{setIsUp: setIsUp, isUp: isUp, setSortCol: setSortCol}}/>
+      <NovelsTable {...{isUp: isUp, novels: novels, sort_col: sort_col}}/>
     </>
   );
 };
@@ -45,9 +46,35 @@ export function ClientPage() {
 type NovelsTableProps = {
   isUp: boolean,
   novels: NovelEntry[],
+  sort_col: NovelEntryCol,
 }
 
-function NovelsTable({isUp, novels}: NovelsTableProps) {
+function NovelsTable({isUp, novels, sort_col}: NovelsTableProps) {
+  // check sort_col is valid
+  if (!(sort_col in novels[0])) {
+    console.log("Invalid sort column: ", sort_col);
+  } else {
+    console.log("Valid sort column: ", sort_col);
+  }
+  console.log("Is up: ", isUp);
+
+
+  // sort the novels
+  const sorted_novels = novels.sort((a, b) => {
+    if (sort_col == "chapter") {
+      const res = compare_chapter(a[sort_col], b[sort_col]);
+      return isUp ? res : -res;
+    }
+
+    if (a[sort_col] < b[sort_col]) {
+      return isUp ? -1 : 1;
+    }
+    if (a[sort_col] > b[sort_col]) {
+      return isUp ? 1 : -1;
+    }
+    return 0;
+  });
+
   return (
     <table>
     <thead>
@@ -63,25 +90,12 @@ function NovelsTable({isUp, novels}: NovelsTableProps) {
       </tr>
     </thead>
     <tbody>
-      {novels.map((novel: NovelEntry, index: number) => (
+      {sorted_novels.map((novel: NovelEntry, index: number) => (
       <NovelEntryRow key={index} novel={novel}/>
       ))}
     </tbody>
     </table>
   );
-}
-
-function convert_novels(novels: NovelEntry[]): NovelEntry[] {
-  return novels.map((novel: NovelEntry) => ({
-    country: novel.country,
-    title: novel.title,
-    chapter: create_chapter(novel.chapter),
-    rating: novel.rating,
-    status: novel.status,
-    tags: novel.tags,
-    notes: novel.notes,
-    date_modified: novel.date_modified
-  }));
 }
 
 type NovelEntryRowProps = {
@@ -104,14 +118,18 @@ export function NovelEntryRow({ novel}: NovelEntryRowProps) {
 }
 
 type SortByDropdownProps = {
-  setState: React.Dispatch<React.SetStateAction<boolean>>,
+  setIsUp: React.Dispatch<React.SetStateAction<boolean>>,
   isUp: boolean,
+  setSortCol: React.Dispatch<React.SetStateAction<NovelEntryCol>>,
 }
 
-export function SortByDropdown({setState, isUp}: SortByDropdownProps) {
+export function SortByDropdown({setIsUp, isUp, setSortCol}: SortByDropdownProps) {
   return (
     <>
-      <select>
+      <select 
+        onChange={(e) => setSortCol(e.target.value as NovelEntryCol)}
+        // defaultValue={"rating"}
+      >
         <option value="country">Country</option>
         <option value="title">Title</option>
         <option value="chapter">Chapter</option>
@@ -122,7 +140,7 @@ export function SortByDropdown({setState, isUp}: SortByDropdownProps) {
         <option value="date_modified">Date Modified</option>
       </select>
       <button 
-        onClick={() => setState(!isUp)}
+        onClick={() => setIsUp(!isUp)}
         type="submit">{isUp ? "↑" : "↓"}
       </button>
     </>
