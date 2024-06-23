@@ -87,11 +87,24 @@ function NovelsTable({isUp, novels, sort_col, search_content, tags}: NovelsTable
 
   // sort the novels
   const sorted_novels = novels.sort((a, b) => {
+    // if the sort column is "chapter"
     if (sort_col == "chapter") {
       const res = compare_chapter(a[sort_col], b[sort_col]);
       return isUp ? res : -res;
     }
 
+    // always place empty towards bottom
+    if (a[sort_col] == "" && b[sort_col] == "") {
+      return 0;
+    }
+    if (a[sort_col] == "") {
+      return 1;
+    }
+    if (b[sort_col] == "") {
+      return -1;
+    }
+
+    // sort normally
     if (a[sort_col] < b[sort_col]) {
       return isUp ? -1 : 1;
     }
