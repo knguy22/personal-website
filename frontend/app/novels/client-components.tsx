@@ -26,6 +26,11 @@ export function NovelsTable({isUp, novels, sort_col, search_content, tags}: Nove
       if (novel.title.toLowerCase().includes(search_term.toLowerCase())) {
         return true;
       }
+
+      // if the content is included in the notes:
+      if (novel.notes.toLowerCase().includes(search_term.toLowerCase())) {
+        return true;
+      }
       return false;
     });
   }
