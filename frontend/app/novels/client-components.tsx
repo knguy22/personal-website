@@ -122,7 +122,7 @@ export function SortByDropdown({setIsUp, isUp, setSortCol}: SortByDropdownProps)
     <>
       <select 
         onChange={(e) => setSortCol(e.target.value as NovelEntryCol)}
-        // defaultValue={"rating"}
+        defaultValue={"rating"}
       >
         <option value="country">Country</option>
         <option value="title">Title</option>

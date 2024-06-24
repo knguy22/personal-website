@@ -4,11 +4,11 @@ mod db;
 mod entity;
 
 use std::{error::Error, env};
-use dotenv::dotenv;
 
 use axum::{
-    response::{Html, IntoResponse, Json}, extract::State, Router, routing::get
+    response::{Html, IntoResponse, Json}, extract::State, Router, routing::{get, post}
 };
+use dotenv::dotenv;
 use sea_orm::DatabaseConnection;
 
 // global state for routing
@@ -27,6 +27,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let app = Router::new()
         .route("/", get(main_handler))
         .route("/novels", get(novel_handler))
+        .route("/api/update_novels", post(update_novels_handler))
         .with_state(state);
 
     // run it
@@ -44,8 +45,13 @@ async fn main_handler() -> Html<&'static str> {
 }
 
 async fn novel_handler(state: State<AppState>) -> impl IntoResponse {
-    let novels = db::fetch_novel_entries_from_table(&state.conn).await.unwrap_or_default();
+    let novels = db::fetch_novel_entries(&state.conn).await.unwrap_or_default();
     Json(novels)
+}
+
+async fn update_novels_handler(state: State<AppState>, Json(rows): Json<Vec<novel_entry::NovelEntry>>) -> impl IntoResponse {
+    db::update_novel_entries(&state.conn, &rows).await.unwrap_or_default();
+    Json(rows)
 }
 
 async fn init() -> Result<DatabaseConnection, Box<dyn Error>> {
@@ -53,10 +59,10 @@ async fn init() -> Result<DatabaseConnection, Box<dyn Error>> {
     let csv_file: String = "../data.csv".to_string();
     let rows = import_csv::read_csv(&csv_file)?;
     let conn = db::init().await?;
-    let fetch_res = db::fetch_novel_entries_from_table(&conn).await?;
+    let fetch_res = db::fetch_novel_entries(&conn).await?;
     println!("{} rows fetched", fetch_res.len());
     
-    let insert_res = db::insert_novel_entries_into_table(&conn, &rows).await;
+    let insert_res = db::insert_novel_entries(&conn, &rows).await;
     match insert_res {
         Err(e) => println!("{:?}", e),
         _ => (),

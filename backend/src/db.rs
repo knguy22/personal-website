@@ -1,7 +1,16 @@
-use crate::novel_entry::{NovelEntry, model_to_novel_entry, novel_entry_to_model};
-use crate::entity::prelude::Novels;
+use crate::novel_entry::{model_to_novel_entry, novel_entry_to_active_model, NovelEntry};
+use crate::entity::{prelude::Novels, novels};
 use std::{error::Error, env, time::Duration};
-use sea_orm::{ConnectOptions, Database, DatabaseConnection, EntityTrait};
+use sea_orm::{
+    ActiveModelTrait,
+    ColumnTrait,
+    ConnectOptions,
+    entity::Set,
+    Database,
+    DatabaseConnection,
+    EntityTrait,
+    IntoActiveModel,
+    QueryFilter};
 
 pub async fn init() -> Result<DatabaseConnection, Box<dyn Error>> {
     // init database
@@ -37,9 +46,35 @@ pub async fn fetch_novel_entries(db: &DatabaseConnection) -> Result<Vec<NovelEnt
 pub async fn insert_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry>) -> Result<(), Box<dyn Error>>{
     let mut to_insert = Vec::new();
     for row in rows {
-        to_insert.push(novel_entry_to_model(row));
+        to_insert.push(novel_entry_to_active_model(row));
     }
 
     let _ = Novels::insert_many(to_insert).exec(db).await?;
+    Ok(())
+}
+
+pub async fn update_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry>) -> Result<(), Box<dyn Error>> {
+    for row in rows.iter() {
+        let model = Novels::find()
+            .filter(novels::Column::Title.eq(&row.title))
+            .one(db)
+            .await?;
+
+        if let Some(model) = model {
+            let mut active_model = model.into_active_model();
+            active_model.country = Set(Some(row.country.clone()));
+            active_model.chapter = Set(Some(row.chapter.to_str()));
+            active_model.rating = Set(Some(row.rating as i32));
+            active_model.status = Set(Some(row.status.to_str()));
+            active_model.tags = Set(serde_json::to_value(row.tags.clone()).unwrap());
+            active_model.notes = Set(Some(row.notes.clone()));
+            active_model.date_modified = Set(row.date_modified.naive_utc());
+            active_model.update(db).await?;
+        }
+        else {
+            Novels::insert(novel_entry_to_active_model(row)).exec(db).await?;
+        }
+    }
+
     Ok(())
 }

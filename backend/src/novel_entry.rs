@@ -106,7 +106,7 @@ impl NovelEntry {
     }
 }
 
-pub fn novel_entry_to_model(novel: &NovelEntry) -> novels::ActiveModel {
+pub fn novel_entry_to_active_model(novel: &NovelEntry) -> novels::ActiveModel {
     novels::Model { 
         country: Some(novel.country.clone()), 
         title: novel.title.clone(), 
