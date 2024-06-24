@@ -28,15 +28,17 @@ import {
 } from "@/components/ui/table"
 
 import { Button } from "./button"
- 
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  setData: React.Dispatch<React.SetStateAction<TData[]>>
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  setData,
 }: DataTableProps<TData, TValue>) {
 
   const [pagination, setPagination] = React.useState({
@@ -58,6 +60,21 @@ export function DataTable<TData, TValue>({
       pagination,
       sorting,
     },
+    meta: {
+      updateData: (rowIndex: number, columnId: string, value: string) => {
+        setData((old) =>
+          old.map((row, index) => {
+            if (index === rowIndex) {
+              return {
+                ...old[rowIndex],
+                [columnId]: value,
+              };
+            }
+            return row;
+          })
+        );
+      },
+    }
   })
  
   return (

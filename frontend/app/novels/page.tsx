@@ -7,8 +7,8 @@ import "./local.css"
 
 export default function Novels() {
   const [isLoading, setLoading] = useState(true);
-  const [novels, setNovels] = useState<NovelEntry[] | null>(null);
-  const [processed_novels, setProcessedNovels] = useState<NovelEntry[] | null>(null);
+  const [novels, setNovels] = useState<NovelEntry[]>([]);
+  const [processed_novels, setProcessedNovels] = useState<NovelEntry[]>([]);
   const [search_content, setSearchContent] = useState<string>("");
 
   // load raw novels once
@@ -60,7 +60,6 @@ export default function Novels() {
         return false;
       });
     }
-    console.log(tmp_novels.slice(0, 5));
 
     setProcessedNovels(tmp_novels);
   }, [novels, search_content]);
@@ -75,7 +74,7 @@ export default function Novels() {
   return (
     <>
       <SearchBar {...{setContent: setSearchContent}}/>
-      <DataTable columns={novel_columns} data={processed_novels}/>
+      <DataTable columns={novel_columns} data={processed_novels} setData={setNovels}/>
     </>
   );
 };

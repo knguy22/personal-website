@@ -5,6 +5,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { NovelEntry, Chapter, compare_chapter } from './novel_types';
+import { InputCell } from '@/components/ui/input-cell';
 
 export const novel_columns: ColumnDef<NovelEntry>[] = [
   {
@@ -20,6 +21,7 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
         </Button>
       )
     },
+    cell: InputCell,
   },
   {
     accessorKey: "title",
@@ -34,6 +36,7 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
         </Button>
       )
     },
+    cell: InputCell,
   },
   {
     accessorKey: "chapter",
@@ -79,6 +82,7 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
         </Button>
       )
     },
+    cell: InputCell,
   },
   {
     accessorKey: "status",
@@ -93,6 +97,7 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
         </Button>
       )
     },
+    cell: InputCell,
   },
   {
     accessorKey: "tags",
@@ -125,6 +130,7 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
         </Button>
       )
     },
+    cell: InputCell,
   },
   {
     accessorKey: "date_modified",
@@ -139,9 +145,9 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
         </Button>
       )
     },
+    cell: InputCell,
   },
 ]
-
 
 type SearchBarProps = {
   setContent: React.Dispatch<React.SetStateAction<string>>,
