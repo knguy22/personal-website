@@ -1,7 +1,8 @@
-use csv;
 use crate::novel_entry::{Status, Chapters, NovelEntry};
-use chrono::Local;
 use std::error::Error;
+
+use csv;
+use chrono::Local;
 
 type Record = (Option<String>, Option<String>, Option<String>, Option<u32>, Option<String>, Option<String>, Option<String>);
 

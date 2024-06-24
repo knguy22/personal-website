@@ -1,6 +1,10 @@
+use crate::entity::novels;
+use std::error::Error;
+
 use chrono::{DateTime, Utc};
-use strum;
+use sea_orm::{IntoActiveModel, JsonValue};
 use serde::{Deserialize, Serialize};
+use strum;
 
 #[derive(Clone, Debug, PartialEq, strum::EnumString, Deserialize, Serialize)]
 pub enum Status {
@@ -99,5 +103,49 @@ impl NovelEntry {
         self.status == Status::Invalid &&
         self.tags.is_empty() &&
         self.notes.is_empty()
+    }
+}
+
+pub fn novel_entry_to_model(novel: &NovelEntry) -> novels::ActiveModel {
+    novels::Model { 
+        country: Some(novel.country.clone()), 
+        title: novel.title.clone(), 
+        chapter: Some(novel.chapter.to_str()), 
+        rating: Some(novel.rating as i32), 
+        status: Some(novel.status.to_str()), 
+        tags: serde_json::to_value(novel.tags.clone()).unwrap(),
+        notes: Some(novel.notes.clone()), 
+        date_modified: novel.date_modified.naive_utc(),
+    }.into_active_model()
+}
+
+pub fn model_to_novel_entry(model: novels::Model) -> NovelEntry {
+    NovelEntry {
+        country: model.country.unwrap_or_default(),
+        title: model.title.clone(), 
+        chapter: Chapters::new(&model.chapter.unwrap_or_default()),
+        rating: model.rating.unwrap_or_default() as u32,
+        status: Status::new(&model.status.unwrap_or_default()),
+        tags: json_value_to_vec_str(&model.tags).unwrap_or_default(),
+        notes: model.notes.unwrap_or_default(), 
+        date_modified: model.date_modified.and_utc(),
+    }
+}
+
+fn json_value_to_vec_str(val: &JsonValue) -> Result<Vec<String>, Box<dyn Error>> {
+    match val {
+        JsonValue::Array(arr) => {
+            let mut vec = Vec::new();
+            for item in arr {
+                if let JsonValue::String(s) = item {
+                    vec.push(s.clone());
+                }
+                else {
+                    return Err("Not all elements in JSON value are strings".into())
+                }
+            }
+            Ok(vec)
+        }
+        _ => Err("The JSON value is not an array".into()),
     }
 }
