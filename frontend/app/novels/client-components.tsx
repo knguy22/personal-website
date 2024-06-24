@@ -1,16 +1,16 @@
 'use client';
 
 import {NovelEntry, NovelEntryCol, compare_chapter, format_chapter} from '../types/novel_types.tsx';
+import { cn } from '@/lib/utils.ts';
 
 type NovelsTableProps = {
   isUp: boolean,
   novels: NovelEntry[],
   sort_col: NovelEntryCol,
   search_content: string,
-  tags: String[]
 }
 
-export function NovelsTable({isUp, novels, sort_col, search_content, tags}: NovelsTableProps) {
+export function NovelsTable({isUp, novels, sort_col, search_content}: NovelsTableProps) {
   // split the search content into parseable strings
   const cleaned_search_content: String[] = search_content.split(",").filter((content) => content.length > 0);
 
@@ -155,6 +155,10 @@ export function SearchBar({setContent}: SearchBarProps) {
     <input 
       type="text" 
       placeholder="Search By Params"
+      className={cn(
+        "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+        "max-w-sm"
+      )}
       onChange={(e) => setContent(e.target.value)}
     />
   );

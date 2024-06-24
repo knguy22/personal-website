@@ -1,3 +1,7 @@
+"use client";
+
+import { ColumnDef } from "@tanstack/react-table"
+
 export type NovelEntryCol = "country" | "title" | "chapter" | "rating" | "status" | "tags" | "notes" | "date_modified";
 
 export type NovelEntry = {
@@ -10,6 +14,57 @@ export type NovelEntry = {
   notes: String,
   date_modified: Date,
 }
+
+export const novel_columns: ColumnDef<NovelEntry>[] = [
+  {
+    accessorKey: "country",
+    header: "Country",
+  },
+  {
+    accessorKey: "title",
+    header: "Title",
+  },
+  {
+    accessorKey: "chapter",
+    header: "Chapter",
+    cell: ({ getValue }) => {
+      const value = getValue<Chapter>();
+      if (value.kind == "Web") {
+        return String(value.Web);
+      }
+      else if (value.kind == "Novel") {
+        return `${value.Novel.volume}.${value.Novel.chapter}.${value.Novel.part}`;
+      }
+      else {
+        return "Invalid";
+      }
+    }
+  },
+  {
+    accessorKey: "rating",
+    header: "Rating",
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+  },
+  {
+    accessorKey: "tags",
+    header: "Tags",
+    cell: ({ getValue }) => {
+      const value = getValue<String[]>();
+      return value.join(", ");
+    }
+  },
+  {
+    accessorKey: "notes",
+    header: "Notes",
+  },
+  {
+    accessorKey: "date_modified",
+    header: "Date Modified",
+  },
+]
 
 export type Chapter = Web | Novel | Invalid;
 
