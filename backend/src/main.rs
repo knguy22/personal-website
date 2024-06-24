@@ -50,8 +50,11 @@ async fn novel_handler(state: State<AppState>) -> impl IntoResponse {
 }
 
 async fn update_novels_handler(state: State<AppState>, Json(rows): Json<Vec<novel_entry::NovelEntry>>) -> impl IntoResponse {
-    db::update_novel_entries(&state.conn, &rows).await.unwrap_or_default();
-    Json(rows)
+    let res = db::update_novel_entries(&state.conn, &rows).await;
+    match res {
+        Ok(()) => Json(format!(r#"{{"Success": true, "Rows": "{}"}}"#, rows.len())),
+        Err(_) => Json(r#"{"Success": false}"#.to_string()),
+    }
 }
 
 async fn init() -> Result<DatabaseConnection, Box<dyn Error>> {
@@ -67,6 +70,7 @@ async fn init() -> Result<DatabaseConnection, Box<dyn Error>> {
         Err(e) => println!("{:?}", e),
         _ => (),
     }
+    let _ = db::update_novel_entries(&conn, &rows).await;
 
     Ok(conn)
 }
