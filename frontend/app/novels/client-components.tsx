@@ -135,34 +135,31 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
         </Button>
       )
     },
-    cell: ({ getValue, row, _column, _table }: any) => { 
-      const initialValue = getValue();
-      const [date, setDate] = useState(new Date);
-      const [row_copy, setRowCopy] = useState(row);
-
-      useEffect(() => {
-        setDate(initialValue);
-        setRowCopy(row);
-      }, []);
-      
-      useEffect(() => {
-        if (novel_entries_equal(row['original'], row_copy['original'])) {
-          setDate(date);
-          setRowCopy(row_copy);
-        }
-        else {
-          setDate(new Date);
-          setRowCopy(row);
-        }
-      }, [row]);
-
-      return date.toISOString();
-    }
+    cell: DateCell,
   },
 ]
 
 type SearchBarProps = {
   setContent: React.Dispatch<React.SetStateAction<string>>,
+}
+
+function DateCell ({ getValue, row, column, table } : any) {
+  const initialValue = new Date(getValue());
+  const [date, setDate] = useState(initialValue);
+  const [row_copy, setRowCopy] = useState(row);
+
+  useEffect(() => {
+    if (novel_entries_equal(row['original'], row_copy['original'])) {
+      setDate(date);
+      setRowCopy(row_copy);
+    }
+    else {
+      setDate(new Date);
+      setRowCopy(row);
+    }
+  }, [row, row_copy, date]);
+
+  return date.toISOString();
 }
 
 export function SearchBar({setContent}: SearchBarProps) {
