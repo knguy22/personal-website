@@ -1,4 +1,4 @@
-use crate::novel_entry::{Status, Chapters, NovelEntry};
+use crate::novel_entry::{Status, NovelEntry};
 use std::error::Error;
 
 use csv;
@@ -26,7 +26,7 @@ pub fn read_csv(csv_file: &String) -> Result<Vec<NovelEntry>, Box<dyn Error>> {
         let record = NovelEntry{
             country: t.0.unwrap_or_default(),
             title: t.1.unwrap_or_default(),
-            chapter: Chapters::new(&t.2.unwrap_or_default()),
+            chapter: t.2.unwrap_or_default(),
             rating: t.3.unwrap_or_default(),
             status: Status::new(&t.4.unwrap_or_default()),
             tags: NovelEntry::parse_tags(&t.5.unwrap_or_default()),

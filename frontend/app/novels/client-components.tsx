@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils.ts';
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown} from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { NovelEntry, Chapter, compare_chapter } from './novel_types';
+import { NovelEntry } from './novel_types';
 import { InputCell } from '@/components/ui/input-cell';
 
 export const novel_columns: ColumnDef<NovelEntry>[] = [
@@ -51,23 +51,7 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
         </Button>
       )
     },
-
-    cell: ({ getValue }) => {
-      const value = getValue<Chapter>();
-      if (value.kind == "Web") {
-        return String(value.Web);
-      }
-      else if (value.kind == "Novel") {
-        return `V${value.Novel.volume}.C${value.Novel.chapter}.P${value.Novel.part}`;
-      }
-      else {
-        return "Invalid";
-      }
-    },
-
-    sortingFn: (rowA, rowB, columnId) => {
-      return compare_chapter(rowA.getValue(columnId), rowB.getValue(columnId));
-    }
+    cell: InputCell,
   },
   {
     accessorKey: "rating",

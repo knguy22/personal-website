@@ -63,7 +63,7 @@ pub async fn update_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry
         if let Some(model) = model {
             let mut active_model = model.into_active_model();
             active_model.country = Set(Some(row.country.clone()));
-            active_model.chapter = Set(Some(row.chapter.to_str()));
+            active_model.chapter = Set(Some(row.chapter.clone()));
             active_model.rating = Set(Some(row.rating as i32));
             active_model.status = Set(Some(row.status.to_str()));
             active_model.tags = Set(serde_json::to_value(row.tags.clone()).unwrap());
