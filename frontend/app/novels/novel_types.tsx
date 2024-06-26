@@ -8,7 +8,7 @@ export type NovelEntry = {
   chapter: String,
   rating: Number,
   status: String,
-  tags: String[],
+  tags: String,
   notes: String,
   date_modified: Date,
 }
@@ -20,7 +20,7 @@ export function parse_novels(unprocessed_novels: NovelEntry[]): NovelEntry[] {
     chapter: novel.chapter,
     rating: novel.rating,
     status: novel.status,
-    tags: process_tags(novel.tags),
+    tags: novel.tags,
     notes: novel.notes,
     date_modified: novel.date_modified
   }));
@@ -28,12 +28,8 @@ export function parse_novels(unprocessed_novels: NovelEntry[]): NovelEntry[] {
   return novels;
 }
 
-function process_tags(tags: String[]): String[] {
-  // remove trailing or leading spaces
-  for (let i = 0; i < tags.length; i++) {
-    tags[i] = tags[i].trim();
-  }
-  return tags;
+export function process_tags(tags: String): String[] {
+  return tags.split(',').map((tag) => tag.trim());
 }
 
 function isJSON(obj: unknown): boolean {

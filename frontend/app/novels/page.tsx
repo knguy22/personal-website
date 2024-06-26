@@ -1,6 +1,6 @@
 'use client';
 import React, {useState, useEffect} from 'react';
-import {NovelEntry, parse_novels} from './novel_types.tsx';
+import {NovelEntry, parse_novels, process_tags} from './novel_types.tsx';
 import {SearchBar, novel_columns} from './client-components.tsx';
 import { DataTable } from '@/components/ui/data-table.tsx';
 import "./local.css"
@@ -43,8 +43,10 @@ export default function Novels() {
     // filter the novels
     for (const search_term of cleaned_search_content) {
       tmp_novels = tmp_novels.filter((novel) => {
+        const tags = process_tags(novel.tags);
+
         // if the content includes a tag:
-        if (novel.tags.some((tag) => tag.toLowerCase().includes(search_term.toLowerCase()))) {
+        if (tags.some((tag) => tag.toLowerCase().includes(search_term.toLowerCase()))) {
           return true;
         }
 

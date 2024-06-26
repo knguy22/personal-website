@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils.ts';
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown} from "lucide-react"
@@ -96,10 +97,7 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
         </Button>
       )
     },
-    cell: ({ getValue }) => {
-      const value = getValue<String[]>();
-      return value.join(", ");
-    }
+    cell: InputCell,
   },
   {
     accessorKey: "notes",
