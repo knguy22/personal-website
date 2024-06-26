@@ -5,8 +5,16 @@ import { cn } from '@/lib/utils.ts';
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown} from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { NovelEntry } from './novel_types';
+import { Row, Column } from "@tanstack/react-table"
+import { NovelEntry, novel_entries_equal } from './novel_types';
 import { InputCell } from '@/components/ui/input-cell';
+
+interface DateCellProps <TData> {
+  getValue: () => Date
+  row: Row<TData>
+  column: Column<TData, unknown>
+  table: any
+}
 
 export const novel_columns: ColumnDef<NovelEntry>[] = [
   {
@@ -127,7 +135,29 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
         </Button>
       )
     },
-    cell: InputCell,
+    cell: ({ getValue, row, _column, _table }: any) => { 
+      const initialValue = getValue();
+      const [date, setDate] = useState(new Date);
+      const [row_copy, setRowCopy] = useState(row);
+
+      useEffect(() => {
+        setDate(initialValue);
+        setRowCopy(row);
+      }, []);
+      
+      useEffect(() => {
+        if (novel_entries_equal(row['original'], row_copy['original'])) {
+          setDate(date);
+          setRowCopy(row_copy);
+        }
+        else {
+          setDate(new Date);
+          setRowCopy(row);
+        }
+      }, [row]);
+
+      return date.toISOString();
+    }
   },
 ]
 
