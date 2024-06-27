@@ -9,13 +9,6 @@ import { Row, Column } from "@tanstack/react-table"
 import { NovelEntry, novel_entries_equal } from './novel_types';
 import { InputCell } from '@/components/ui/input-cell';
 
-interface DateCellProps <TData> {
-  getValue: () => Date
-  row: Row<TData>
-  column: Column<TData, unknown>
-  table: any
-}
-
 export const novel_columns: ColumnDef<NovelEntry>[] = [
   {
     accessorKey: "country",
@@ -139,10 +132,6 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
   },
 ]
 
-type SearchBarProps = {
-  setContent: React.Dispatch<React.SetStateAction<string>>,
-}
-
 function DateCell ({ getValue, row, column, table } : any) {
   const initialValue = new Date(getValue());
   const [date, setDate] = useState(initialValue);
@@ -160,6 +149,10 @@ function DateCell ({ getValue, row, column, table } : any) {
   }, [row, row_copy, date]);
 
   return date.toISOString();
+}
+
+interface SearchBarProps {
+  setContent: React.Dispatch<React.SetStateAction<string>>,
 }
 
 export function SearchBar({setContent}: SearchBarProps) {

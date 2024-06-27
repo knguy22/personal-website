@@ -17,7 +17,14 @@ export default function Novels() {
       const novels_url = process.env.NEXT_PUBLIC_API_URL + '/novels';
       try {
         const response = await fetch(novels_url);
-        const novelsData = await response.json();
+        let novelsData = await response.json();
+        // tags initialially come as a list; need to convert to a string
+        novelsData = novelsData.map((novel: any) => {
+          return {
+            ...novel,
+            tags: novel.tags.join(','),
+          };
+        })
         const convertedNovels = parse_novels(novelsData);
         setNovels(convertedNovels);
       } catch (error) {
