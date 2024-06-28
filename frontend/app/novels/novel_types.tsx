@@ -39,7 +39,7 @@ export function parse_novels(unprocessed_novels: NovelEntryApi[]): NovelEntry[] 
   return novels;
 }
 
-export function update_backend_novel(novel: NovelEntry): void {
+export async function update_backend_novel(novel: NovelEntry): Promise<void> {
   const backend_url = process.env.BACKEND_URL + '/api/update_novels';
 
   const to_send: NovelEntryApi = {
@@ -53,14 +53,12 @@ export function update_backend_novel(novel: NovelEntry): void {
     date_modified: novel.date_modified
   };
 
-  console.log("Updating novel: " + JSON.stringify(to_send));
-
-  fetch(backend_url, {
+  const res = await fetch(backend_url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(to_send),
+    body: '[' + JSON.stringify(to_send) + ']',
   });
 }
 

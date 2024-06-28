@@ -159,15 +159,16 @@ function DateCell ({ getValue, row, c, t } : any) {
       setRowCopy(row_copy);
     }
     else {
+      const frontend_api_url = process.env.NEXT_PUBLIC_API_URL + '/update_novel';
       setDate(new Date);
       setRowCopy(row);
-      // fetch(process.env.NEXT_PUBLIC_API_URL + '/update_novel', {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify(row_copy['original']),
-      // })
+      fetch(frontend_api_url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(incoming),
+      })
     }
   }, [row, row_copy, date]);
 
