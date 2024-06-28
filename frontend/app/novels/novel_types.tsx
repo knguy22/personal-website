@@ -1,5 +1,16 @@
 "use client";
 
+export type NovelEntryApi = {
+  country: string,
+  title: string,
+  chapter: string,
+  rating: number,
+  status: string,
+  tags: string[],
+  notes: string,
+  date_modified: Date,
+}
+
 export type NovelEntry = {
   country: string,
   title: string,
@@ -10,16 +21,17 @@ export type NovelEntry = {
   notes: string,
   date_modified: Date,
 }
+
 const novel_col_names: (keyof NovelEntry)[] = ["country", "title", "chapter", "rating", "status", "tags", "notes", "date_modified"];
 
-export function parse_novels(unprocessed_novels: NovelEntry[]): NovelEntry[] {
-  const novels: NovelEntry[] = unprocessed_novels.map((novel: any) => ({
+export function parse_novels(unprocessed_novels: NovelEntryApi[]): NovelEntry[] {
+  const novels: NovelEntry[] = unprocessed_novels.map((novel: NovelEntryApi) => ({
     country: novel.country,
     title: novel.title,
     chapter: novel.chapter,
     rating: novel.rating,
     status: novel.status,
-    tags: novel.tags,
+    tags: novel.tags.join(","),
     notes: novel.notes,
     date_modified: novel.date_modified
   }));
@@ -27,7 +39,32 @@ export function parse_novels(unprocessed_novels: NovelEntry[]): NovelEntry[] {
   return novels;
 }
 
-export function process_tags(tags: String): String[] {
+export function update_backend_novel(novel: NovelEntry): void {
+  const backend_url = process.env.BACKEND_URL + '/api/update_novels';
+
+  const to_send: NovelEntryApi = {
+    country: novel.country,
+    title: novel.title,
+    chapter: novel.chapter,
+    rating: novel.rating,
+    status: novel.status,
+    tags: process_tags(novel.tags),
+    notes: novel.notes,
+    date_modified: novel.date_modified
+  };
+
+  console.log("Updating novel: " + JSON.stringify(to_send));
+
+  fetch(backend_url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(to_send),
+  });
+}
+
+export function process_tags(tags: string): string[] {
   return tags.split(',').map((tag) => tag.trim());
 }
 

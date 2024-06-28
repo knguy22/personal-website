@@ -5,8 +5,8 @@ import { cn } from '@/lib/utils.ts';
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown} from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Row, Column } from "@tanstack/react-table"
-import { NovelEntry, novel_entries_equal } from './novel_types';
+import { Row, Column, Table } from "@tanstack/react-table";
+import { NovelEntry, novel_entries_equal, update_backend_novel } from './novel_types';
 import { InputCell } from '@/components/ui/input-cell';
 
 export const novel_columns: ColumnDef<NovelEntry>[] = [
@@ -132,19 +132,40 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
   },
 ]
 
-function DateCell ({ getValue, row, column, table } : any) {
+// "any" used to be compatible with tanstack table
+function DateCell ({ getValue, row, c, t } : any) {
+  // logic
   const initialValue = new Date(getValue());
   const [date, setDate] = useState(initialValue);
   const [row_copy, setRowCopy] = useState(row);
 
   useEffect(() => {
+    const copy: NovelEntry = row_copy['original'];
+    const incoming: NovelEntry = row['original'];
+
+    // filtering or sorting can assign a row with a different key to the current row
+    if (copy.title != incoming.title) {
+      setDate(date);
+      return;
+    }
+    console.log(copy, incoming);
+
+    // if the row has the same key, check for changes
     if (novel_entries_equal(row['original'], row_copy['original'])) {
       setDate(date);
       setRowCopy(row_copy);
     }
     else {
+      console.log(row['original'], row_copy['original']);
       setDate(new Date);
       setRowCopy(row);
+      // fetch(process.env.NEXT_PUBLIC_API_URL + '/update_novel', {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify(row_copy['original']),
+      // })
     }
   }, [row, row_copy, date]);
 
