@@ -1,11 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { cn } from '@/lib/utils.ts';
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown} from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Row, Column, Table } from "@tanstack/react-table";
 import { NovelEntry, novel_entries_equal, process_tags, update_backend_novel } from './novel_types';
 import { InputCell } from '@/components/ui/input-cell';
 
@@ -174,54 +172,4 @@ function DateCell ({ getValue, row, c, t } : any) {
   }, [row, row_copy, date]);
 
   return date.toISOString();
-}
-
-export const filterNovelEntry = (
-  row: Row<NovelEntry>,
-  columnId: string,
-  value: string
-) => {
-  // split the search content into individual terms
-  const search_terms: String[] = value.split(",").filter((content) => content.length > 0);
-  const novel: NovelEntry = row.getValue("original");
-
-  // filter the novel
-  for (const search_term of search_terms) {
-    const tags = process_tags(novel.tags);
-
-    // if the tags include the term:
-    if (tags.some((tag) => tag.toLowerCase().includes(search_term.toLowerCase()))) {
-      return true;
-    }
-
-    // if the title includes the term:
-    if (novel.title.toLowerCase().includes(search_term.toLowerCase())) {
-      return true;
-    }
-
-    // if the notes include the term:
-    if (novel.notes.toLowerCase().includes(search_term.toLowerCase())) {
-      return true;
-    }
-  }
-
-    return false;
-}
-
-interface SearchBarProps {
-  setContent: React.Dispatch<React.SetStateAction<string>>,
-}
-
-export function SearchBar({setContent}: SearchBarProps) {
-  return (
-    <input 
-      type="text" 
-      placeholder="Search By Params"
-      className={cn(
-        "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-        "max-w-sm"
-      )}
-      onChange={(e) => setContent(e.target.value)}
-    />
-  );
 }

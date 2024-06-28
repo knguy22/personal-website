@@ -31,8 +31,7 @@ import {
 import { Button } from "../../components/ui/button"
 import { Input } from "@/components/ui/input"
 
-import { SearchBar, filterNovelEntry } from "./client-components"
-import { novel_col_names, NovelEntry } from "./novel_types"
+import { NovelEntry } from "./novel_types"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
