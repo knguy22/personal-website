@@ -22,7 +22,7 @@ export type NovelEntry = {
   date_modified: Date,
 }
 
-const novel_col_names: (keyof NovelEntry)[] = ["country", "title", "chapter", "rating", "status", "tags", "notes", "date_modified"];
+export const novel_col_names: (keyof NovelEntry)[] = ["country", "title", "chapter", "rating", "status", "tags", "notes", "date_modified"];
 
 export function parse_novels(unprocessed_novels: NovelEntryApi[]): NovelEntry[] {
   const novels: NovelEntry[] = unprocessed_novels.map((novel: NovelEntryApi) => ({

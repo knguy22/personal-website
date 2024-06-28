@@ -6,7 +6,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Row, Column, Table } from "@tanstack/react-table";
-import { NovelEntry, novel_entries_equal, update_backend_novel } from './novel_types';
+import { NovelEntry, novel_entries_equal, process_tags, update_backend_novel } from './novel_types';
 import { InputCell } from '@/components/ui/input-cell';
 
 export const novel_columns: ColumnDef<NovelEntry>[] = [
@@ -23,6 +23,7 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
         </Button>
       )
     },
+    filterFn: 'includesString',
     cell: InputCell,
   },
   {
@@ -38,6 +39,7 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
         </Button>
       )
     },
+    filterFn: 'includesString',
     cell: InputCell,
   },
   {
@@ -68,6 +70,7 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
         </Button>
       )
     },
+    filterFn: 'equalsString',
     cell: InputCell,
   },
   {
@@ -83,6 +86,7 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
         </Button>
       )
     },
+    filterFn: 'includesString',
     cell: InputCell,
   },
   {
@@ -98,6 +102,7 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
         </Button>
       )
     },
+    filterFn: 'includesString',
     cell: InputCell,
   },
   {
@@ -113,6 +118,7 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
         </Button>
       )
     },
+    filterFn: 'includesString',
     cell: InputCell,
   },
   {
@@ -148,7 +154,6 @@ function DateCell ({ getValue, row, c, t } : any) {
       setDate(date);
       return;
     }
-    console.log(copy, incoming);
 
     // if the row has the same key, check for changes
     if (novel_entries_equal(row['original'], row_copy['original'])) {
@@ -156,7 +161,6 @@ function DateCell ({ getValue, row, c, t } : any) {
       setRowCopy(row_copy);
     }
     else {
-      console.log(row['original'], row_copy['original']);
       setDate(new Date);
       setRowCopy(row);
       // fetch(process.env.NEXT_PUBLIC_API_URL + '/update_novel', {
@@ -170,6 +174,38 @@ function DateCell ({ getValue, row, c, t } : any) {
   }, [row, row_copy, date]);
 
   return date.toISOString();
+}
+
+export const filterNovelEntry = (
+  row: Row<NovelEntry>,
+  columnId: string,
+  value: string
+) => {
+  // split the search content into individual terms
+  const search_terms: String[] = value.split(",").filter((content) => content.length > 0);
+  const novel: NovelEntry = row.getValue("original");
+
+  // filter the novel
+  for (const search_term of search_terms) {
+    const tags = process_tags(novel.tags);
+
+    // if the tags include the term:
+    if (tags.some((tag) => tag.toLowerCase().includes(search_term.toLowerCase()))) {
+      return true;
+    }
+
+    // if the title includes the term:
+    if (novel.title.toLowerCase().includes(search_term.toLowerCase())) {
+      return true;
+    }
+
+    // if the notes include the term:
+    if (novel.notes.toLowerCase().includes(search_term.toLowerCase())) {
+      return true;
+    }
+  }
+
+    return false;
 }
 
 interface SearchBarProps {

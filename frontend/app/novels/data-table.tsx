@@ -1,7 +1,6 @@
 /**
  * Table from shadcn-ui
  * A basic table that renders only data and columns
- * Extraneous features like sorting and filtering should be implemented by mutating the data and columsn passed
 */
 
 "use client"
@@ -10,10 +9,12 @@ import * as React from "react"
 
 import {
   ColumnDef,
+  ColumnFiltersState,
   SortingState,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
+  getFilteredRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
@@ -27,7 +28,11 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-import { Button } from "./button"
+import { Button } from "../../components/ui/button"
+import { Input } from "@/components/ui/input"
+
+import { SearchBar, filterNovelEntry } from "./client-components"
+import { novel_col_names, NovelEntry } from "./novel_types"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -41,12 +46,18 @@ export function DataTable<TData, TValue>({
   setData,
 }: DataTableProps<TData, TValue>) {
 
+
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 50,
   });
 
   const [sorting, setSorting] = React.useState<SortingState>([])
+
+  const [searchContent, setSearchContent] = React.useState<string>("");
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  )
 
   const table = useReactTable({
     data,
@@ -56,9 +67,12 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
     state: {
       pagination,
       sorting,
+      columnFilters,
     },
     meta: {
       updateData: (rowIndex: number, columnId: string, value: string) => {
@@ -76,9 +90,47 @@ export function DataTable<TData, TValue>({
       },
     }
   })
- 
+
   return (
     <div>
+      <div className="flex items-center py-4">
+        <Filter
+          table={table}
+          placeholder="Filter countries..."
+          col_name="country"
+        />
+
+        <Filter
+          table={table}
+          placeholder="Filter titles..."
+          col_name="title"
+        />
+
+        <Filter
+          table={table}
+          placeholder="Filter tags..."
+          col_name="tags"
+        />
+
+        <Filter
+          table={table}
+          placeholder="Filter rating..."
+          col_name="rating"
+        />
+
+        <Filter
+          table={table}
+          placeholder="Filter status..."
+          col_name="status"
+        />
+
+        <Filter
+          table={table}
+          placeholder="Filter notes..."
+          col_name="notes"
+        />
+      </div>
+
       <PaginationButton table={table} />
       <div className="rounded-md border">
         <Table>
@@ -128,6 +180,29 @@ export function DataTable<TData, TValue>({
     </div>
   )
 }
+
+interface FilterProps {
+  table: any
+  placeholder: string
+  col_name: keyof NovelEntry
+}
+
+function Filter({table, placeholder, col_name}: FilterProps) {
+  return (
+    <div className="flex items-center space-x-2 pr-2">
+      <Input
+        placeholder={placeholder}
+        value={(table.getColumn(col_name)?.getFilterValue() as string) ?? ""}
+        onChange={(event) => {
+          table.getColumn(col_name)?.setFilterValue(event.target.value);
+          }
+        }
+        className="max-w-sm"
+      />
+    </div>
+  )
+}
+
 
 interface PaginationProps {
   table: any
