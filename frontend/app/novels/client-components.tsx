@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown} from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { NovelEntry, novel_entries_equal, process_tags, update_backend_novel } from './novel_types';
+import { NovelEntry, novel_entries_equal } from './novel_types';
 import { InputCell } from '@/components/ui/input-cell';
 
 export const novel_columns: ColumnDef<NovelEntry>[] = [
@@ -138,9 +138,8 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
 
 // "any" used to be compatible with tanstack table
 function DateCell ({ getValue, row, c, t } : any) {
-  // logic
-  const initialValue = new Date(getValue());
-  const [date, setDate] = useState(initialValue);
+
+  const [date, setDate] = useState<Date>(new Date(getValue()));
   const [row_copy, setRowCopy] = useState(row);
 
   useEffect(() => {
@@ -149,7 +148,8 @@ function DateCell ({ getValue, row, c, t } : any) {
 
     // filtering or sorting can assign a row with a different key to the current row
     if (copy.title != incoming.title) {
-      setDate(date);
+      setDate(incoming.date_modified);
+      setRowCopy(row);
       return;
     }
 
@@ -160,15 +160,24 @@ function DateCell ({ getValue, row, c, t } : any) {
     }
     else {
       const frontend_api_url = process.env.NEXT_PUBLIC_API_URL + '/update_novel';
-      setDate(new Date);
+      const new_date = new Date;
+
+      setDate(new_date);
       setRowCopy(row);
-      fetch(frontend_api_url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(incoming),
-      })
+
+      // incoming doesn't have an updated date
+      const to_send = { ...incoming, date_modified: new_date.toISOString() };
+      try {
+        fetch(frontend_api_url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(to_send),
+        })
+      } catch (error) {
+        console.log("Fetch api error: " + error);
+      }
     }
   }, [row, row_copy, date]);
 

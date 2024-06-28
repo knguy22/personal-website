@@ -45,11 +45,17 @@ async fn main_handler() -> Html<&'static str> {
 }
 
 async fn novel_handler(state: State<AppState>) -> impl IntoResponse {
+    println!("Fetching novels");
     let novels = db::fetch_novel_entries(&state.conn).await.unwrap_or_default();
+    println!("Fetched novels size {}", novels.len());
     Json(novels)
 }
 
 async fn update_novels_handler(state: State<AppState>, Json(rows): Json<Vec<novel_entry::NovelEntry>>) -> impl IntoResponse {
+    println!("Updating novels {}", rows.len());
+    for row in rows.iter() {
+        println!("{:?}", row);
+    }
     let res = db::update_novel_entries(&state.conn, &rows).await;
     match res {
         Ok(()) => Json(format!(r#"{{"Success": true, "Rows": "{}"}}"#, rows.len())),
@@ -65,11 +71,11 @@ async fn init() -> Result<DatabaseConnection, Box<dyn Error>> {
     let fetch_res = db::fetch_novel_entries(&conn).await?;
     println!("{} rows fetched", fetch_res.len());
     
-    let insert_res = db::insert_novel_entries(&conn, &rows).await;
-    match insert_res {
-        Err(e) => println!("{:?}", e),
-        _ => (),
-    }
+    let _insert_res = db::insert_novel_entries(&conn, &rows).await;
+    // match insert_res {
+    //     Err(e) => println!("{:?}", e),
+    //     _ => (),
+    // }
     let _ = db::update_novel_entries(&conn, &rows).await;
 
     Ok(conn)
