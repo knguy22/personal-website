@@ -9,6 +9,11 @@ import { InputCell } from '@/components/ui/input-cell';
 
 export const novel_columns: ColumnDef<NovelEntry>[] = [
   {
+    accessorKey: "id",
+    header: ({ column }) => {return "Id" },
+  },
+
+  {
     accessorKey: "country",
     header: ({ column }) => {
       return (

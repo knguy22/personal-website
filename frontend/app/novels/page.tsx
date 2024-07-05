@@ -19,6 +19,7 @@ export default function Novels() {
         const novelsData = await response.json();
         console.log("Loaded novels: " + novelsData.length);
         console.log("cols: " + Object.keys(novelsData[0]));
+        console.log(JSON.stringify(novelsData[0]));
         const convertedNovels = parse_novels(novelsData);
         setNovels(convertedNovels);
       } catch (error) {

@@ -1,6 +1,7 @@
 "use client";
 
 export type NovelEntryApi = {
+  id: number,
   country: string,
   title: string,
   chapter: string,
@@ -12,6 +13,7 @@ export type NovelEntryApi = {
 }
 
 export type NovelEntry = {
+  id: number,
   country: string,
   title: string,
   chapter: string,
@@ -26,6 +28,7 @@ export const novel_col_names: (keyof NovelEntry)[] = ["country", "title", "chapt
 
 export function parse_novels(unprocessed_novels: NovelEntryApi[]): NovelEntry[] {
   const novels: NovelEntry[] = unprocessed_novels.map((novel: NovelEntryApi) => ({
+    id: novel.id,
     country: novel.country,
     title: novel.title,
     chapter: novel.chapter,
