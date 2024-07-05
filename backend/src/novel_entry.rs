@@ -18,6 +18,7 @@ pub enum Status {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NovelEntry {
+    pub id: i32,
     pub country: String,
     pub title: String,
     pub chapter: String,
@@ -70,8 +71,9 @@ impl NovelEntry {
 
 pub fn novel_entry_to_active_model(novel: &NovelEntry) -> novels::ActiveModel {
     novels::Model { 
+        id: novel.id,
         country: Some(novel.country.clone()), 
-        title: novel.title.clone(), 
+        title: Some(novel.title.clone()), 
         chapter: Some(novel.chapter.clone()), 
         rating: Some(novel.rating as i32), 
         status: Some(novel.status.to_str()), 
@@ -83,8 +85,9 @@ pub fn novel_entry_to_active_model(novel: &NovelEntry) -> novels::ActiveModel {
 
 pub fn model_to_novel_entry(model: novels::Model) -> NovelEntry {
     NovelEntry {
+        id: model.id.clone(),
         country: model.country.unwrap_or_default(),
-        title: model.title.clone(), 
+        title: model.title.unwrap_or_default(), 
         chapter: model.chapter.unwrap_or_default(),
         rating: model.rating.unwrap_or_default() as u32,
         status: Status::new(&model.status.unwrap_or_default()),

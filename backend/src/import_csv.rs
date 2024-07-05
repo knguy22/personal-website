@@ -13,6 +13,7 @@ pub fn read_csv(csv_file: &String) -> Result<Vec<NovelEntry>, Box<dyn Error>> {
     let headers = rdr.headers()?;
     println!("Headers read: {:?}", headers);
 
+    let mut id = 1;
     for res in rdr.deserialize() {
         let t: Record;
         match res {
@@ -24,6 +25,7 @@ pub fn read_csv(csv_file: &String) -> Result<Vec<NovelEntry>, Box<dyn Error>> {
         }
         
         let record = NovelEntry{
+            id: id,
             country: t.0.unwrap_or_default(),
             title: t.1.unwrap_or_default(),
             chapter: t.2.unwrap_or_default(),
@@ -37,6 +39,8 @@ pub fn read_csv(csv_file: &String) -> Result<Vec<NovelEntry>, Box<dyn Error>> {
         if !record.is_empty() {
             data.push(record);
         }
+
+        id += 1;
     }
 
     println!("Entries read: {}", data.len());

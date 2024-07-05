@@ -6,14 +6,15 @@ use sea_orm::entity::prelude::*;
 #[sea_orm(table_name = "novels")]
 pub struct Model {
     pub country: Option<String>,
-    #[sea_orm(primary_key, auto_increment = false)]
-    pub title: String,
     pub rating: Option<i32>,
     pub status: Option<String>,
     pub notes: Option<String>,
     pub date_modified: DateTime,
     pub chapter: Option<String>,
     pub tags: Json,
+    #[sea_orm(primary_key, auto_increment = false, unique)]
+    pub id: i32,
+    pub title: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
