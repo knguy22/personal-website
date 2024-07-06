@@ -166,6 +166,11 @@ function DateCell ({ getValue, row, _cell, _table } : any) {
   useEffect(() => {
     const incoming: NovelEntry = row['original'];
 
+    // don't spam updates if the rows don't even have the same id; this can happen due to delete row
+    if (incoming.id != row_copy['original'].id) {
+      return;
+    }
+
     // if the row has the same key, check for changes
     if (novel_entries_equal(row['original'], row_copy['original'])) {
       setDate(date);
