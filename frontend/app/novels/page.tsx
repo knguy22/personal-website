@@ -47,7 +47,7 @@ export default function Novels() {
   }
   return (
     <>
-      <h1 className="text-4xl text-center pb-5 font-medium text-gray-700">My Webnovels List</h1>
+      <h1 className="text-4xl text-center pb-5 font-medium">My Webnovels List</h1>
       <DataTable columns={novel_columns} data={novels} setData={setNovels}/>
     </>
   );
