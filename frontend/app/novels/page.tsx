@@ -20,6 +20,12 @@ export default function Novels() {
         console.log("cols: " + Object.keys(novelsData[0]));
         console.log(JSON.stringify(novelsData[0]));
         const convertedNovels = parse_novels(novelsData);
+
+        // sort novels by rating by default
+        convertedNovels.sort((a, b) => {
+          return b.rating - a.rating
+        })
+
         setNovels(convertedNovels);
       } catch (error) {
         console.log(error);
