@@ -66,8 +66,8 @@ async fn update_novels_handler(state: State<AppState>, Json(rows): Json<Vec<nove
 
 async fn create_novel_row_handler(state: State<AppState>) -> impl IntoResponse {
     println!("Creating novel row");
-    let id = db::create_empty_row(&state.conn).await.unwrap();
-    Json(id)
+    let novel = db::create_empty_row(&state.conn).await.unwrap();
+    Json(novel)
 }
 
 async fn init() -> Result<DatabaseConnection, Box<dyn Error>> {
@@ -79,10 +79,6 @@ async fn init() -> Result<DatabaseConnection, Box<dyn Error>> {
     println!("{} rows fetched", fetch_res.len());
     
     let _insert_res = db::insert_novel_entries(&conn, &rows).await;
-    // match insert_res {
-    //     Err(e) => println!("{:?}", e),
-    //     _ => (),
-    // }
     let _ = db::update_novel_entries(&conn, &rows).await;
 
     Ok(conn)

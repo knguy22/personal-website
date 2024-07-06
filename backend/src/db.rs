@@ -81,10 +81,9 @@ pub async fn update_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry
     Ok(())
 }
 
-pub async fn create_empty_row(db: &DatabaseConnection) -> Result<i32, Box<dyn Error>> {
-    let id = get_next_id(db).await?;
+pub async fn create_empty_row(db: &DatabaseConnection) -> Result<NovelEntry, Box<dyn Error>> {
     let novel = NovelEntry {
-        id: id,
+        id: get_next_id(db).await?,
         country: String::new(),
         title: String::new(),
         chapter: String::new(),
@@ -96,7 +95,8 @@ pub async fn create_empty_row(db: &DatabaseConnection) -> Result<i32, Box<dyn Er
     };
     let model = novel_entry_to_active_model(&novel);
     let _ = model.insert(db).await?;
-    Ok(id)
+
+    Ok(novel)
 }
 
 async fn get_next_id(db: &DatabaseConnection) -> Result<i32, Box<dyn Error>> {

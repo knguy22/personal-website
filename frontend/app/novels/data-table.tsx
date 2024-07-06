@@ -98,7 +98,7 @@ export function DataTable<TData, TValue>({
   return (
     <div>
       <FilterList table={table} />
-      <PaginationButton table={table} />
+      <TableButtons table={table} tableData={data} setTableData={setData}/>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -143,7 +143,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <PaginationButton table={table} />
+      <TableButtons table={table} tableData={data} setTableData={setData}/>
     </div>
   )
 }
@@ -218,29 +218,70 @@ function Filter({table, placeholder, col_name, class_extra}: FilterProps) {
 }
 
 
-interface PaginationProps {
-  table: any
+interface TableButtonsProps<TData> {
+  table: any,
+  tableData: TData[],
+  setTableData: React.Dispatch<React.SetStateAction<TData[]>>,
 }
 
-function PaginationButton({ table }: PaginationProps) {
+function TableButtons<TData>({ table, tableData, setTableData }: TableButtonsProps<TData>) {
+  async function create_novel(): Promise<TData | null> {
+    try {
+      const response = await fetch("/api/create_novel", {
+        method: "GET",
+      });
+      
+      if (response.ok) {
+        const res: TData = await response.json();
+        return res;
+      } else {
+        const errorText = await response.text();
+        throw new Error(errorText);
+      }
+    } catch (error) {
+      console.error("Error fetching novel:", error);
+    }
+
+    return null;
+  }
+
   return (
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Previous
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Next
-        </Button>
-      </div>
+    <div className="flex items-center justify-end space-x-2 py-4">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => {
+          create_novel().then((novel) => {
+            if (!novel) {
+              return;
+            }
+            let tableDataCopy = [...tableData];
+            tableDataCopy.push(novel);
+            console.log("Table data: " + tableDataCopy.length);
+            setTableData(tableDataCopy)
+          })
+          
+        }}
+      >
+        New Row
+      </Button>
+      
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => table.previousPage()}
+        disabled={!table.getCanPreviousPage()}
+      >
+        Previous
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => table.nextPage()}
+        disabled={!table.getCanNextPage()}
+      >
+        Next
+      </Button>
+    </div>
   );
 }
