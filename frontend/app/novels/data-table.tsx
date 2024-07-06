@@ -32,6 +32,7 @@ import { Button } from "../../components/ui/button"
 import { Input } from "@/components/ui/input"
 
 import { NovelEntry } from "./novel_types"
+import { filterTags } from "./client-components"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -68,6 +69,9 @@ export function DataTable<TData, TValue>({
     onPaginationChange: setPagination,
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    filterFns: {
+      filterTags,
+    },
     state: {
       pagination,
       sorting,

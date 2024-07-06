@@ -1,11 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef, FilterFn, Row } from "@tanstack/react-table"
 import { ArrowUpDown} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { NovelEntry, novel_entries_equal } from './novel_types';
 import { InputCell } from '@/components/ui/input-cell';
+
+declare module '@tanstack/table-core' {
+  interface FilterFns {
+    filterTags: FilterFn<NovelEntry>
+  }
+}
 
 export const novel_columns: ColumnDef<NovelEntry>[] = [
   {
@@ -115,7 +121,7 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
         </Button>
       )
     },
-    filterFn: 'includesString',
+    filterFn: 'filterTags',
     cell: InputCell,
   },
   {
@@ -190,4 +196,28 @@ function DateCell ({ getValue, row, c, t } : any) {
   catch (error) {
     return "";
   }
+}
+
+export const filterTags: FilterFn<NovelEntry> = (
+  row: Row<NovelEntry>, 
+  columnId: string, 
+  filterValue: string, 
+  addMeta: (meta: any) => void
+  ): boolean => {
+
+  const search_terms = filterValue.toLocaleLowerCase().split(",").map((term) => {
+    return term.trim();
+  });
+  const row_value: string = row.getValue(columnId);
+  const tags: string[] = row_value.toLocaleLowerCase().split(",").map((tag) => {
+    return tag.trim();
+  });
+
+  // only return true if all search terms are in the tags
+  for (const search_term of search_terms) {
+    if (!tags.includes(search_term)) {
+      return false;
+    }
+  }
+  return true;
 }
