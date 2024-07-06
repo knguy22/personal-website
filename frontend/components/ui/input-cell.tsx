@@ -24,6 +24,7 @@ export const InputCell: any = <TData,>({ getValue, row, column, table }: InputCe
       value={value}
       onChange={e => setValue(e.target.value)}
       onBlur={onBlur}
+      className='w-full'
     />
   )
 }

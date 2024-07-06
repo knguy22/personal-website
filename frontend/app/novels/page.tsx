@@ -1,5 +1,6 @@
 'use client';
 import React, {useState, useEffect} from 'react';
+import { AppNavBar } from '../app-nav-bar.tsx';
 import { NovelEntry, parse_novels } from './novel_types.tsx';
 import { novel_columns } from './client-components.tsx';
 import { DataTable } from '@/app/novels/data-table.tsx';
@@ -42,6 +43,8 @@ export default function Novels() {
   }
   return (
     <>
+      <AppNavBar/>
+      <h1 className="text-4xl text-center pb-5 font-medium text-gray-700">My Webnovels List</h1>
       <DataTable columns={novel_columns} data={novels} setData={setNovels}/>
     </>
   );

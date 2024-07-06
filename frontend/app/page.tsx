@@ -1,10 +1,14 @@
+import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu"
+import Link from "next/link";
+import { AppNavBar } from "./app-nav-bar";
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-
-    <p className="text-6xl font-bold">
+    <main className="">
+    <AppNavBar/>
+    <div className="text-5xl font-bold flex-col items-center text-center justify-between p-24">
       Hello, World. This is intermittence.
-    </p>
+    </div>
 
     </main>
   );

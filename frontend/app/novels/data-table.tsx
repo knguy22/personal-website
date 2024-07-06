@@ -54,7 +54,6 @@ export function DataTable<TData, TValue>({
 
   const [sorting, setSorting] = React.useState<SortingState>([])
 
-  const [searchContent, setSearchContent] = React.useState<string>("");
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   )
@@ -99,37 +98,37 @@ export function DataTable<TData, TValue>({
       <div className="flex items-center py-4">
         <Filter
           table={table}
-          placeholder="Filter countries..."
+          placeholder="Filter by countries..."
           col_name="country"
         />
 
         <Filter
           table={table}
-          placeholder="Filter titles..."
+          placeholder="Filter by titles..."
           col_name="title"
         />
 
         <Filter
           table={table}
-          placeholder="Filter tags..."
+          placeholder="Filter by tags..."
           col_name="tags"
         />
 
         <Filter
           table={table}
-          placeholder="Filter rating..."
+          placeholder="Filter by rating..."
           col_name="rating"
         />
 
         <Filter
           table={table}
-          placeholder="Filter status..."
+          placeholder="Filter by status..."
           col_name="status"
         />
 
         <Filter
           table={table}
-          placeholder="Filter notes..."
+          placeholder="Filter by notes..."
           col_name="notes"
         />
       </div>
@@ -188,9 +187,10 @@ interface FilterProps {
   table: any
   placeholder: string
   col_name: keyof NovelEntry
+  class_extra?: string
 }
 
-function Filter({table, placeholder, col_name}: FilterProps) {
+function Filter({table, placeholder, col_name, class_extra}: FilterProps) {
   return (
     <div className="flex items-center space-x-2 pr-2">
       <Input
@@ -200,7 +200,7 @@ function Filter({table, placeholder, col_name}: FilterProps) {
           table.getColumn(col_name)?.setFilterValue(event.target.value);
           }
         }
-        className="max-w-sm"
+        className={"max-w-sm" + (class_extra ? " " + class_extra : "")}
       />
     </div>
   )
