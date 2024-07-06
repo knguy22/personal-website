@@ -17,8 +17,7 @@ import {
   getFilteredRowModel,
   getSortedRowModel,
   useReactTable,
-  Header,
-  HeaderGroup,
+  TableOptions,
 } from "@tanstack/react-table"
  
 import {
@@ -48,6 +47,40 @@ export function DataTable<TData, TValue>({
   setData,
 }: DataTableProps<TData, TValue>) {
 
+  // additional functionality that requires setData
+  const columns_with_buttons: ColumnDef<TData, TValue>[] = [...columns, {
+    accessorKey: "delete_row",
+    header: ({}) => { return ""; },
+    cell: ({ _getValue, row, _cell, table } : any) => {
+      function delete_row() {
+        const id_to_delete = row.original.id;
+
+        // tanstack uses it's own id, this is not the id in the backend
+        const tanstack_id_rows: any = table.getPreFilteredRowModel().flatRows;
+        let data: TData[] = new Array();
+        for (const tanstack_id in tanstack_id_rows) {
+          const novel_id = tanstack_id_rows[tanstack_id].original.id;
+          if (novel_id !== id_to_delete) {
+            data.push(tanstack_id_rows[tanstack_id].original);
+          }
+        }
+
+        setData(data);
+      }
+
+      return (
+        <Button
+          variant="secondary"
+          size={"sm"}
+          onClick={() => delete_row()}
+          className='text-red-500'
+        >
+          Delete Row
+        </Button>
+      )
+    }
+  }];
+
 
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
@@ -61,8 +94,8 @@ export function DataTable<TData, TValue>({
   )
 
   const table = useReactTable({
-    data,
-    columns,
+    data: data,
+    columns: columns_with_buttons,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),

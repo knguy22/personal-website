@@ -155,10 +155,10 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
     },
     cell: DateCell,
   },
-]
+];
 
 // "any" used to be compatible with tanstack table
-function DateCell ({ getValue, row, c, t } : any) {
+function DateCell ({ getValue, row, _cell, _table } : any) {
 
   const [date, setDate] = useState<Date>(new Date(getValue()));
   const [row_copy, setRowCopy] = useState(row);
