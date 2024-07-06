@@ -81,6 +81,11 @@ pub async fn update_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry
     Ok(())
 }
 
+pub async fn delete_novel_entry(db: &DatabaseConnection, id: i32) -> Result<(), Box<dyn Error>> {
+    let _ = Novels::delete_by_id(id).exec(db).await?;
+    Ok(())
+}
+
 pub async fn create_empty_row(db: &DatabaseConnection) -> Result<NovelEntry, Box<dyn Error>> {
     let novel = NovelEntry {
         id: get_next_id(db).await?,
