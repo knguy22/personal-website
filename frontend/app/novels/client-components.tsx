@@ -148,43 +148,36 @@ function DateCell ({ getValue, row, c, t } : any) {
   const [row_copy, setRowCopy] = useState(row);
 
   useEffect(() => {
-    const copy: NovelEntry = row_copy['original'];
     const incoming: NovelEntry = row['original'];
-
-    // filtering or sorting can assign a row with a different key to the current row
-    if (copy.title != incoming.title) {
-      setDate(incoming.date_modified);
-      setRowCopy(row);
-      return;
-    }
 
     // if the row has the same key, check for changes
     if (novel_entries_equal(row['original'], row_copy['original'])) {
       setDate(date);
-      setRowCopy(row_copy);
-    }
-    else {
+    } else {
       const frontend_api_url = process.env.NEXT_PUBLIC_API_URL + '/update_novel';
-      const new_date = new Date;
+      const new_date = new Date();
 
       setDate(new_date);
       setRowCopy(row);
 
       // incoming doesn't have an updated date
       const to_send = { ...incoming, date_modified: new_date.toISOString() };
-      try {
-        fetch(frontend_api_url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(to_send),
-        })
-      } catch (error) {
-        console.log("Fetch api error: " + error);
-      }
+      fetch(frontend_api_url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(to_send),
+      }).catch((error) => {
+        console.log("Fetch api error: " + error)
+      });
     }
   }, [row, row_copy, date]);
 
-  return date.toISOString();
+  try {
+    return date.toISOString();
+  }
+  catch (error) {
+    return "";
+  }
 }

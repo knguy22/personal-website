@@ -16,6 +16,7 @@ async function update_backend_novel(novel: NovelEntry): Promise<void> {
   const backend_url = process.env.BACKEND_URL + '/api/update_novels';
 
   const to_send: NovelEntryApi = {
+    id: novel.id,
     country: novel.country,
     title: novel.title,
     chapter: novel.chapter,
@@ -25,8 +26,6 @@ async function update_backend_novel(novel: NovelEntry): Promise<void> {
     notes: novel.notes,
     date_modified: novel.date_modified
   };
-
-  console.log("sending to backend: " + JSON.stringify(to_send));
 
   // backend api only accepts a list of NovelEntries
   try {

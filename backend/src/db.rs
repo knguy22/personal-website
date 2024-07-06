@@ -56,7 +56,7 @@ pub async fn insert_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry
 pub async fn update_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry>) -> Result<(), Box<dyn Error>> {
     for row in rows.iter() {
         let model = Novels::find()
-            .filter(novels::Column::Title.eq(&row.title))
+            .filter(novels::Column::Id.eq(row.id))
             .one(db)
             .await?;
 
