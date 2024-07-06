@@ -1,8 +1,11 @@
+"use client"
+import * as React from "react"
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu"
+import { ThemeToggle } from "./theme-toggle"
 
 export function AppNavBar() {
     return (
-        <NavigationMenu className="w-full pt-4 pb-3">
+        <NavigationMenu>
             <NavigationMenuList>
                 <NavigationMenuItem>
                     <NavigationMenuLink href="/" className={navigationMenuTriggerStyle()}>
@@ -15,6 +18,8 @@ export function AppNavBar() {
                     </NavigationMenuLink>
                 </NavigationMenuItem>
             </NavigationMenuList>
+
+            <ThemeToggle className="absolute right-10"/>
         </NavigationMenu>
     )
 }
