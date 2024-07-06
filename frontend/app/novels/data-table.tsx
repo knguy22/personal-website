@@ -17,7 +17,6 @@ import {
   getFilteredRowModel,
   getSortedRowModel,
   useReactTable,
-  TableOptions,
 } from "@tanstack/react-table"
  
 import {
@@ -28,6 +27,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 import { Button } from "../../components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -199,42 +207,44 @@ interface FilterListProp {
 }
 
 function FilterList ({ table }: FilterListProp) {
+
+  function findKeyByValue(obj: { [key: string]: keyof NovelEntry }, value: keyof NovelEntry): string | undefined {
+    return Object.entries(obj).find(([key, val]) => val === value)?.[0];
+  }
+
+  const filter_keys: { [key: string]: keyof NovelEntry } = {
+    "Country": "country",
+    "Title": "title",
+    "Tags": "tags",
+    "Rating": "rating",
+    "Status": "status",
+    "Notes": "notes",
+  };
+
+  const [dropDownVal, setDropDownVal] = React.useState<keyof NovelEntry>(filter_keys.Country);
+
   return (
-    <div className="flex items-center py-4">
-      <Filter
-        table={table}
-        placeholder="Filter by countries..."
-        col_name="country"
-      />
+    <div className="flex items-center py-4 space-x-2">
+      <div className="border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md p-2">
+        <DropdownMenu>
+          {/* val to key for dropdown label */}
+          <DropdownMenuTrigger>{findKeyByValue(filter_keys, dropDownVal)}</DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuLabel>{"Filter by"}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {Object.keys(filter_keys).map((key) => (
+              <DropdownMenuItem key={key} onClick={() => setDropDownVal(filter_keys[key])}>{key}</DropdownMenuItem>
+            ))
+            }
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
 
+      {/* Filter adjusted based on dropdown */}
       <Filter
         table={table}
-        placeholder="Filter by titles..."
-        col_name="title"
-      />
-
-      <Filter
-        table={table}
-        placeholder="Filter by tags..."
-        col_name="tags"
-      />
-
-      <Filter
-        table={table}
-        placeholder="Filter by rating..."
-        col_name="rating"
-      />
-
-      <Filter
-        table={table}
-        placeholder="Filter by status..."
-        col_name="status"
-      />
-
-      <Filter
-        table={table}
-        placeholder="Filter by notes..."
-        col_name="notes"
+        placeholder={"Filter by " + dropDownVal}
+        col_name={dropDownVal}
       />
     </div>
   )
