@@ -8,7 +8,6 @@ import "./local.css"
 export default function Novels() {
   const [isLoading, setLoading] = useState(true);
   const [novels, setNovels] = useState<NovelEntry[]>([]);
-  const [search_content, setSearchContent] = useState<string>("");
 
   // load raw novels once
   useEffect(() => {

@@ -10,7 +10,17 @@ import { InputCell } from '@/components/ui/input-cell';
 export const novel_columns: ColumnDef<NovelEntry>[] = [
   {
     accessorKey: "id",
-    header: ({ column }) => {return "Id" },
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Id
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
   },
 
   {
