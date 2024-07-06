@@ -6,7 +6,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
     const body: NovelEntry = req.body;
-    console.log("body: " + JSON.stringify(body));
+    console.log("Updating novel: " + JSON.stringify(body));
 
     await update_backend_novel(body);
     res.status(200).json({ message: 'Novel updated successfully' });

@@ -55,6 +55,19 @@ export function DataTable<TData, TValue>({
       function delete_row() {
         const id_to_delete = row.original.id;
 
+        // delete from backend first
+        const frontend_api_url = process.env.NEXT_PUBLIC_API_URL + '/delete_novel';
+        const backend_status = fetch(frontend_api_url, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: id_to_delete,
+        }).catch((error) => {
+          console.log("Fetch api error: " + error)
+          return;
+        });
+
         // tanstack uses it's own id, this is not the id in the backend
         const tanstack_id_rows: any = table.getPreFilteredRowModel().flatRows;
         let data: TData[] = new Array();
