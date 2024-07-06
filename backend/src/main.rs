@@ -28,6 +28,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .route("/", get(main_handler))
         .route("/novels", get(novel_handler))
         .route("/api/update_novels", post(update_novels_handler))
+        .route("/api/create_novel", get(create_novel_row_handler))
         .with_state(state);
 
     // run it
@@ -61,6 +62,12 @@ async fn update_novels_handler(state: State<AppState>, Json(rows): Json<Vec<nove
         Ok(()) => Json(format!(r#"{{"Success": true, "Rows": "{}"}}"#, rows.len())),
         Err(_) => Json(r#"{"Success": false}"#.to_string()),
     }
+}
+
+async fn create_novel_row_handler(state: State<AppState>) -> impl IntoResponse {
+    println!("Creating novel row");
+    let id = db::create_empty_row(&state.conn).await.unwrap();
+    Json(id)
 }
 
 async fn init() -> Result<DatabaseConnection, Box<dyn Error>> {

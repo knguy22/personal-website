@@ -1,6 +1,8 @@
-use crate::novel_entry::{model_to_novel_entry, novel_entry_to_active_model, NovelEntry};
+use crate::novel_entry::{model_to_novel_entry, novel_entry_to_active_model, NovelEntry, Status};
 use crate::entity::{prelude::Novels, novels};
 use std::{error::Error, env, time::Duration};
+use chrono::Local;
+use sea_orm::QueryOrder;
 use sea_orm::{
     ActiveModelTrait,
     ColumnTrait,
@@ -77,4 +79,34 @@ pub async fn update_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry
     }
 
     Ok(())
+}
+
+pub async fn create_empty_row(db: &DatabaseConnection) -> Result<i32, Box<dyn Error>> {
+    let id = get_next_id(db).await?;
+    let novel = NovelEntry {
+        id: id,
+        country: String::new(),
+        title: String::new(),
+        chapter: String::new(),
+        rating: 0,
+        status: Status::Invalid,
+        tags: Vec::new(),
+        notes: String::new(),
+        date_modified: Local::now().to_utc(),
+    };
+    let model = novel_entry_to_active_model(&novel);
+    let _ = model.insert(db).await?;
+    Ok(id)
+}
+
+async fn get_next_id(db: &DatabaseConnection) -> Result<i32, Box<dyn Error>> {
+    let model = Novels::find()
+        .order_by_desc(novels::Column::Id)
+        .one(db)
+        .await?;
+
+    match model {
+        Some(model) => Ok(model.id + 1),
+        None => Ok(1),
+    }
 }
