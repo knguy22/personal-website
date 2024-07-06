@@ -38,7 +38,12 @@ export default function Novels() {
   }, []);
 
   if (isLoading) {
-    return (<p>Loading...</p>);
+    return (
+      <div className="text-5xl font-bold flex-col items-center text-center justify-between p-24">
+        Loading...
+      </div>
+    );
+
   }
   return (
     <>
