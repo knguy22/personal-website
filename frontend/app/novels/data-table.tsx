@@ -150,9 +150,8 @@ export function DataTable<TData, TValue>({
   })
 
   return (
-    <div>
-      <FilterList table={table} />
-      <TableButtons table={table} tableData={data} setTableData={setData}/>
+    <div className="pb-10">
+      <TableOptionsRow table={table} tableData={data} setTableData={setData}/>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -197,9 +196,41 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <TableButtons table={table} tableData={data} setTableData={setData}/>
     </div>
   )
+}
+
+interface TableOptionsRowProps<TData> {
+  table: any,
+  tableData: TData[],
+  setTableData: React.Dispatch<React.SetStateAction<TData[]>>,
+}
+
+function TableOptionsRow<TData>({ table, tableData, setTableData }: TableOptionsRowProps<TData>) {
+  return (
+    <div className="flex items-center justify-between">
+      <FilterList table={table}/>
+      <div className="space-x-2 py-4">
+        <CreateNovelButton table={table} tableData={tableData} setTableData={setTableData}/>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          Previous
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          Next
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 interface FilterListProp {
@@ -224,7 +255,7 @@ function FilterList ({ table }: FilterListProp) {
   const [dropDownVal, setDropDownVal] = React.useState<keyof NovelEntry>(filter_keys.Country);
 
   return (
-    <div className="flex items-center py-4 space-x-2">
+    <div className="flex items-center space-x-2">
       <div className="border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md p-2">
         <DropdownMenu>
           {/* val to key for dropdown label */}
@@ -273,14 +304,13 @@ function Filter({table, placeholder, col_name, class_extra}: FilterProps) {
   )
 }
 
-
-interface TableButtonsProps<TData> {
-  table: any,
-  tableData: TData[],
-  setTableData: React.Dispatch<React.SetStateAction<TData[]>>,
+interface CreateNovelButtonProps<TData> {
+  table: any
+  tableData: TData[]
+  setTableData: React.Dispatch<React.SetStateAction<TData[]>>
 }
 
-function TableButtons<TData>({ table, tableData, setTableData }: TableButtonsProps<TData>) {
+function CreateNovelButton<TData>({ table, tableData, setTableData }: CreateNovelButtonProps<TData>) {
   async function create_novel(): Promise<TData | null> {
     try {
       const response = await fetch("/api/create_novel", {
@@ -302,42 +332,23 @@ function TableButtons<TData>({ table, tableData, setTableData }: TableButtonsPro
   }
 
   return (
-    <div className="flex items-center justify-end space-x-2 py-4">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => {
-          create_novel().then((novel) => {
-            if (!novel) {
-              return;
-            }
-            let tableDataCopy = [...tableData];
-            tableDataCopy.push(novel);
-            console.log("Table data: " + tableDataCopy.length);
-            setTableData(tableDataCopy)
-          })
-          
-        }}
-      >
-        New Row
-      </Button>
-      
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => table.previousPage()}
-        disabled={!table.getCanPreviousPage()}
-      >
-        Previous
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => table.nextPage()}
-        disabled={!table.getCanNextPage()}
-      >
-        Next
-      </Button>
-    </div>
-  );
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => {
+        create_novel().then((novel) => {
+          if (!novel) {
+            return;
+          }
+          let tableDataCopy = [...tableData];
+          tableDataCopy.push(novel);
+          console.log("Table data: " + tableDataCopy.length);
+          setTableData(tableDataCopy)
+        })
+        
+      }}
+    >
+      New Row
+    </Button>
+  )
 }
