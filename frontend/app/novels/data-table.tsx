@@ -17,6 +17,8 @@ import {
   getFilteredRowModel,
   getSortedRowModel,
   useReactTable,
+  Header,
+  HeaderGroup,
 } from "@tanstack/react-table"
  
 import {
@@ -95,44 +97,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center py-4">
-        <Filter
-          table={table}
-          placeholder="Filter by countries..."
-          col_name="country"
-        />
-
-        <Filter
-          table={table}
-          placeholder="Filter by titles..."
-          col_name="title"
-        />
-
-        <Filter
-          table={table}
-          placeholder="Filter by tags..."
-          col_name="tags"
-        />
-
-        <Filter
-          table={table}
-          placeholder="Filter by rating..."
-          col_name="rating"
-        />
-
-        <Filter
-          table={table}
-          placeholder="Filter by status..."
-          col_name="status"
-        />
-
-        <Filter
-          table={table}
-          placeholder="Filter by notes..."
-          col_name="notes"
-        />
-      </div>
-
+      <FilterList table={table} />
       <PaginationButton table={table} />
       <div className="rounded-md border">
         <Table>
@@ -179,6 +144,52 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
       <PaginationButton table={table} />
+    </div>
+  )
+}
+
+interface FilterListProp {
+  table: any
+}
+
+function FilterList ({ table }: FilterListProp) {
+  return (
+    <div className="flex items-center py-4">
+      <Filter
+        table={table}
+        placeholder="Filter by countries..."
+        col_name="country"
+      />
+
+      <Filter
+        table={table}
+        placeholder="Filter by titles..."
+        col_name="title"
+      />
+
+      <Filter
+        table={table}
+        placeholder="Filter by tags..."
+        col_name="tags"
+      />
+
+      <Filter
+        table={table}
+        placeholder="Filter by rating..."
+        col_name="rating"
+      />
+
+      <Filter
+        table={table}
+        placeholder="Filter by status..."
+        col_name="status"
+      />
+
+      <Filter
+        table={table}
+        placeholder="Filter by notes..."
+        col_name="notes"
+      />
     </div>
   )
 }
