@@ -1,4 +1,5 @@
-"use client"
+'use client'
+
 import * as React from "react"
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu"
 import { ThemeToggle } from "./theme-toggle"

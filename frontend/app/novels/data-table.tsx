@@ -1,9 +1,4 @@
-/**
- * Table from shadcn-ui
- * A basic table that renders only data and columns
-*/
-
-"use client"
+'use client'
 
 import * as React from "react"
 

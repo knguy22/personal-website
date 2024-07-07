@@ -1,3 +1,5 @@
+'use client'
+
 import { IconLink } from '@/app/icon-link';
 
 export default function Home() {

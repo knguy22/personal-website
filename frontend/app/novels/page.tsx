@@ -1,9 +1,9 @@
-'use client';
+'use client'
+
 import React, {useState, useEffect} from 'react';
 import { NovelEntry, parse_novels } from './novel_types.tsx';
 import { novel_columns } from './client-components.tsx';
 import { DataTable } from '@/app/novels/data-table.tsx';
-import "./local.css"
 
 export default function Novels() {
   const [isLoading, setLoading] = useState(true);
