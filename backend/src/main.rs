@@ -1,5 +1,5 @@
 mod novel_entry;
-mod import_csv;
+mod scripts;
 mod db;
 mod entity;
 
@@ -19,11 +19,13 @@ struct AppState {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    // initialize everything; run scripts if applicable
     let conn = init().await.unwrap();
-    let state = AppState { conn };
-    let domain = env::var("DOMAIN").unwrap();
+    scripts::run_cli(&conn).await.unwrap();
 
     // build our application with a route
+    let state = AppState { conn };
+    let domain = env::var("DOMAIN").unwrap();
     let app = Router::new()
         .route("/", get(main_handler))
         .route("/novels", get(novel_handler))
@@ -82,14 +84,7 @@ async fn delete_novel_handler(state: State<AppState>, Path(id): Path<i32>) -> im
 
 async fn init() -> Result<DatabaseConnection, Box<dyn Error>> {
     dotenv().ok();
-    let csv_file: String = "../data.csv".to_string();
-    let rows = import_csv::read_csv(&csv_file)?;
     let conn = db::init().await?;
-    let fetch_res = db::fetch_novel_entries(&conn).await?;
-    println!("{} rows fetched", fetch_res.len());
-    
-    let _insert_res = db::insert_novel_entries(&conn, &rows).await;
-    let _ = db::update_novel_entries(&conn, &rows).await;
 
     Ok(conn)
 }

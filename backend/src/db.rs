@@ -2,7 +2,6 @@ use crate::novel_entry::{model_to_novel_entry, novel_entry_to_active_model, Nove
 use crate::entity::{prelude::Novels, novels};
 use std::{error::Error, env, time::Duration};
 use chrono::Local;
-use sea_orm::QueryOrder;
 use sea_orm::{
     ActiveModelTrait,
     ColumnTrait,
@@ -12,7 +11,9 @@ use sea_orm::{
     DatabaseConnection,
     EntityTrait,
     IntoActiveModel,
-    QueryFilter};
+    QueryFilter,
+    QueryOrder,
+};
 
 pub async fn init() -> Result<DatabaseConnection, Box<dyn Error>> {
     // init database
@@ -81,6 +82,11 @@ pub async fn update_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry
     Ok(())
 }
 
+pub async fn drop_all_novels(db: &DatabaseConnection) -> Result<(), Box<dyn Error>> {
+    let _ = Novels::delete_many().exec(db).await?;
+    Ok(())
+}
+
 pub async fn delete_novel_entry(db: &DatabaseConnection, id: i32) -> Result<(), Box<dyn Error>> {
     let _ = Novels::delete_by_id(id).exec(db).await?;
     Ok(())
@@ -104,7 +110,7 @@ pub async fn create_empty_row(db: &DatabaseConnection) -> Result<NovelEntry, Box
     Ok(novel)
 }
 
-async fn get_next_id(db: &DatabaseConnection) -> Result<i32, Box<dyn Error>> {
+pub async fn get_next_id(db: &DatabaseConnection) -> Result<i32, Box<dyn Error>> {
     let model = Novels::find()
         .order_by_desc(novels::Column::Id)
         .one(db)
