@@ -1,10 +1,15 @@
-'use client'
-
 import * as React from "react"
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu"
+import { getServerSession } from "next-auth"
+import { authOptions } from "./api/auth/[...nextauth]/options"
 import { ThemeToggle } from "./theme-toggle"
+import { log } from "console"
 
-export function AppNavBar() {
+export async function AppNavBar() {
+    const session = await getServerSession(authOptions);
+    const authLink = session ? "/api/auth/signout?callbackUrl=/" : "/api/auth/signin";
+    const authText = session ? "Sign Out" : "Sign In";
+
     return (
         <NavigationMenu>
             <NavigationMenuList>
@@ -20,7 +25,19 @@ export function AppNavBar() {
                 </NavigationMenuItem>
             </NavigationMenuList>
 
-            <ThemeToggle className="absolute right-10"/>
+            <div className="absolute right-10">
+                <NavigationMenuList>
+                    <NavigationMenuItem className="px-4">
+                        <ThemeToggle/>
+                    </NavigationMenuItem>
+
+                    <NavigationMenuItem>
+                        <NavigationMenuLink href={authLink}>
+                            {authText}
+                        </NavigationMenuLink>
+                    </NavigationMenuItem>
+                </NavigationMenuList>
+            </div>
         </NavigationMenu>
     )
 }
