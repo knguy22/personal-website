@@ -52,15 +52,15 @@ export default async function NavBar() {
           </NavigationMenuLink>
         </NavigationMenuItem>
 
-        <NavigationMenuItem className="relative place-items-center">
+        <NavigationMenuItem>
           <NavigationMenuTrigger>About Me</NavigationMenuTrigger>
           <NavigationMenuContent className="">
-            <ul className="p-3 m-auto relative">
+            <ul className="p-3">
               {
                 about_me_components.map((item) => (
                   <li>
                     <NavigationMenuLink asChild key={item.title}>
-                      <a href={item.href} className="left-auto right-0 block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                      <a href={item.href} className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
                         <div className="text-sm font-medium leading-none">
                           {item.title}
                         </div>
