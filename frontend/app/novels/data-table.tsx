@@ -2,6 +2,8 @@
 
 import * as React from "react"
 
+import { useSession } from 'next-auth/react'
+
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -51,51 +53,55 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
 
   // additional functionality that requires setData
-  const columns_with_buttons: ColumnDef<TData, TValue>[] = [...columns, {
-    accessorKey: "delete_row",
-    header: ({}) => { return ""; },
-    cell: ({ _getValue, row, _cell, table } : any) => {
-      function delete_row() {
-        const id_to_delete = row.original.id;
+  // only do this for admin
+  const {data: session} = useSession();
+  const columns_with_buttons: ColumnDef<TData, TValue>[] = 
+    session?.user?.role !== 'admin' ? columns : 
+    [...columns, {
+      accessorKey: "delete_row",
+      header: ({}) => { return ""; },
+      cell: ({ _getValue, row, _cell, table } : any) => {
+        function delete_row() {
+          const id_to_delete = row.original.id;
 
-        // delete from backend first
-        const frontend_api_url = process.env.NEXT_PUBLIC_API_URL + '/delete_novel';
-        const backend_status = fetch(frontend_api_url, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: id_to_delete,
-        }).catch((error) => {
-          console.log("Fetch api error: " + error)
-          return;
-        });
+          // delete from backend first
+          const frontend_api_url = process.env.NEXT_PUBLIC_API_URL + '/delete_novel';
+          const backend_status = fetch(frontend_api_url, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: id_to_delete,
+          }).catch((error) => {
+            console.log("Fetch api error: " + error)
+            return;
+          });
 
-        // tanstack uses it's own id, this is not the id in the backend
-        const tanstack_id_rows: any = table.getPreFilteredRowModel().flatRows;
-        let data: TData[] = new Array();
-        for (const tanstack_id in tanstack_id_rows) {
-          const novel_id = tanstack_id_rows[tanstack_id].original.id;
-          if (novel_id !== id_to_delete) {
-            data.push(tanstack_id_rows[tanstack_id].original);
+          // tanstack uses it's own id, this is not the id in the backend
+          const tanstack_id_rows: any = table.getPreFilteredRowModel().flatRows;
+          let data: TData[] = new Array();
+          for (const tanstack_id in tanstack_id_rows) {
+            const novel_id = tanstack_id_rows[tanstack_id].original.id;
+            if (novel_id !== id_to_delete) {
+              data.push(tanstack_id_rows[tanstack_id].original);
+            }
           }
+
+          setData(data);
         }
 
-        setData(data);
+        return (
+          <Button
+            variant="secondary"
+            size={"sm"}
+            onClick={() => delete_row()}
+            className='text-red-500'
+          >
+            Delete Row
+          </Button>
+        )
       }
-
-      return (
-        <Button
-          variant="secondary"
-          size={"sm"}
-          onClick={() => delete_row()}
-          className='text-red-500'
-        >
-          Delete Row
-        </Button>
-      )
-    }
-  }];
+    }];
 
 
   const [pagination, setPagination] = React.useState({

@@ -1,9 +1,9 @@
 import * as React from "react"
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu"
 import { getServerSession } from "next-auth"
+import { usePathname } from 'next/navigation';
 import { authOptions } from "./api/auth/[...nextauth]/options"
 import { ThemeToggle } from "./theme-toggle"
-import { log } from "console"
 
 export async function AppNavBar() {
     const session = await getServerSession(authOptions);

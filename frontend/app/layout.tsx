@@ -4,6 +4,8 @@ import { AppNavBar } from "./nav-bar";
 import { ThemeProvider } from "./theme-provider";
 import "./globals.css";
 
+import AuthProvider from "./AuthProvider";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -19,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <AuthProvider>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -28,6 +31,7 @@ export default function RootLayout({
           <AppNavBar/>
           {children}
         </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
