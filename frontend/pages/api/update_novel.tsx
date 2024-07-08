@@ -20,7 +20,7 @@ async function update_backend_novel(novel: NovelEntry): Promise<void> {
     country: novel.country,
     title: novel.title,
     chapter: novel.chapter,
-    rating: novel.rating,
+    rating: parseInt(novel.rating, 10),
     status: novel.status,
     tags: process_tags(novel.tags),
     notes: novel.notes,

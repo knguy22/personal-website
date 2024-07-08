@@ -17,7 +17,7 @@ export type NovelEntry = {
   country: string,
   title: string,
   chapter: string,
-  rating: number,
+  rating: string,
   status: string,
   tags: string,
   notes: string,
@@ -32,7 +32,7 @@ export function parse_novels(unprocessed_novels: NovelEntryApi[]): NovelEntry[] 
     country: novel.country,
     title: novel.title,
     chapter: novel.chapter,
-    rating: novel.rating,
+    rating: String(novel.rating),
     status: novel.status,
     tags: novel.tags.join(","),
     notes: novel.notes,
@@ -58,6 +58,9 @@ export function novel_entries_equal(a: NovelEntry, b: NovelEntry) {
   return true;
 }
 
-export function process_tags(tags: string): string[] {
+export function process_tags(tags: string | undefined): string[] {
+  if (!tags) {
+    return [];
+  }
   return tags.split(',').map((tag) => tag.trim());
 }

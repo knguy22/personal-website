@@ -18,13 +18,10 @@ export default function Novels() {
         const novelsData = await response.json();
         console.log("Loaded novels: " + novelsData.length);
         console.log("cols: " + Object.keys(novelsData[0]));
-        console.log(JSON.stringify(novelsData[0]));
         const convertedNovels = parse_novels(novelsData);
 
         // sort novels by rating by default
-        convertedNovels.sort((a, b) => {
-          return b.rating - a.rating
-        })
+        convertedNovels.sort((a, b) => b.rating.localeCompare(a.rating));
 
         setNovels(convertedNovels);
       } catch (error) {
