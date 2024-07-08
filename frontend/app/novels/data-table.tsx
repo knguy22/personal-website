@@ -208,11 +208,18 @@ interface TableOptionsRowProps<TData> {
 }
 
 function TableOptionsRow<TData>({ table, tableData, setTableData }: TableOptionsRowProps<TData>) {
+
+  const {data: session} = useSession();
+
   return (
     <div className="flex items-center justify-between">
       <FilterList table={table}/>
       <div className="space-x-2 py-4">
-        <CreateNovelButton table={table} tableData={tableData} setTableData={setTableData}/>
+        {/* only allow admins to create new novels */}
+        {session?.user?.role === 'admin' ? 
+          <CreateNovelButton table={table} tableData={tableData} setTableData={setTableData}/>
+          : null
+        }
         <Button
           variant="outline"
           size="sm"
