@@ -4,40 +4,31 @@ priority: 0
 ---
 # **Projects**
 
+## [**This Personal Website!** ![github-mark.png](/github-mark.png "Github Redirect")](https://github.com/knguy22/personal-website):
+### July 2024 – Present
+
+I wanted to try my hand at creating a website that I could do anything I wanted with. Alongside displaying my personal accomplishments, I also wanted to support other functionalities that are useful to me. This website is also self-hosted on my own VPS server and is protected by Cloudflare.
+
+#### Skills Used: 
+* Frontend:
+  * Javascript, Typescript, HTML
+  * Next.js, React, Nginx
+  * Tailwind CSS, CSS
+* Backend:
+  * Rust, SQL (Postgres)
+  * Axum
+
 ## [**Blocky Chess Engine** ![github-mark.png](/github-mark.png "Github Redirect")](https://github.com/knguy22/Blocky-Chess-Engine): 
-### August 2023 - Present 
+### August 2023 - April 2024
 
-I've been a casual fan of chess for a while now, and I wanted to take a hand in creating a chess engine, a program that plays chess for you. One skill that was important in the development of this engine was using version control and syncing git changes, which were useful for finetuning Blocky, the engine, in order to play stronger. This was especially relevant since there were multiple developers working on the engine at the same time.
+As a casual fan of chess, I wanted to create my own chess engine, aka a program that plays chess for you. One skill that was important in the development of this engine was using version control and syncing git changes, which were useful for finetuning Blocky, the engine, in order to play stronger. This was especially relevant since there were multiple developers working on the engine at the same time.
 
-Thus far, techniques such as magic bitboards (perfect hashing), alpha-beta search, quiescence search, and zobrist hashing have been implemented in Blocky.
+For more detail about techniques used, please see the repo.
 
 #### Skills Used:
 * C++
-* Git
-* CMake/ Make 
-* GTest and Test-Driven Development
-* Data Structures and Algorithms
-
-## [**This Personal Website!** ![github-mark.png](/github-mark.png "Github Redirect")](https://github.com/knguy22/personal-website):
-### August 2023 – Present
-
-I wanted to create a personal website, and even though there are a plethora of different services with gorgeous templates and effects, I decided to challenge myself and create a website from scratch.
-
-#### Skills Used: 
-* Javascript, HTML, CSS
-* Next.js, React
-* Tailwind CSS
-
-## [**Webnovel Tracking List** ![github-mark.png](/github-mark.png "Github Redirect")](https://github.com/knguy22/Personal-Webnovel-Ranking-List):
-### July 2023 – Present
-
-Another one of my hobbies is reading webnovels, most often translated webnovels, and the main way the English speaking world keeps track of their webnovels is through a website known as [https://www.novelupdates.com](https://www.novelupdates.com). There ended up being features of the website that I wasn't satisfied with, which led me to develop this project.
-
-The personal webnovel tracking list more compactly organizes one's reading list and offers more features in order to search through one's list of webnovels quickly. This is in progress, though I hope to add more support for other people in the future. 
-
-#### Skills Used:
-* Python, SQL
-* Javascript, HTML, CSS
+* CMake, GTest
+* Test-Driven Development
 
 ## [**Tetris Statistics Compiler** ![github-mark.png](/github-mark.png "Github Redirect")](https://github.com/knguy22/Jstris-Stats-Discord-Bot): 
 ### November 2021 - May 2022
@@ -48,9 +39,3 @@ I identified a potential userbase of Tetris players who wanted more features fro
 
 #### Skills Used:
 * Python
-* Webscraping 
-* APIs (Discord)
-
-
-
-
