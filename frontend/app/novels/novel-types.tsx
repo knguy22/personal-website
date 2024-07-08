@@ -32,7 +32,7 @@ export function parse_novels(unprocessed_novels: NovelEntryApi[]): NovelEntry[] 
     country: novel.country,
     title: novel.title,
     chapter: novel.chapter,
-    rating: String(novel.rating),
+    rating: novel.rating !== 0 ? String(novel.rating) : "",
     status: novel.status,
     tags: novel.tags.join(","),
     notes: novel.notes,
