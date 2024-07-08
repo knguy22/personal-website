@@ -4,7 +4,7 @@ import NavBar from "../components/derived/Nav";
 import ThemeProvider from "../components/derived/ThemeProvider";
 import "./globals.css";
 
-import AuthProvider from "./AuthProvider";
+import AuthProvider from "../components/derived/AuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
