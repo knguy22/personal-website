@@ -1,8 +1,42 @@
 import * as React from "react"
-import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu"
+import Link from "next/link"
+import { 
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle
+} from "@/components/ui/navigation-menu"
+
 import { getServerSession } from "next-auth"
 import { authOptions } from "../../app/api/auth/[...nextauth]/options"
 import ThemeToggle from "./ThemeToggle"
+
+const about_me_components: { title: string; href: string}[] = [
+  {
+    title: "About Me",
+    href: "/about-me",
+  },
+  {
+    title: "Education",
+    href: "/about-me/education",
+  },
+  {
+    title: "Experience",
+    href: "/about-me/experience",
+  },
+  {
+    title: "Projects",
+    href: "/about-me/projects",
+  },
+  {
+    title: "Hobbies",
+    href: "/about-me/hobbies",
+  },
+]
+
 
 export default async function NavBar() {
   const session = await getServerSession(authOptions);
@@ -17,6 +51,28 @@ export default async function NavBar() {
             Home
           </NavigationMenuLink>
         </NavigationMenuItem>
+
+        <NavigationMenuItem className="relative place-items-center">
+          <NavigationMenuTrigger>About Me</NavigationMenuTrigger>
+          <NavigationMenuContent className="">
+            <ul className="p-3 m-auto relative">
+              {
+                about_me_components.map((item) => (
+                  <li>
+                    <NavigationMenuLink asChild key={item.title}>
+                      <a href={item.href} className="left-auto right-0 block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                        <div className="text-sm font-medium leading-none">
+                          {item.title}
+                        </div>
+                      </a>
+                    </NavigationMenuLink>
+                  </li>
+                ))
+              }
+            </ul>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+        
         <NavigationMenuItem>
           <NavigationMenuLink href="/novels" className={navigationMenuTriggerStyle()}>
             My Webnovels List
