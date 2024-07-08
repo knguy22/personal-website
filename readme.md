@@ -1,13 +1,15 @@
-# WARNING: this repository is very much a WIP. Use at your own discretion.
+# Personal Website
+
+This is where I put whatever I want to host on the internet. I plan on installing multiple unrelated functionalities here, and to see them, you can check out the website [here](https://intermittence.dev/).
 
 # Running the Production Server
 
 For reference, I am using a VPS with Almalinux 8.
 
 ## Requirements
-* Cargo
-* Postgres
-* Npm
+* Rust (cargo)
+* PostgreSQL
+* Npm (Node)
 * Nginx
 
 ## Steps
