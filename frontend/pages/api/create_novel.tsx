@@ -1,5 +1,5 @@
-import { NovelEntry } from "@/app/novels/novel_types";
 import { NextApiRequest, NextApiResponse } from "next";
+import { NovelEntry } from "@/app/novels/novel-types";
 
 export default async function handler(
   _req: NextApiRequest,
@@ -26,7 +26,6 @@ async function create_backend_novel(): Promise<NovelEntry | null> {
     const novel: NovelEntry = await response.json();
     console.log("Response: " + JSON.stringify(novel));
     return novel;
-
   } catch (error) {
     console.log("Fetch backend error: " + error);
   }

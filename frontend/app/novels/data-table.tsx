@@ -37,7 +37,7 @@ import {
 import { Button } from "../../components/ui/button"
 import { Input } from "@/components/ui/input"
 
-import { NovelEntry } from "./novel_types"
+import { NovelEntry } from "./novel-types"
 import { filterTags } from "./client-components"
 
 interface DataTableProps<TData, TValue> {

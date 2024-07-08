@@ -1,4 +1,3 @@
-import { NovelEntry } from "@/app/novels/novel_types";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(

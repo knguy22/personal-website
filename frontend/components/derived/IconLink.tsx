@@ -9,7 +9,7 @@ interface IconLinkProps {
   hrefUrl: string
 }
 
-export function IconLink( {description, imageUrl, hrefUrl} : IconLinkProps ) {
+export default function IconLink( {description, imageUrl, hrefUrl} : IconLinkProps ) {
   return (
     <Link href={hrefUrl} className='imageIconLink'>
       <Image

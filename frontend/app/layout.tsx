@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { AppNavBar } from "./nav-bar";
-import { ThemeProvider } from "./theme-provider";
+import NavBar from "../components/derived/Nav";
+import ThemeProvider from "../components/derived/ThemeProvider";
 import "./globals.css";
 
 import AuthProvider from "./AuthProvider";
@@ -28,7 +28,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AppNavBar/>
+          <NavBar/>
           {children}
         </ThemeProvider>
         </AuthProvider>

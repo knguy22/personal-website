@@ -24,10 +24,10 @@ export const InputCell: any = <TData,>({ getValue, row, column, table }: InputCe
     table.options.meta?.updateData(row.index, column.id, value);
   }
 
+  // only allow editing for admins
   if (session?.user?.role !== 'admin') {
     return (value);
   }
-
   return (
     <input
       value={value}

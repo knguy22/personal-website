@@ -1,6 +1,6 @@
 'use client'
 
-import { IconLink } from '@/app/icon-link';
+import IconLink from "@/components/derived/IconLink";
 
 export default function Home() {
   return (

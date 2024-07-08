@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { NovelEntry, NovelEntryApi, process_tags } from "@/app/novels/novel_types";
+import { NovelEntry, NovelEntryApi, process_tags } from "@/app/novels/novel-types";
 
 export default async function handler(
   req: NextApiRequest,
