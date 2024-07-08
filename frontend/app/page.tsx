@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <main className="w-full">
       <div className="text-5xl font-bold flex-col items-center text-center justify-between pt-24">
-        Hello, World. This is intermittence.
+        Hello, World. This is my personal website.
       </div>
       <div className='flex justify-center items-center'>
         <div className="text-3xl font-bold text-center p-24 w-3/5">

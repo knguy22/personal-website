@@ -1,5 +1,6 @@
 import { getPostData } from '../posts';
 import '../about-me.css'
+import './local.css'
 import { notFound } from 'next/navigation';
 
 export default async function Page({ params }: { params: { id: string } }) {
@@ -11,7 +12,7 @@ export default async function Page({ params }: { params: { id: string } }) {
     const htmlData = postData['contentHtml'];
     return (
         <>
-        <div id='articleContent' dangerouslySetInnerHTML={{__html: htmlData}}></div>
+            <div id='articleContent' dangerouslySetInnerHTML={{__html: htmlData}}></div>
         </>
     )
 }
