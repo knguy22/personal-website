@@ -15,7 +15,7 @@ I wanted to try my hand at creating a website that I could do anything I wanted 
   * Next.js, React, Nginx
   * Tailwind CSS, CSS
 * Backend:
-  * Rust, SQL (Postgres)
+  * Rust, SQL (PostgreSQL)
   * Axum
 
 ## [**Blocky Chess Engine** ![github-mark.png](/github-mark.png "Github Redirect")](https://github.com/knguy22/Blocky-Chess-Engine): 
