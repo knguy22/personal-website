@@ -46,34 +46,24 @@ export default async function NavBar() {
   return (
     <NavigationMenu>
       <NavigationMenuList>
-        <NavigationMenuItem>
+        <NavigationMenuItem key="home">
           <NavigationMenuLink href="/" className={navigationMenuTriggerStyle()}>
             Home
           </NavigationMenuLink>
         </NavigationMenuItem>
 
-        <NavigationMenuItem>
+        <NavigationMenuItem key="about-me">
           <NavigationMenuTrigger>About Me</NavigationMenuTrigger>
           <NavigationMenuContent className="">
             <ul className="p-3">
-              {
-                about_me_components.map((item) => (
-                  <li>
-                    <NavigationMenuLink asChild key={item.title}>
-                      <a href={item.href} className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                        <div className="text-sm font-medium leading-none">
-                          {item.title}
-                        </div>
-                      </a>
-                    </NavigationMenuLink>
-                  </li>
-                ))
-              }
+              {about_me_components.map((item) => (
+                <ListItem key={item.title} href={item.href} title={item.title}/>)
+              )}
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
         
-        <NavigationMenuItem>
+        <NavigationMenuItem key="novels">
           <NavigationMenuLink href="/novels" className={navigationMenuTriggerStyle()}>
             My Webnovels List
           </NavigationMenuLink>
@@ -82,12 +72,12 @@ export default async function NavBar() {
 
       <div className="absolute right-10">
         <NavigationMenuList>
-          <NavigationMenuItem className="px-4">
+          <NavigationMenuItem key="theme" className="px-4">
             <ThemeToggle/>
           </NavigationMenuItem>
 
           <NavigationMenuItem>
-            <NavigationMenuLink href={authLink}>
+            <NavigationMenuLink key='auth' href={authLink}>
               {authText}
             </NavigationMenuLink>
           </NavigationMenuItem>
@@ -96,3 +86,25 @@ export default async function NavBar() {
     </NavigationMenu>
   )
 }
+
+const ListItem = React.forwardRef<
+  React.ElementRef<"a">,
+  React.ComponentPropsWithoutRef<"a">
+>(({ className, title, children, ...props }, href) => {
+  return (
+    <li>
+      <NavigationMenuLink asChild key={title}>
+        <a 
+          ref={href} 
+          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+          {...props}
+        >
+          <div className="text-sm font-medium leading-none">
+            {title}
+          </div>
+        </a>
+      </NavigationMenuLink>
+    </li>
+  )
+})
+ListItem.displayName = "ListItem"
