@@ -44,8 +44,8 @@ export default async function NavBar() {
   const authText = session ? "Sign Out" : "Sign In";
 
   return (
-    <NavigationMenu>
-      <NavigationMenuList>
+    <NavigationMenu className='justify-between'>
+      <NavigationMenuList className="flex-wrap pl-4">
         <NavigationMenuItem key="home">
           <NavigationMenuLink href="/" className={navigationMenuTriggerStyle()}>
             Home
@@ -70,19 +70,17 @@ export default async function NavBar() {
         </NavigationMenuItem>
       </NavigationMenuList>
 
-      <div className="absolute right-10">
-        <NavigationMenuList>
-          <NavigationMenuItem key="theme" className="px-4">
-            <ThemeToggle/>
-          </NavigationMenuItem>
+      <NavigationMenuList className="flex pr-5">
+        <NavigationMenuItem key="theme" className="px-4">
+          <ThemeToggle/>
+        </NavigationMenuItem>
 
-          <NavigationMenuItem>
-            <NavigationMenuLink key='auth' href={authLink}>
-              {authText}
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-        </NavigationMenuList>
-      </div>
+        <NavigationMenuItem>
+          <NavigationMenuLink key='auth' href={authLink} className={navigationMenuTriggerStyle()}>
+            {authText}
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+      </NavigationMenuList>
     </NavigationMenu>
   )
 }
