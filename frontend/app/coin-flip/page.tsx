@@ -1,34 +1,34 @@
 'use client'
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import './coin.css'
 
 export default function CoinFlip() {
   const [isHeads, setIsHeads] = useState(true);
   const [isFlippingSide, setIsFlippingSide] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
+  const isHeadsRef = useRef(isHeads);
 
-  async function flip() {
+  const flip = useCallback(async () => {
     const result = Math.random() < 0.5;
     const numFlips = 8 + Number(result);
 
     setIsFlipping(true);
-    let currSide = isHeads;
+    let currSide = isHeadsRef.current;
     for (let i = 0; i < numFlips; i++) {
-        setIsFlippingSide(true);
-        await new Promise(resolve => setTimeout(resolve, 180));
-        setIsFlippingSide(false);
-        await new Promise(resolve => setTimeout(resolve, 20));
-        setIsHeads(!currSide);
-        currSide = !currSide;
+      setIsFlippingSide(true);
+      await new Promise(resolve => setTimeout(resolve, 180));
+      setIsFlippingSide(false);
+      await new Promise(resolve => setTimeout(resolve, 20));
+      setIsHeads(!currSide);
+      currSide = !currSide;
     }
     setIsFlipping(false);
-  }
+  }, []);
 
   useEffect(() => {
     flip();
   }, [flip]);
-
 
   return (
     <div className="flex flex-col items-center justify-start h-screen pt-20">
