@@ -1,6 +1,7 @@
 import { getPostData } from "./posts"
-import './about-me.css'
 import { notFound } from 'next/navigation';
+import './about-me.css'
+import './about-me-local.css'
 
 export default async function Home() {
   const postData = await getPostData('index');

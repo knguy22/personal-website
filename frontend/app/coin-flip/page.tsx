@@ -27,7 +27,7 @@ export default function CoinFlip() {
 
   useEffect(() => {
     flip();
-  }, []);
+  }, [flip]);
 
 
   return (
