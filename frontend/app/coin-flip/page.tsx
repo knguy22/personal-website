@@ -5,15 +5,24 @@ import './coin.css'
 
 export default function CoinFlip() {
   const [isHeads, setIsHeads] = useState(true);
+  const [isFlippingSide, setIsFlippingSide] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
 
-  function flip() {
+  async function flip() {
+    const result = Math.random() < 0.5;
+    const numFlips = 8 + Number(result);
+
     setIsFlipping(true);
-    setTimeout(() => {
-      setIsHeads(Math.random() < 0.5);
-      console.log(isHeads);
-      setIsFlipping(false);
-    }, 2000);
+    let currSide = isHeads;
+    for (let i = 0; i < numFlips; i++) {
+        setIsFlippingSide(true);
+        await new Promise(resolve => setTimeout(resolve, 180));
+        setIsFlippingSide(false);
+        await new Promise(resolve => setTimeout(resolve, 20));
+        setIsHeads(!currSide);
+        currSide = !currSide;
+    }
+    setIsFlipping(false);
   }
 
   useEffect(() => {
@@ -23,13 +32,21 @@ export default function CoinFlip() {
 
   return (
     <div className="flex flex-col items-center justify-start h-screen pt-20">
-      <div id='coin' className={`relative w-60 h-60 ${isFlipping ? 'flipping' : ''}`}>
-        <button id='heads' className={`coin-face ${isHeads ? 'top' : 'bottom'} ${isFlipping ? 'flip-heads' : ''}`} onClick={flip} disabled={isFlipping}>
+      <div id='coin' className={`relative w-60 h-60 ${isFlippingSide ? 'flipping' : ''}`}>
+        <button 
+          id='heads' 
+          className={`coin-face ${isHeads ? 'top' : 'bottom'} ${isFlippingSide ? 'flip-heads' : ''}`} 
+          onClick={flip} disabled={isFlipping}
+        >
           <p className='coin-text'>
             Heads
           </p>
         </button>
-        <button id='tails' className={`coin-face ${isHeads ? 'bottom' : 'top'} ${isFlipping ? 'flip-tails' : ''}`} onClick={flip} disabled={isFlipping}>
+        <button 
+          id='tails' 
+          className={`coin-face ${isHeads ? 'bottom' : 'top'} ${isFlippingSide ? 'flip-tails' : ''}`} 
+          onClick={flip} disabled={isFlipping}
+        >
           <p className='coin-text'>
             Tails
           </p>

@@ -1,7 +1,3 @@
-#coin {
-  transform-style: preserve-3d;
-}
-
 #heads, #tails {
   top: 0%;
   width: 100%;
@@ -37,12 +33,12 @@
 }
 
 .flip-heads {
-  animation: flip-heads-frame 2s ease-in-out;
+  animation: flip-heads-frame 0.2s ease-in-out;
 }
 
 
 .flip-tails {
-  animation: flip-heads-frame 2s ease-in-out;
+  animation: flip-heads-frame 0.2s ease-in-out;
 }
 
 @keyframes flip-heads-frame {
@@ -50,7 +46,7 @@
     transform: rotateX(0);
   }
   100% {
-    transform: rotateX(2520deg);
+    transform: rotateX(360deg);
   }
 }
 
@@ -59,6 +55,6 @@
     transform: rotateX(0);
   }
   100% {
-    transform: rotateX(2340deg);
+    transform: rotateX(180deg);
   }
 }
