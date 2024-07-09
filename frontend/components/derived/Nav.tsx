@@ -68,7 +68,14 @@ export default async function NavBar() {
             My Webnovels List
           </NavigationMenuLink>
         </NavigationMenuItem>
+
+        <NavigationMenuItem key="coin-flip">
+          <NavigationMenuLink href="/coin-flip" className={navigationMenuTriggerStyle()}>
+            Coin Flip
+          </NavigationMenuLink>
+        </NavigationMenuItem>
       </NavigationMenuList>
+
 
       <NavigationMenuList className="flex pr-5">
         <NavigationMenuItem key="theme" className="px-4">

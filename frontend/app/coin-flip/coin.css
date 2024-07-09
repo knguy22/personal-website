@@ -1,0 +1,60 @@
+#heads, #tails {
+  top: 0%;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  border-radius: 50%;
+  box-shadow: inset 0 0 45px rgba(255,255,255,.3), 0 12px 20px -10px rgba(0,0,0,.4);
+  backface-visibility: hidden;
+}
+
+#heads {
+  background: rgb(153 27 27);
+}
+
+#tails {
+  background: rgb(22 101 52);
+}
+
+.top {
+    z-index: 50;
+}
+
+.bottom {
+    z-index: 40;
+}
+
+.coin-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: x-large;
+}
+
+.flip-heads {
+  animation: flip-heads-frame 0.2s ease-in-out;
+}
+
+
+.flip-tails {
+  animation: flip-heads-frame 0.2s ease-in-out;
+}
+
+@keyframes flip-heads-frame {
+  0% {
+    transform: rotateX(0);
+  }
+  100% {
+    transform: rotateX(360deg);
+  }
+}
+
+@keyframes flip-tails-frame {
+  0% {
+    transform: rotateX(0);
+  }
+  100% {
+    transform: rotateX(180deg);
+  }
+}
