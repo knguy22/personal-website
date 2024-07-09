@@ -1,6 +1,5 @@
 #articleContent img {
-	height: 50em;
-	margin: auto;
+	height: 40em;
+	width: 30em;
 	display: inline-block;
-    align-content: center;
 }
