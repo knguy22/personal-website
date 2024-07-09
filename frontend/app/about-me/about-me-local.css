@@ -1,4 +1,6 @@
 #articleContent img {
+	height: 50em;
 	margin: auto;
 	display: inline-block;
+    align-content: center;
 }
