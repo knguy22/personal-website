@@ -1,10 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* Main content */
-
-#articleContent {
+.articleContent {
 	font-size: 1.25em;
 	width: 50%;
 	margin: auto;
@@ -12,65 +7,47 @@
 	margin-bottom: 1em;
 }
 
-#articleContent h1 {
+.articleContent h1 {
 	font-size: 1.75em;
 	text-align: center;
 	margin-top: 1em;
 	margin-bottom: 1em;
 }
 
-#articleContent h2 {
+.articleContent h2 {
 	margin-top: 1em;
 	margin-bottom: 0em;
 	font-size: 1.4em;
 }
 
-#articleContent h2 a {
+.articleContent h2 a {
 	color: blue;
 }
 
-#articleContent h3 {
+.articleContent h3 {
 	font-size: 1.2em;
 	font-style: italic;
 	color: orange;
 	margin-bottom: 1em;
 }
 
-#articleContent h4 {
+.articleContent h4 {
 	font-size: 1.2em;
 	color: rgb(192, 158, 24);
 	margin-bottom: 0em;
 	font-style: italic;
 }
 
-#articleContent p {
+.articleContent p {
 	margin-bottom: 1em;
 }
 
-#articleContent a {
+.articleContent a {
 	color: blue;
 }
 
-#articleContent li {
+.articleContent li {
 	list-style-type: circle;
 	list-style-position: inside;
 	font-weight: bold;
-}
-
-/* Profile redirects */
-
-#platformNotice {
-	margin-top: 2em;
-	font-size: 2em;
-	text-align: center;
-}
-
-.imageIcon {
-	margin: 15px;
-	transition: all 1s ease;
-}
-
-.imageIcon:hover {
-	transition: all 1s ease;
-	transform: scale(1.1);
 }
