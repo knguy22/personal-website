@@ -66,7 +66,7 @@ export function DataTable<TData, TValue>({
 
           // delete from backend first
           const frontend_api_url = process.env.NEXT_PUBLIC_API_URL + '/delete_novel';
-          const backend_status = fetch(frontend_api_url, {
+          fetch(frontend_api_url, {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
@@ -260,7 +260,7 @@ function FilterList ({ table }: FilterListProp) {
     "Notes": "notes",
   };
 
-  const [dropDownVal, setDropDownVal] = React.useState<keyof NovelEntry>(filter_keys.Country);
+  const [dropDownVal, setDropDownVal] = React.useState<keyof NovelEntry>(filter_keys.Title);
 
   return (
     <div className="flex items-center space-x-2">

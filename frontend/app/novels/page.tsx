@@ -21,7 +21,22 @@ export default function Novels() {
         const convertedNovels = parse_novels(novelsData);
 
         // sort novels by rating by default
-        convertedNovels.sort((a, b) => b.rating.localeCompare(a.rating));
+        convertedNovels.sort((a, b) => {
+            const aIsNumeric = !isNaN(a.rating as any);
+            const bIsNumeric = !isNaN(b.rating as any);
+            
+            // If both are numeric, compare them as numbers
+            if (aIsNumeric && bIsNumeric) {
+                return parseInt(b.rating) - parseInt(a.rating);
+            }
+            
+            // If one is numeric and the other is not, the numeric one should come first
+            if (aIsNumeric) return -1;
+            if (bIsNumeric) return 1;
+            
+            // If neither are numeric, compare them as strings
+            return a.rating.localeCompare(b.rating);
+        });
 
         setNovels(convertedNovels);
       } catch (error) {
