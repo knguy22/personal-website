@@ -1,7 +1,10 @@
-use crate::novel_entry::{model_to_novel_entry, novel_entry_to_active_model, NovelEntry, Status};
+use crate::novel_entry::{model_to_novel_entry, novel_entry_to_active_model, NovelEntry, Status, NovelTagsRecordParsed};
 use crate::entity::{prelude::Novels, novels};
 use std::{error::Error, env, time::Duration};
+
 use chrono::Local;
+use itertools::Itertools;
+use serde_json::from_value;
 use sea_orm::{
     ActiveModelTrait,
     ColumnTrait,
@@ -79,6 +82,36 @@ pub async fn update_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry
             Novels::insert(novel_entry_to_active_model(row)).exec(db).await?;
         }
     }
+
+    Ok(())
+}
+
+pub async fn update_novel_tags(db: &DatabaseConnection, rows: &Vec<NovelTagsRecordParsed>) -> Result<(), Box<dyn Error>> {
+    let mut novels_updated = 0;
+
+    for row in rows.iter() {
+        let model = Novels::find()
+            .filter(novels::Column::Title.eq(&row.title))
+            .one(db)
+            .await?;
+        
+        if let Some(model) = model {
+            novels_updated += 1;
+
+            // add the new tags to the old ones
+            let mut new_tags: Vec<String> = from_value(model.tags.clone()).expect("update_novel_tags: JSON value is not an array");
+            new_tags.extend(row.tags.clone());
+
+            // make tags unique
+            new_tags = new_tags.into_iter().unique().collect();
+
+            // update the model
+            let mut active_model = model.into_active_model();
+            active_model.tags = Set(serde_json::to_value(new_tags).unwrap());
+            active_model.update(db).await?;
+        }
+    }
+    println!("Updated {} novels", novels_updated);
 
     Ok(())
 }

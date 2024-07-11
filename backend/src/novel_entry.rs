@@ -29,6 +29,13 @@ pub struct NovelEntry {
     pub date_modified: DateTime<Utc>,
 }
 
+// used when importing from csv
+#[derive(Debug)]
+pub struct NovelTagsRecordParsed {
+    pub title: String,
+    pub tags: Vec<String>,
+}
+
 impl Status {
     pub fn new(s: &String) -> Status {
         match s.chars().nth(0).unwrap_or_default() {
