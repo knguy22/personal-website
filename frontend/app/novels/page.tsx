@@ -5,6 +5,8 @@ import { NovelEntry, parse_novels } from './novel-types.tsx';
 import { novel_columns } from './client-components.tsx';
 import { DataTable } from '@/app/novels/data-table.tsx';
 
+const isNumeric = (num: any) => (typeof(num) === 'number' || typeof(num) === "string" && num.trim() !== '') && !isNaN(num as number);
+
 export default function Novels() {
   const [isLoading, setLoading] = useState(true);
   const [novels, setNovels] = useState<NovelEntry[]>([]);
@@ -16,15 +18,13 @@ export default function Novels() {
       try {
         const response = await fetch(novels_url);
         const novelsData = await response.json();
-        console.log("Loaded novels: " + novelsData.length);
-        console.log("cols: " + Object.keys(novelsData[0]));
         const convertedNovels = parse_novels(novelsData);
 
         // sort novels by rating by default
         convertedNovels.sort((a, b) => {
-            const aIsNumeric = !isNaN(a.rating as any);
-            const bIsNumeric = !isNaN(b.rating as any);
-            
+            const aIsNumeric = isNumeric(a.rating);
+            const bIsNumeric = isNumeric(b.rating);
+
             // If both are numeric, compare them as numbers
             if (aIsNumeric && bIsNumeric) {
                 return parseInt(b.rating) - parseInt(a.rating);
