@@ -26,14 +26,14 @@ export const InputCell: any = <TData,>({ getValue, row, column, table }: InputCe
 
   // only allow editing for admins
   if (session?.user?.role !== 'admin') {
-    return (value);
+    return <div className='max-h-8 max-w-44 overflow-x-auto text-nowrap'>{value}</div>
   }
   return (
     <input
       value={value}
       onChange={e => setValue(e.target.value)}
       onBlur={onBlur}
-      className='w-full'
+      className='h-6 w-full'
     />
   )
 }
