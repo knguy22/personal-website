@@ -15,6 +15,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
+
+import { Table as TanstackTable } from "@tanstack/react-table"
  
 import {
   Table,
@@ -204,7 +206,7 @@ export function DataTable ({
 }
 
 interface TableOptionsRowProps {
-  table: any,
+  table: TanstackTable<NovelEntry>,
   tableData: NovelEntry[],
   setTableData: React.Dispatch<React.SetStateAction<NovelEntry[]>>,
 }
@@ -244,7 +246,7 @@ function TableOptionsRow({ table, tableData, setTableData }: TableOptionsRowProp
 }
 
 interface FilterListProp {
-  table: any
+  table: TanstackTable<NovelEntry>,
 }
 
 function FilterList ({ table }: FilterListProp) {
@@ -292,7 +294,7 @@ function FilterList ({ table }: FilterListProp) {
 }
 
 interface FilterProps {
-  table: any
+  table: TanstackTable<NovelEntry>,
   placeholder: string
   col_name: keyof NovelEntry
   class_extra?: string
@@ -315,7 +317,7 @@ function Filter({table, placeholder, col_name, class_extra}: FilterProps) {
 }
 
 interface CreateNovelButtonProps {
-  table: any
+  table: TanstackTable<NovelEntry>,
   tableData: NovelEntry[]
   setTableData: React.Dispatch<React.SetStateAction<NovelEntry[]>>
 }
