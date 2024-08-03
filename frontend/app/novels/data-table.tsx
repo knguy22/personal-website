@@ -40,22 +40,24 @@ import { Input } from "@/components/ui/input"
 import { NovelEntry } from "./novel-types"
 import { filterTags } from "./client-components"
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
-  setData: React.Dispatch<React.SetStateAction<TData[]>>
+type NovelEntryValue = string;
+
+interface DataTableProps {
+  columns: ColumnDef<NovelEntry, NovelEntryValue>[]
+  data: NovelEntry[]
+  setData: React.Dispatch<React.SetStateAction<NovelEntry[]>>
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable ({
   columns,
   data,
   setData,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps) {
 
   // additional functionality that requires setData
   // only do this for admin
   const {data: session} = useSession();
-  const columns_with_buttons: ColumnDef<TData, TValue>[] = 
+  const columns_with_buttons: ColumnDef<NovelEntry, NovelEntryValue>[] = 
     session?.user?.role !== 'admin' ? columns : 
     [...columns, {
       accessorKey: "delete_row",
@@ -79,7 +81,7 @@ export function DataTable<TData, TValue>({
 
           // tanstack uses it's own id, this is not the id in the backend
           const tanstack_id_rows: any = table.getPreFilteredRowModel().flatRows;
-          let data: TData[] = new Array();
+          let data: NovelEntry[] = new Array();
           for (const tanstack_id in tanstack_id_rows) {
             const novel_id = tanstack_id_rows[tanstack_id].original.id;
             if (novel_id !== id_to_delete) {
@@ -201,13 +203,13 @@ export function DataTable<TData, TValue>({
   )
 }
 
-interface TableOptionsRowProps<TData> {
+interface TableOptionsRowProps {
   table: any,
-  tableData: TData[],
-  setTableData: React.Dispatch<React.SetStateAction<TData[]>>,
+  tableData: NovelEntry[],
+  setTableData: React.Dispatch<React.SetStateAction<NovelEntry[]>>,
 }
 
-function TableOptionsRow<TData>({ table, tableData, setTableData }: TableOptionsRowProps<TData>) {
+function TableOptionsRow({ table, tableData, setTableData }: TableOptionsRowProps) {
 
   const {data: session} = useSession();
 
@@ -312,21 +314,21 @@ function Filter({table, placeholder, col_name, class_extra}: FilterProps) {
   )
 }
 
-interface CreateNovelButtonProps<TData> {
+interface CreateNovelButtonProps {
   table: any
-  tableData: TData[]
-  setTableData: React.Dispatch<React.SetStateAction<TData[]>>
+  tableData: NovelEntry[]
+  setTableData: React.Dispatch<React.SetStateAction<NovelEntry[]>>
 }
 
-function CreateNovelButton<TData>({ table, tableData, setTableData }: CreateNovelButtonProps<TData>) {
-  async function create_novel(): Promise<TData | null> {
+function CreateNovelButton({ table, tableData, setTableData }: CreateNovelButtonProps) {
+  async function create_novel(): Promise<NovelEntry | null> {
     try {
       const response = await fetch("/api/create_novel", {
         method: "GET",
       });
       
       if (response.ok) {
-        const res: TData = await response.json();
+        const res: NovelEntry = await response.json();
         return res;
       } else {
         const errorText = await response.text();
