@@ -4,8 +4,19 @@ priority: 0
 ---
 # **Projects**
 
+## [**Image to Tetris** ![github-mark.png](/github-mark.png "Github Redirect")](https://github.com/knguy22/image-to-tetris):
+
+### June 2024 – September 2024
+
+I saw people who tried to draw images using tetris blocks by themselves, and I was inspired to make something more generalized. I eventually implemented an efficient yet accurate image approximation algorithm using tetris blocks, which was eventually used to approximate the entire Never Gonna Give You Up music video by Rick Astley. Check it out [here](https://www.youtube.com/watch?v=Hat_GgtkLCA)!
+
+#### Skills Used: 
+* Rust
+* FFmpeg
+* Test-Driven Development
+
 ## [**This Personal Website!** ![github-mark.png](/github-mark.png "Github Redirect")](https://github.com/knguy22/personal-website):
-### July 2024 – Present
+### June 2024 – July 2024
 
 I wanted to try my hand at creating a website that I could do anything I wanted with. Alongside displaying my personal accomplishments, I also wanted to support other functionalities that are useful to me. This website is also self-hosted on my own VPS server and is protected by Cloudflare.
 
