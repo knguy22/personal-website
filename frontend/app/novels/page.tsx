@@ -4,12 +4,14 @@ import React, {useState, useEffect} from 'react';
 import { NovelEntry, parse_novels } from './novel-types.tsx';
 import { novel_columns } from './client-components.tsx';
 import { DataTable } from '@/app/novels/data-table.tsx';
+import { useSession } from 'next-auth/react'
 
 const isNumeric = (num: any) => (typeof(num) === 'number' || typeof(num) === "string" && num.trim() !== '') && !isNaN(num as number);
 
 export default function Novels() {
   const [isLoading, setLoading] = useState(true);
   const [novels, setNovels] = useState<NovelEntry[]>([]);
+  const {data: session} = useSession();
 
   // load raw novels once
   useEffect(() => {
@@ -48,6 +50,22 @@ export default function Novels() {
 
     fetchNovels();
   }, []);
+
+  if (!session) {
+    return (
+      <div className="text-5xl font-bold flex-col items-center text-center justify-between p-24">
+        Sign in to view.
+      </div>
+    );
+  }
+
+  if (session?.user?.role !== 'admin') {
+    return (
+      <div className="text-5xl font-bold flex-col items-center text-center justify-between p-24">
+        User privileges not high enough.
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
