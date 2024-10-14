@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { NovelEntry } from "@/app/novels/novel-types";
+import { NovelEntry, NovelEntryApi } from "@/app/novels/novel-types";
 
 export default async function handler(
   _req: NextApiRequest,
@@ -23,8 +23,18 @@ async function create_backend_novel(): Promise<NovelEntry | null> {
         "Content-Type": "application/json",
         },
     });
-    const novel: NovelEntry = await response.json();
-    console.log("Response: " + JSON.stringify(novel));
+    const raw_novel: NovelEntryApi = await response.json();
+    const novel: NovelEntry = {
+      id: raw_novel.id,
+      country: raw_novel.country,
+      title: raw_novel.title,
+      chapter: raw_novel.chapter,
+      rating: raw_novel.rating !== 0 ? String(raw_novel.rating) : "",
+      status: raw_novel.status,
+      tags: raw_novel.tags.join(","),
+      notes: raw_novel.notes,
+      date_modified: raw_novel.date_modified
+    }
     return novel;
   } catch (error) {
     console.log("Fetch backend error: " + error);
