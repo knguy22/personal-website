@@ -158,8 +158,7 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
 ];
 
 // "any" used to be compatible with tanstack table
-function DateCell ({ getValue, row, _cell, _table } : any) {
-
+function DateCell ({ getValue, row, _cell, table } : any) {
   const [date, setDate] = useState<Date>(new Date(getValue()));
   const [row_copy, setRowCopy] = useState(row);
 
@@ -168,15 +167,12 @@ function DateCell ({ getValue, row, _cell, _table } : any) {
     if (novel_entries_equal(row['original'], row_copy['original'])) {
       return;
     }
-    setRowCopy(row);
     if (row['original'].id != row_copy['original'].id) {
       return;
     }
+    setRowCopy(row);
 
-    console.log("updating copy" + JSON.stringify(row_copy['original']));
-    console.log("into " + JSON.stringify(row['original']));
-
-    update_row(row_copy['original'], setDate);
+    update_row(row, setDate, table);
   }, [row, row_copy, date]);
 
   try {
@@ -187,7 +183,7 @@ function DateCell ({ getValue, row, _cell, _table } : any) {
   }
 }
 
-async function update_row(row: NovelEntry, setDate: (date: Date) => void): Promise<null> {
+async function update_row(row: Row<any>, setDate: (date: Date) => void, table: any): Promise<null> {
   // send the update to the backend
   const frontend_api_url = process.env.NEXT_PUBLIC_API_URL + '/update_novel';
   const response = await fetch(frontend_api_url, {
@@ -195,7 +191,7 @@ async function update_row(row: NovelEntry, setDate: (date: Date) => void): Promi
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(row),
+    body: JSON.stringify(row['original']),
   })
 
   // handle the response
@@ -206,7 +202,11 @@ async function update_row(row: NovelEntry, setDate: (date: Date) => void): Promi
 
   // since we have successfully updated the row, update the local state
   const novels: NovelEntry[] = await response.json();
-  setDate(new Date(novels[0].date_modified));
+
+  // update the date
+  const new_date = novels[0].date_modified;
+  setDate(new Date(new_date));
+  table.options.meta?.updateData(row.index, 'date_modified', new_date);
   return null;
 }
 
