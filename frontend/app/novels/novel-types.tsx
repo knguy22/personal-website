@@ -44,6 +44,10 @@ export function parse_novels(unprocessed_novels: NovelEntryApi[]): NovelEntry[] 
 
 export function novel_entries_equal(a: NovelEntry, b: NovelEntry) {
   for (const key of novel_col_names) {
+    if (key == "date_modified") {
+      continue;
+    }
+
     if (key == "tags") {
       for (let i = 0; i < a[key].length; i++) {
         if (b[key][i] !== a[key][i]) {

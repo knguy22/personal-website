@@ -1,18 +1,22 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { NovelEntry, NovelEntryApi, process_tags } from "@/app/novels/novel-types";
+import { json } from "stream/consumers";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
     const body: NovelEntry = req.body;
-    console.log("Updating novel: " + JSON.stringify(body));
+    // console.log("Updating novel: " + JSON.stringify(body));
 
-    await update_backend_novel(body);
-    res.status(200).json({ message: 'Novel updated successfully' });
+    let novels = await update_backend_novel(body);
+    if (!novels) {
+        res.status(500).json({ error: 'Failed to update novels' });
+    }
+    res.status(200).json(novels);
 }
 
-async function update_backend_novel(novel: NovelEntry): Promise<void> {
+async function update_backend_novel(novel: NovelEntry): Promise<NovelEntry[] | null> {
   const backend_url = process.env.BACKEND_URL + '/api/update_novels';
 
   const to_send: NovelEntryApi = {
@@ -29,14 +33,20 @@ async function update_backend_novel(novel: NovelEntry): Promise<void> {
 
   // backend api only accepts a list of NovelEntries
   try {
-    await fetch(backend_url, {
+    const response = await fetch(backend_url, {
         method: "POST",
         headers: {
         "Content-Type": "application/json",
         },
         body: '[' + JSON.stringify(to_send) + ']',
     });
+
+    const novels = await response.json();
+    return novels;
+
   } catch (error) {
     console.log("Fetch backend error: " + error);
   }
+
+  return null;
 }

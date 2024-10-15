@@ -4,6 +4,7 @@ use std::{error::Error, env, time::Duration};
 
 use chrono::Local;
 use itertools::Itertools;
+use sea_orm::TryIntoModel;
 use serde_json::from_value;
 use sea_orm::{
     ActiveModelTrait,
@@ -59,7 +60,8 @@ pub async fn insert_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry
     Ok(())
 }
 
-pub async fn update_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry>) -> Result<(), Box<dyn Error>> {
+pub async fn update_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry>) -> Result<Vec<NovelEntry>, Box<dyn Error>> {
+    let mut updated_novels: Vec<NovelEntry> = Vec::new();
     for row in rows.iter() {
         let model = Novels::find()
             .filter(novels::Column::Id.eq(row.id))
@@ -75,15 +77,21 @@ pub async fn update_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry
             active_model.status = Set(Some(row.status.to_str()));
             active_model.tags = Set(serde_json::to_value(row.tags.clone()).unwrap());
             active_model.notes = Set(Some(row.notes.clone()));
-            active_model.date_modified = Set(row.date_modified.naive_utc());
+            active_model.date_modified = Set(Local::now().naive_utc());
+
+            // update the results
+            updated_novels.push(model_to_novel_entry(active_model.clone().try_into_model()?));
+
+            // update the database 
             active_model.update(db).await?;
         }
         else {
+            updated_novels.push(row.clone());
             Novels::insert(novel_entry_to_active_model(row)).exec(db).await?;
         }
     }
 
-    Ok(())
+    Ok(updated_novels)
 }
 
 pub async fn update_novel_tags(db: &DatabaseConnection, rows: &Vec<NovelTagsRecordParsed>) -> Result<(), Box<dyn Error>> {
