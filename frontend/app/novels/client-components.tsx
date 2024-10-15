@@ -173,7 +173,7 @@ function DateCell ({ getValue, row, _cell, table } : any) {
     setRowCopy(row);
 
     update_row(row, setDate, table);
-  }, [row, row_copy, date]);
+  }, [date, row, row_copy, table]);
 
   try {
     return date.toISOString();
