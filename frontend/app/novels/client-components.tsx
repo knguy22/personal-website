@@ -158,42 +158,22 @@ export const novel_columns: ColumnDef<NovelEntry>[] = [
 ];
 
 // "any" used to be compatible with tanstack table
-function DateCell ({ getValue, row, _cell, _table } : any) {
-
+function DateCell ({ getValue, row, _cell, table } : any) {
   const [date, setDate] = useState<Date>(new Date(getValue()));
   const [row_copy, setRowCopy] = useState(row);
 
   useEffect(() => {
-    const incoming: NovelEntry = row['original'];
-
-    // don't spam updates if the rows don't even have the same id; this can happen due to delete row
-    if (incoming.id != row_copy['original'].id) {
+    // don't spam updates
+    if (novel_entries_equal(row['original'], row_copy['original'])) {
       return;
     }
-
-    // if the row has the same key, check for changes
-    if (novel_entries_equal(row['original'], row_copy['original'])) {
-      setDate(date);
-    } else {
-      const frontend_api_url = process.env.NEXT_PUBLIC_API_URL + '/update_novel';
-      const new_date = new Date();
-
-      setDate(new_date);
-      setRowCopy(row);
-
-      // incoming doesn't have an updated date
-      const to_send = { ...incoming, date_modified: new_date.toISOString() };
-      fetch(frontend_api_url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(to_send),
-      }).catch((error) => {
-        console.log("Fetch api error: " + error)
-      });
+    if (row['original'].id != row_copy['original'].id) {
+      return;
     }
-  }, [row, row_copy, date]);
+    setRowCopy(row);
+
+    update_row(row, setDate, table);
+  }, [date, row, row_copy, table]);
 
   try {
     return date.toISOString();
@@ -201,6 +181,33 @@ function DateCell ({ getValue, row, _cell, _table } : any) {
   catch (error) {
     return "";
   }
+}
+
+async function update_row(row: Row<any>, setDate: (date: Date) => void, table: any): Promise<null> {
+  // send the update to the backend
+  const frontend_api_url = process.env.NEXT_PUBLIC_API_URL + '/update_novel';
+  const response = await fetch(frontend_api_url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(row['original']),
+  })
+
+  // handle the response
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText);
+  }
+
+  // since we have successfully updated the row, update the local state
+  const novels: NovelEntry[] = await response.json();
+
+  // update the date
+  const new_date = novels[0].date_modified;
+  setDate(new Date(new_date));
+  table.options.meta?.updateData(row.index, 'date_modified', new_date);
+  return null;
 }
 
 export const filterTags: FilterFn<NovelEntry> = (

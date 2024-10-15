@@ -57,13 +57,10 @@ async fn novel_handler(state: State<AppState>) -> impl IntoResponse {
 
 async fn update_novels_handler(state: State<AppState>, Json(rows): Json<Vec<novel_entry::NovelEntry>>) -> impl IntoResponse {
     println!("Updating novels {}", rows.len());
-    for row in rows.iter() {
-        println!("{:?}", row);
-    }
     let res = db::update_novel_entries(&state.conn, &rows).await;
     match res {
-        Ok(()) => Json(format!(r#"{{"Success": true, "Rows": "{}"}}"#, rows.len())),
-        Err(_) => Json(r#"{"Success": false}"#.to_string()),
+        Ok(novels) => Json(novels),
+        Err(_) => Json(Vec::new()),
     }
 }
 
