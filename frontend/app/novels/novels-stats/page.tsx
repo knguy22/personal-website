@@ -32,8 +32,18 @@ export default function Page() {
 }
 
 function StatsTable({stats}: {stats: Stats}) {
-  let rating_dist_map = stats.rating_dist.map((count, index) => ({rating: index + 1, count: count}));
+  // convert distributions into table ready data
+  let rating_dist = stats.rating_dist.map((count, index) => ({rating: index + 1, count: count}));
+  let chapter_dist = Object.entries(stats.chapter_dist)
+    .map(([chapter, count]) => ({chapter: chapter, count: count}));
 
+  // make sure table ready data is sorted
+  chapter_dist.sort((a, b) => {
+    const [startA] = a.chapter.split('-').map(Number);
+    const [startB] = b.chapter.split('-').map(Number);
+    return startA - startB;
+  });
+  
   return (
     <div className="flex flex-col items-center space-y-5">
       <div className="flex justify-center space-x-8">
@@ -41,7 +51,20 @@ function StatsTable({stats}: {stats: Stats}) {
         <NumberDisplay value={stats.chapter_count} description="Total Chapters" />
         <NumberDisplay value={stats.average_rating.toPrecision(3)} description="Average Rating" />
       </div>
-      <RatingChart chartData={rating_dist_map} chartConfig={chartConfig}/>
+      <StatChart 
+        title="Rating Distribution" 
+        chartData={rating_dist} 
+        chartConfigKey="rating" 
+        XAxisLabel="Rating" 
+        XAxisKey="rating" 
+        YAxisKey="count"/>
+      <StatChart 
+        title="Chapter Distribution" 
+        chartData={chapter_dist} 
+        chartConfigKey="chapter" 
+        XAxisLabel="Chapters" 
+        XAxisKey="chapter" 
+        YAxisKey="count"/>
     </div>
   );
 }
@@ -61,21 +84,34 @@ const chartConfig = {
     label: "rating",
     color: "#4e3196",
   },
+  chapter: {
+    label: "chapter",
+    color: "#4e3196",
+  },
 } satisfies ChartConfig
+
+interface StatChartProps {
+  title: string
+  chartData: any[]
+  chartConfigKey: keyof typeof chartConfig
+  XAxisLabel: string,
+  XAxisKey: string,
+  YAxisKey: string,
+}
  
-export function RatingChart( {chartData, chartConfig}: {chartData: any, chartConfig: ChartConfig}) {
+function StatChart( {title, chartData, chartConfigKey, XAxisLabel, XAxisKey, YAxisKey}: StatChartProps) {
   return (
     <div className="flex flex-col items-center w-full">
-      <div className="text-xl text-center font-bold">Rating Distribution</div>
-      <ChartContainer config={chartConfig} className="h-56 w-1/4">
+      <div className="text-xl text-center font-bold">{title}</div>
+      <ChartContainer config={chartConfig} className="h-56 w-1/2">
         <BarChart accessibilityLayer data={chartData} margin={{ top: 20, bottom: 20, left: 0, right: 0 }}>
           <CartesianGrid vertical={false} />
-          <XAxis dataKey="rating" tickLine={false}>
-            <Label value="Rating" offset={-10} position="bottom"/>
+          <XAxis dataKey={XAxisKey} tickLine={false}>
+            <Label value={XAxisLabel} offset={-10} position="bottom"/>
           </XAxis>
           <YAxis></YAxis>
-          <Bar dataKey="count" fill="var(--color-rating)" radius={4}>
-            <LabelList dataKey="count" position="top" /> {/* Labels on top of bars */}
+          <Bar dataKey={YAxisKey} fill={"var(--color-" + chartConfigKey + ")"} radius={4}>
+            <LabelList dataKey={YAxisKey} position="top" />
         </Bar>
         </BarChart>
       </ChartContainer>

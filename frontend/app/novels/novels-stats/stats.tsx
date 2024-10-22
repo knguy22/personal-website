@@ -4,4 +4,5 @@ export type Stats = {
   chapter_count: number,
   average_rating: number
   rating_dist: [number, number, number, number, number, number, number, number, number, number]
+  chapter_dist: { [key: string]: number }
 }
