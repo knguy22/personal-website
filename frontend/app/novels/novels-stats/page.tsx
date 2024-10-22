@@ -3,6 +3,7 @@
 import { Stats } from "./stats.tsx";
 import React, {useState, useEffect} from 'react';
 import { fetch_backend } from "@/utils/fetch_backend.ts";
+import Loading from "@/components/derived/Loading.tsx";
 
 export default function Page() {
   const [stats, setStats] = useState<Stats>();
@@ -17,16 +18,13 @@ export default function Page() {
     fetchStats();
   }, [])
 
-  if (!stats) {
-    return (
-      <h1 className="text-4xl text-center pb-5 font-medium">Loading...</h1>
-    );
-  }
-
   return (
     <>
       <h1 className="text-4xl text-center pb-5 font-medium">My Webnovel Stats</h1>
-      <StatsTable stats={stats} />
+      {stats ? 
+        <StatsTable stats={stats} /> 
+        : <Loading/>
+      }
     </>
   );
 }
