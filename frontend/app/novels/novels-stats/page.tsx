@@ -17,10 +17,36 @@ export default function Page() {
     fetchStats();
   }, [])
 
-  // return a json
+  if (!stats) {
+    return (
+      <h1 className="text-4xl text-center pb-5 font-medium">Loading...</h1>
+    );
+  }
+
   return (
-    <div>
-      {JSON.stringify(stats)}
+    <>
+      <h1 className="text-4xl text-center pb-5 font-medium">My Webnovel Stats</h1>
+      <StatsTable stats={stats} />
+    </>
+  );
+}
+
+function StatsTable({stats}: {stats: Stats}) {
+  return (
+    <div className="flex justify-center space-x-8">
+      <NumberDisplay value={stats.novel_count} description="Total Novels" />
+      <NumberDisplay value={stats.chapter_count} description="Total Chapters" />
+      <NumberDisplay value={stats.average_rating.toPrecision(3)} description="Average Rating" />
     </div>
   );
+}
+
+// returns a div with the number being large, while the category name is small and placed right below
+function NumberDisplay({value, description}: {value: number | string, description: string}) {
+  return (
+    <div className="flex flex-col items-center space-x-2">
+      <div className="text-3xl font-bold">{value}</div>
+      <div className="text-sm">{description}</div>
+    </div>
+  ) 
 }
