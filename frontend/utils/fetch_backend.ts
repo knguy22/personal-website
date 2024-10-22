@@ -5,18 +5,18 @@ export type BackendRequest = {
 }
 
 export async function fetch_backend(back_req: BackendRequest): Promise<any | null> {
-    let fetch_arguments = {
-        method: "POST",
-        headers: back_req.body ? {"Content-Type": "application/json"} : undefined,
-        body: JSON.stringify(back_req),
-    };
+  let fetch_arguments = {
+    method: "POST",
+    headers: back_req.body ? {"Content-Type": "application/json"} : undefined,
+    body: JSON.stringify(back_req),
+  };
 
-    let response = await fetch(process.env.NEXT_PUBLIC_API_URL + '/backend', fetch_arguments);
-    if (!response.ok) {
-        const errorText = await response.text();
-        console.log("Fetch backend error: " + errorText);
-        return null;
-    }
-    return await response.json();
+  let response = await fetch(process.env.NEXT_PUBLIC_API_URL + '/backend', fetch_arguments);
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.log("Fetch backend error: " + errorText);
+    return null;
+  }
+  return await response.json();
 }
 

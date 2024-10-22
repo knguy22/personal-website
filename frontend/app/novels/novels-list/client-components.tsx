@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { ColumnDef, FilterFn, Row } from "@tanstack/react-table"
 import { ArrowUpDown} from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { NovelEntry, novel_entries_equal } from './novel-types';
+import { fetch_backend } from '@/utils/fetch_backend.ts';
+import { NovelEntry, NovelEntryApi, novel_entries_equal, process_tags } from './novel-types';
 import { InputCell } from '@/app/novels/novels-list/input-cell';
 
 declare module '@tanstack/table-core' {
@@ -185,23 +186,24 @@ function DateCell ({ getValue, row, _cell, table } : any) {
 
 async function update_row(row: Row<any>, setDate: (date: Date) => void, table: any): Promise<null> {
   // send the update to the backend
-  const frontend_api_url = process.env.NEXT_PUBLIC_API_URL + '/update_novel';
-  const response = await fetch(frontend_api_url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(row['original']),
-  })
+  const novel: NovelEntry = row['original'];
+  const to_send: NovelEntryApi[] = [{
+    id: novel.id,
+    country: novel.country,
+    title: novel.title,
+    chapter: novel.chapter,
+    rating: novel.rating === "" ? 0 : parseInt(novel.rating, 10),
+    status: novel.status,
+    tags: process_tags(novel.tags),
+    notes: novel.notes,
+    date_modified: novel.date_modified
+  }];
+  const novels: NovelEntry[] | null = await fetch_backend({path: "/api/update_novels", method: "POST", body: JSON.stringify(to_send)});
 
-  // handle the response
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText);
+  // check if the update was successful
+  if (!novels) {
+    return null;
   }
-
-  // since we have successfully updated the row, update the local state
-  const novels: NovelEntry[] = await response.json();
 
   // update the date
   const new_date = novels[0].date_modified;

@@ -42,6 +42,7 @@ import { Input } from "@/components/ui/input"
 
 import { NovelEntry } from "./novel-types"
 import { filterTags } from "./client-components"
+import { fetch_backend } from "@/utils/fetch_backend"
 
 type NovelEntryValue = string;
 
@@ -67,20 +68,10 @@ export function DataTable ({
       header: ({}) => { return ""; },
       cell: ({ _getValue, row, _cell, table } : any) => {
         function delete_row() {
-          const id_to_delete = row.original.id;
+          const id_to_delete: number = row.original.id;
 
           // delete from backend first
-          const frontend_api_url = process.env.NEXT_PUBLIC_API_URL + '/delete_novel';
-          fetch(frontend_api_url, {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: id_to_delete,
-          }).catch((error) => {
-            console.log("Fetch api error: " + error)
-            return;
-          });
+          fetch_backend({path: "/api/delete_novel/" + id_to_delete.toString(), method: "DELETE", body: undefined});
 
           // tanstack uses it's own id, this is not the id in the backend
           const tanstack_id_rows: any = table.getPreFilteredRowModel().flatRows;
@@ -325,26 +316,6 @@ interface CreateNovelButtonProps {
 }
 
 function CreateNovelButton({ table, tableData, setTableData }: CreateNovelButtonProps) {
-  async function create_novel(): Promise<NovelEntry | null> {
-    try {
-      const response = await fetch("/api/create_novel", {
-        method: "GET",
-      });
-      
-      if (response.ok) {
-        const res: NovelEntry = await response.json();
-        return res;
-      } else {
-        const errorText = await response.text();
-        throw new Error(errorText);
-      }
-    } catch (error) {
-      console.error("Error fetching novel:", error);
-    }
-
-    return null;
-  }
-
   return (
     <Button
       variant="outline"
@@ -365,6 +336,25 @@ function CreateNovelButton({ table, tableData, setTableData }: CreateNovelButton
       New Row
     </Button>
   )
+}
+
+async function create_novel(): Promise<NovelEntry | null> {
+  const raw_novel = await fetch_backend({path: "/api/create_novel", method: "GET", body: undefined});
+  if (!raw_novel) {
+    return null;
+  }
+  const novel: NovelEntry = {
+    id: raw_novel.id,
+    country: raw_novel.country,
+    title: raw_novel.title,
+    chapter: raw_novel.chapter,
+    rating: raw_novel.rating !== 0 ? String(raw_novel.rating) : "",
+    status: raw_novel.status,
+    tags: raw_novel.tags.join(","),
+    notes: raw_novel.notes,
+    date_modified: raw_novel.date_modified
+  }
+  return novel;
 }
 
 interface DownloadCsvButtonProps {
