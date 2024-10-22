@@ -13,8 +13,6 @@ export async function fetch_backend(back_req: BackendRequest): Promise<any | nul
 
   let response = await fetch(process.env.NEXT_PUBLIC_API_URL + '/backend', fetch_arguments);
   if (!response.ok) {
-    const errorText = await response.text();
-    console.log("Fetch backend error: " + errorText);
     return null;
   }
   return await response.json();

@@ -4,6 +4,7 @@ import React, {useState, useEffect} from 'react';
 import { NovelEntry, parse_novels } from './novel-types.tsx';
 import { novel_columns } from './client-components.tsx';
 import { DataTable } from '@/app/novels/novels-list/data-table.tsx';
+import Loading from '@/components/derived/Loading.tsx';
 import { useSession } from 'next-auth/react'
 import { fetch_backend } from '@/utils/fetch_backend.ts';
 
@@ -66,18 +67,13 @@ export default function Novels() {
     );
   }
 
-  if (isLoading) {
-    return (
-      <div className="text-5xl font-bold flex-col items-center text-center justify-between p-24">
-        Loading...
-      </div>
-    );
-
-  }
   return (
-    <>
+    <div className="items-center justify-center">
       <h1 className="text-4xl text-center pb-5 font-medium">My Webnovels List</h1>
-      <DataTable columns={novel_columns} data={novels} setData={setNovels}/>
-    </>
+      {isLoading
+        ? <Loading />
+        : <DataTable columns={novel_columns} data={novels} setData={setNovels} />
+      }
+    </div>
   );
 };
