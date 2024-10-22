@@ -63,8 +63,8 @@ export default async function NavBar() {
           </NavigationMenuContent>
         </NavigationMenuItem>
         
-        <NavigationMenuItem key="novels">
-          <NavigationMenuLink href="/novels" className={navigationMenuTriggerStyle()}>
+        <NavigationMenuItem key="novels/novels-list">
+          <NavigationMenuLink href="/novels/novels-list" className={navigationMenuTriggerStyle()}>
             My Webnovels List
           </NavigationMenuLink>
         </NavigationMenuItem>

@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { NovelEntry, NovelEntryApi, process_tags } from "@/app/novels/novel-types";
+import { NovelEntry, NovelEntryApi, process_tags } from "@/app/novels/novels-list/novel-types";
 import { json } from "stream/consumers";
 
 export default async function handler(

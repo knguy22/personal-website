@@ -3,7 +3,7 @@
 import React, {useState, useEffect} from 'react';
 import { NovelEntry, parse_novels } from './novel-types.tsx';
 import { novel_columns } from './client-components.tsx';
-import { DataTable } from '@/app/novels/data-table.tsx';
+import { DataTable } from '@/app/novels/novels-list/data-table.tsx';
 import { useSession } from 'next-auth/react'
 
 const isNumeric = (num: any) => (typeof(num) === 'number' || typeof(num) === "string" && num.trim() !== '') && !isNaN(num as number);

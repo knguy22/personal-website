@@ -5,7 +5,7 @@ import { ColumnDef, FilterFn, Row } from "@tanstack/react-table"
 import { ArrowUpDown} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { NovelEntry, novel_entries_equal } from './novel-types';
-import { InputCell } from '@/app/novels/input-cell';
+import { InputCell } from '@/app/novels/novels-list/input-cell';
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
