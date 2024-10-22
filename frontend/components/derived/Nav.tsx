@@ -37,6 +37,16 @@ const about_me_components: { title: string; href: string}[] = [
   },
 ]
 
+const novels_components: { title: string; href: string}[] = [
+  {
+    title: "My Stats",
+    href: "/novels/novels-stats",
+  },
+  {
+    title: "My List",
+    href: "/novels/novels-list",
+  },
+]
 
 export default async function NavBar() {
   const session = await getServerSession(authOptions);
@@ -62,11 +72,16 @@ export default async function NavBar() {
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
-        
-        <NavigationMenuItem key="novels">
-          <NavigationMenuLink href="/novels" className={navigationMenuTriggerStyle()}>
-            My Webnovels List
-          </NavigationMenuLink>
+
+        <NavigationMenuItem key="Webnovels">
+          <NavigationMenuTrigger>Webnovels</NavigationMenuTrigger>
+          <NavigationMenuContent className="">
+            <ul className="p-3">
+              {novels_components.map((item) => (
+                <ListItem key={item.title} href={item.href} title={item.title}/>)
+              )}
+            </ul>
+          </NavigationMenuContent>
         </NavigationMenuItem>
 
         <NavigationMenuItem key="coin-flip">

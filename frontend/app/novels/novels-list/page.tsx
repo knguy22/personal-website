@@ -3,8 +3,9 @@
 import React, {useState, useEffect} from 'react';
 import { NovelEntry, parse_novels } from './novel-types.tsx';
 import { novel_columns } from './client-components.tsx';
-import { DataTable } from '@/app/novels/data-table.tsx';
+import { DataTable } from '@/app/novels/novels-list/data-table.tsx';
 import { useSession } from 'next-auth/react'
+import { fetch_backend } from '@/utils/fetch_backend.ts';
 
 const isNumeric = (num: any) => (typeof(num) === 'number' || typeof(num) === "string" && num.trim() !== '') && !isNaN(num as number);
 
@@ -16,10 +17,8 @@ export default function Novels() {
   // load raw novels once
   useEffect(() => {
     const fetchNovels = async () => {
-      const novels_url = process.env.NEXT_PUBLIC_API_URL + '/novels';
       try {
-        const response = await fetch(novels_url);
-        const novelsData = await response.json();
+        const novelsData = await fetch_backend({path: "/api/novels", method: "GET", body: undefined});
         const convertedNovels = parse_novels(novelsData);
 
         // sort novels by rating by default
