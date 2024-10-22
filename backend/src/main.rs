@@ -1,7 +1,8 @@
-mod novel_entry;
-mod scripts;
 mod db;
 mod entity;
+mod novel_entry;
+mod scripts;
+mod stats;
 
 use std::{error::Error, env};
 
@@ -28,10 +29,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let domain = env::var("DOMAIN").unwrap();
     let app = Router::new()
         .route("/", get(main_handler))
-        .route("/novels", get(novel_handler))
+        .route("/api/novels", get(novel_handler))
         .route("/api/update_novels", post(update_novels_handler))
         .route("/api/create_novel", get(create_novel_row_handler))
         .route("/api/delete_novel/:id", delete(delete_novel_handler))
+        .route("/api/novels_stats", get(get_novels_stats))
         .with_state(state);
 
     // run it
@@ -77,6 +79,12 @@ async fn delete_novel_handler(state: State<AppState>, Path(id): Path<i32>) -> im
         Ok(()) => Json(r#"{"Success": true}"#.to_string()),
         Err(_) => Json(r#"{"Success": false}"#.to_string()),
     }
+}
+
+async fn get_novels_stats(state: State<AppState>) -> impl IntoResponse {
+    println!("Getting novels stats");
+    let stats = stats::get_stats(&state.conn).await.unwrap();
+    Json(stats)
 }
 
 async fn init() -> Result<DatabaseConnection, Box<dyn Error>> {
