@@ -1,13 +1,30 @@
 use crate::db;
 use std::error::Error;
+use std::collections::HashMap;
 use sea_orm::DatabaseConnection;
 use serde::{Deserialize, Serialize};
 
-#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
+type ChapterCountBucket = (u32, u32);
+const CHAPTER_COUNT_BUCKETS: [ChapterCountBucket; 6] = [
+    (1, 20),
+    (21, 50),
+    (51, 80),
+    (81, 150),
+    (151, 400),
+    (400, 10000),
+];
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Stats {
     pub novel_count: u32,
     pub chapter_count: u32,
     pub average_rating: f32,
+
+    // each index corresponds to a rating = index + 1
+    pub rating_dist: [u32; 10],
+
+    // each entry in the map corresponds to a chapter count bucket
+    pub chapter_dist: HashMap<String, u32>,
 }
 
 pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats, Box<dyn Error>> {
@@ -23,9 +40,37 @@ pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats, Box<dyn Error>>
         0.0
     };
 
+    // count the frequency of each valid rating
+    let mut rating_dist = [0; 10];
+    for novel in &novels {
+        if novel.rating > 0 {
+            rating_dist[(novel.rating - 1) as usize] += 1;
+        }
+    }
+
+    // count the frequency of each chapter count bucket
+    let mut chapter_dist = HashMap::<ChapterCountBucket, u32>::new();
+    for novel in &novels {
+        let chapter_count = novel.chapter.parse::<u32>().unwrap_or(0);
+        for (start, end) in &CHAPTER_COUNT_BUCKETS {
+            if chapter_count >= *start && chapter_count <= *end {
+                *chapter_dist.entry((*start, *end)).or_insert(0) += 1;
+                break;
+            }
+        }
+    }
+
+    // convert the bucket keys to strings
+    let chapter_dist = chapter_dist
+        .into_iter()
+        .map(|(k, v)| (k.0.to_string() + "-" + &k.1.to_string(), v))
+        .collect();
+
     Ok(Stats {
         novel_count,
         chapter_count,
-        average_rating
+        average_rating,
+        rating_dist,
+        chapter_dist,
     })
 }
