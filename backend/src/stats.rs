@@ -1,4 +1,5 @@
 use crate::db;
+use crate::novel_entry::Status;
 use std::error::Error;
 use std::collections::HashMap;
 use sea_orm::DatabaseConnection;
@@ -19,6 +20,8 @@ pub struct Stats {
     pub novel_count: u32,
     pub chapter_count: u32,
     pub average_rating: f32,
+    pub novels_completed: u32,
+    pub novels_not_started: u32,
 
     // each index corresponds to a rating = index + 1
     pub rating_dist: [u32; 10],
@@ -31,6 +34,8 @@ pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats, Box<dyn Error>>
     let novels = db::fetch_novel_entries(db).await?;
     let novel_count = novels.len() as u32;
     let chapter_count = novels.iter().map(|novel| novel.chapter.parse().unwrap_or(0)).sum();
+    let novels_completed = novels.iter().filter(|novel| novel.status == Status::Completed).count() as u32;
+    let novels_not_started = novels.iter().filter(|novel| novel.chapter.len() == 0).count() as u32;
 
     let rating_sum: u32 = novels.iter().map(|novel| novel.rating).sum();
     let non_zero_ratings = novels.iter().filter(|novel| novel.rating > 0).count();
@@ -70,6 +75,8 @@ pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats, Box<dyn Error>>
         novel_count,
         chapter_count,
         average_rating,
+        novels_completed,
+        novels_not_started,
         rating_dist,
         chapter_dist,
     })
