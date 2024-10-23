@@ -28,6 +28,9 @@ pub struct Stats {
 
     // each entry in the map corresponds to a chapter count bucket
     pub chapter_dist: HashMap<String, u32>,
+
+    // each entry in the map corresponds to a country count bucket
+    pub country_dist: HashMap<String, u32>,
 }
 
 pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats, Box<dyn Error>> {
@@ -53,15 +56,22 @@ pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats, Box<dyn Error>>
         }
     }
 
-    // count the frequency of each chapter count bucket
     let mut chapter_dist = HashMap::<ChapterCountBucket, u32>::new();
+    let mut country_dist = HashMap::<String, u32>::new();
     for novel in &novels {
+        // count the frequency of each chapter count bucket
         let chapter_count = novel.chapter.parse::<u32>().unwrap_or(0);
         for (start, end) in &CHAPTER_COUNT_BUCKETS {
             if chapter_count >= *start && chapter_count <= *end {
                 *chapter_dist.entry((*start, *end)).or_insert(0) += 1;
                 break;
             }
+        }
+
+        // count the frequency of each country
+        let country = novel.country.to_lowercase();
+        if !country.is_empty() {
+            *country_dist.entry(country).or_insert(0) += 1;
         }
     }
 
@@ -79,5 +89,6 @@ pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats, Box<dyn Error>>
         novels_not_started,
         rating_dist,
         chapter_dist,
+        country_dist,
     })
 }
