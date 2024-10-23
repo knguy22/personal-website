@@ -1,11 +1,10 @@
 'use client'
 
-import { Stats } from "./stats.tsx";
+import { Stats, AbbreToCountry } from "./stats.tsx";
 import React, {useState, useEffect} from 'react';
 import { fetch_backend } from "@/utils/fetch_backend.ts";
 import Loading from "@/components/derived/Loading.tsx";
-import { Bar, BarChart, CartesianGrid, Label, LabelList, XAxis, YAxis} from "recharts"
-import { ChartConfig, ChartContainer } from "@/components/ui/chart"
+import { NovelBarChart } from "./charts.tsx";
 
 export default function Page() {
   const [stats, setStats] = useState<Stats>();
@@ -36,6 +35,8 @@ function StatsTable({stats}: {stats: Stats}) {
   let rating_dist = stats.rating_dist.map((count, index) => ({rating: index + 1, count: count}));
   let chapter_dist = Object.entries(stats.chapter_dist)
     .map(([chapter, count]) => ({chapter: chapter, count: count}));
+  let country_dist = Object.entries(stats.country_dist)
+    .map(([country, count]) => ({country: AbbreToCountry[country], count: count}));
 
   // make sure table ready data is sorted
   chapter_dist.sort((a, b) => {
@@ -43,6 +44,7 @@ function StatsTable({stats}: {stats: Stats}) {
     const [startB] = b.chapter.split('-').map(Number);
     return startA - startB;
   });
+  country_dist.sort((a, b) => b.count - a.count);
   
   return (
     <div className="flex flex-col items-center space-y-5">
@@ -51,19 +53,30 @@ function StatsTable({stats}: {stats: Stats}) {
         <NumberDisplay value={stats.chapter_count} description="Total Chapters" />
         <NumberDisplay value={stats.average_rating.toPrecision(3)} description="Average Rating" />
       </div>
-      <StatChart 
+      <div className="flex justify-center space-x-8">
+        <NumberDisplay value={stats.novels_completed} description="Novels Completed" />
+        <NumberDisplay value={stats.novels_not_started} description="Novels Unstarted" />
+      </div>
+      <NovelBarChart 
         title="Rating Distribution" 
         chartData={rating_dist} 
         chartConfigKey="rating" 
         XAxisLabel="Rating" 
         XAxisKey="rating" 
         YAxisKey="count"/>
-      <StatChart 
+      <NovelBarChart 
         title="Chapter Distribution" 
         chartData={chapter_dist} 
         chartConfigKey="chapter" 
         XAxisLabel="Chapters" 
         XAxisKey="chapter" 
+        YAxisKey="count"/>
+      <NovelBarChart 
+        title="Author Origin" 
+        chartData={country_dist} 
+        chartConfigKey="country" 
+        XAxisLabel="Country of Origin" 
+        XAxisKey="country" 
         YAxisKey="count"/>
     </div>
   );
@@ -75,46 +88,6 @@ function NumberDisplay({value, description}: {value: number | string, descriptio
     <div className="flex flex-col items-center space-x-2">
       <div className="text-3xl font-bold">{value}</div>
       <div className="text-sm">{description}</div>
-    </div>
-  )
-}
-
-const chartConfig = {
-  rating: {
-    label: "rating",
-    color: "#4e3196",
-  },
-  chapter: {
-    label: "chapter",
-    color: "#4e3196",
-  },
-} satisfies ChartConfig
-
-interface StatChartProps {
-  title: string
-  chartData: any[]
-  chartConfigKey: keyof typeof chartConfig
-  XAxisLabel: string,
-  XAxisKey: string,
-  YAxisKey: string,
-}
- 
-function StatChart( {title, chartData, chartConfigKey, XAxisLabel, XAxisKey, YAxisKey}: StatChartProps) {
-  return (
-    <div className="flex flex-col items-center w-full">
-      <div className="text-xl text-center font-bold">{title}</div>
-      <ChartContainer config={chartConfig} className="h-56 w-1/2">
-        <BarChart accessibilityLayer data={chartData} margin={{ top: 20, bottom: 20, left: 0, right: 0 }}>
-          <CartesianGrid vertical={false} />
-          <XAxis dataKey={XAxisKey} tickLine={false}>
-            <Label value={XAxisLabel} offset={-10} position="bottom"/>
-          </XAxis>
-          <YAxis></YAxis>
-          <Bar dataKey={YAxisKey} fill={"var(--color-" + chartConfigKey + ")"} radius={4}>
-            <LabelList dataKey={YAxisKey} position="top" />
-        </Bar>
-        </BarChart>
-      </ChartContainer>
     </div>
   )
 }
