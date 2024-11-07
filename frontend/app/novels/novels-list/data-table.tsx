@@ -181,7 +181,7 @@ export function DataTable ({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   <TableCell>
-                    {index + 1 + 50 * table.getState().pagination.pageIndex}
+                    {index + 1 + pagination.pageSize * pagination.pageIndex}
                   </TableCell>
 
                   {row.getVisibleCells().map((cell) => (
