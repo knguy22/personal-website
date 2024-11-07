@@ -154,6 +154,10 @@ export function DataTable ({
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
+                <TableHead key="#">
+                  #
+                </TableHead>
+
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
@@ -171,11 +175,15 @@ export function DataTable ({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+              table.getRowModel().rows.map((row, index) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >
+                  <TableCell>
+                    {index + 1 + 50 * table.getState().pagination.pageIndex}
+                  </TableCell>
+
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
