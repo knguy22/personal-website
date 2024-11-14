@@ -39,11 +39,11 @@ import {
 import { Button } from "../../../components/ui/button"
 import { Input } from "@/components/ui/input"
 
-import { CreateNovelButton } from './create-novel-button';
+import { CreateNovelButton } from './create-novel-button'
 import { DownloadCsvButton } from "./download-csv-button"
+import { DeleteRowButton } from "./delete-row-button"
 
 import { NovelEntry } from "./novel-types"
-import { fetch_backend } from "@/utils/fetch_backend"
 
 type NovelEntryValue = string;
 
@@ -59,45 +59,14 @@ export function DataTable ({
   setData,
 }: DataTableProps) {
 
-  // additional functionality that requires setData
-  // only do this for admin
+  // additional functionality (delete row) that requires admin permissions
   const {data: session} = useSession();
   const columns_with_buttons: ColumnDef<NovelEntry, NovelEntryValue>[] = 
     session?.user?.role !== 'admin' ? columns : 
     [...columns, {
       accessorKey: "delete_row",
       header: ({}) => { return ""; },
-      cell: ({ row, table } : any) => {
-        function delete_row() {
-          const id_to_delete: number = row.original.id;
-
-          // delete from backend first
-          fetch_backend({path: "/api/delete_novel/" + id_to_delete.toString(), method: "DELETE", body: undefined});
-
-          // tanstack uses it's own id, this is not the id in the backend
-          const tanstack_id_rows: any = table.getPreFilteredRowModel().flatRows;
-          let data: NovelEntry[] = new Array();
-          for (const tanstack_id in tanstack_id_rows) {
-            const novel_id = tanstack_id_rows[tanstack_id].original.id;
-            if (novel_id !== id_to_delete) {
-              data.push(tanstack_id_rows[tanstack_id].original);
-            }
-          }
-
-          setData(data);
-        }
-
-        return (
-          <Button
-            variant="secondary"
-            size={"sm"}
-            onClick={() => delete_row()}
-            className='text-red-500'
-          >
-            Delete Row
-          </Button>
-        )
-      }
+      cell: DeleteRowButton
     }];
 
 
@@ -131,7 +100,7 @@ export function DataTable ({
       columnFilters,
     },
     meta: {
-      updateData: (rowIndex: number, columnId: string, value: string) => {
+      updateCell: (rowIndex: number, columnId: string, value: string) => {
         setData((old) =>
           old.map((row, index) => {
             if (index === rowIndex) {
@@ -144,6 +113,9 @@ export function DataTable ({
           })
         );
       },
+      updateTableData: (data: NovelEntry[]) => {
+        setData(data);
+      }
     }
   })
 
@@ -322,7 +294,6 @@ const filterTags: FilterFn<NovelEntry> = (
   row: Row<NovelEntry>, 
   columnId: string, 
   filterValue: string, 
-  addMeta: (meta: any) => void
   ): boolean => {
 
   const search_terms = filterValue.toLocaleLowerCase().split(",").map((term) => {

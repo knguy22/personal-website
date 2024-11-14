@@ -3,8 +3,14 @@ import { Row } from "@tanstack/react-table"
 import { fetch_backend } from '@/utils/fetch_backend.ts';
 import { NovelEntry, NovelEntryApi, novel_entries_equal, process_tags } from './novel-types';
 
+interface DateCellProps {
+  getValue: any
+  row: Row<any>
+  table: any
+}
+
 // "any" used to be compatible with tanstack table
-export function DateCell ({ getValue, row, table } : any) {
+export function DateCell ({ getValue, row, table } : DateCellProps) {
   const [date, setDate] = useState<Date>(new Date(getValue()));
   const [row_copy, setRowCopy] = useState(row);
 
@@ -53,6 +59,6 @@ async function update_row(row: Row<any>, setDate: (date: Date) => void, table: a
   // update the date
   const new_date = novels[0].date_modified;
   setDate(new Date(new_date));
-  table.options.meta?.updateData(row.index, 'date_modified', new_date);
+  table.options.meta.updateCell(row.index, 'date_modified', new_date);
   return null;
 }
