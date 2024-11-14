@@ -1,7 +1,7 @@
 'use client'
 
 import React, {useState, useEffect} from 'react';
-import { NovelEntry, parse_novels } from './novel-types.tsx';
+import { NovelEntry, parse_novels } from './novel-types.ts';
 import { novel_columns } from './table-columns.tsx';
 import { DataTable } from '@/app/novels/novels-list/data-table.tsx';
 import Loading from '@/components/derived/Loading.tsx';
