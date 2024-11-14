@@ -1,9 +1,8 @@
 'use client'
 
 import * as React from "react"
-
 import { useSession } from 'next-auth/react'
-import { novel_col_names, to_string_arr } from "./novel-types"
+import { FilterFn, Row } from "@tanstack/react-table"
 
 import {
   ColumnDef,
@@ -40,8 +39,10 @@ import {
 import { Button } from "../../../components/ui/button"
 import { Input } from "@/components/ui/input"
 
+import { CreateNovelButton } from './create-novel-button';
+import { DownloadCsvButton } from "./download-csv-button"
+
 import { NovelEntry } from "./novel-types"
-import { filterTags } from "./client-components"
 import { fetch_backend } from "@/utils/fetch_backend"
 
 type NovelEntryValue = string;
@@ -66,7 +67,7 @@ export function DataTable ({
     [...columns, {
       accessorKey: "delete_row",
       header: ({}) => { return ""; },
-      cell: ({ _getValue, row, _cell, table } : any) => {
+      cell: ({ row, table } : any) => {
         function delete_row() {
           const id_to_delete: number = row.original.id;
 
@@ -317,90 +318,26 @@ function Filter({table, placeholder, col_name, class_extra}: FilterProps) {
   )
 }
 
-interface CreateNovelButtonProps {
-  table: TanstackTable<NovelEntry>,
-  tableData: NovelEntry[]
-  setTableData: React.Dispatch<React.SetStateAction<NovelEntry[]>>
-}
+const filterTags: FilterFn<NovelEntry> = (
+  row: Row<NovelEntry>, 
+  columnId: string, 
+  filterValue: string, 
+  addMeta: (meta: any) => void
+  ): boolean => {
 
-function CreateNovelButton({ table, tableData, setTableData }: CreateNovelButtonProps) {
-  return (
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={() => {
-        create_novel().then((novel) => {
-          if (!novel) {
-            return;
-          }
-          let tableDataCopy = [...tableData];
-          tableDataCopy.push(novel);
-          console.log("Table data: " + tableDataCopy.length);
-          setTableData(tableDataCopy)
-        })
-        
-      }}
-    >
-      New Row
-    </Button>
-  )
-}
+  const search_terms = filterValue.toLocaleLowerCase().split(",").map((term) => {
+    return term.trim();
+  });
+  const row_value: string = row.getValue(columnId);
+  const tags: string[] = row_value.toLocaleLowerCase().split(",").map((tag) => {
+    return tag.trim();
+  });
 
-async function create_novel(): Promise<NovelEntry | null> {
-  const raw_novel = await fetch_backend({path: "/api/create_novel", method: "GET", body: undefined});
-  if (!raw_novel) {
-    return null;
+  // only return true if all search terms are in the tags
+  for (const search_term of search_terms) {
+    if (!tags.includes(search_term)) {
+      return false;
+    }
   }
-  const novel: NovelEntry = {
-    id: raw_novel.id,
-    country: raw_novel.country,
-    title: raw_novel.title,
-    chapter: raw_novel.chapter,
-    rating: raw_novel.rating !== 0 ? String(raw_novel.rating) : "",
-    status: raw_novel.status,
-    tags: raw_novel.tags.join(","),
-    notes: raw_novel.notes,
-    date_modified: raw_novel.date_modified
-  }
-  return novel;
-}
-
-interface DownloadCsvButtonProps {
-  tableData: NovelEntry[]
-}
-
-function DownloadCsvButton({ tableData }: DownloadCsvButtonProps) {
-  return (
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={() => {
-        const headers: string[] = novel_col_names;
-        const stringTableData = tableData.map(row => to_string_arr(row));
-        const csv = arrayToCsv([headers, ...stringTableData]);
-
-        const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", "novels.csv");
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-      }
-      }
-    >
-      Download CSV
-    </Button>
-  )
-}
-
-function arrayToCsv(data: string[][]) {
-  return data.map(row =>
-    row
-    .map(String)  // convert every value to String
-    .map(v => v.replaceAll('"', '""'))  // escape double quotes
-    .map(v => `"${v}"`)  // quote it
-    .join(',')  // comma-separated
-  ).join('\r\n');  // rows starting on new lines
+  return true;
 }

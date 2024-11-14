@@ -2,7 +2,7 @@
 
 import React, {useState, useEffect} from 'react';
 import { NovelEntry, parse_novels } from './novel-types.tsx';
-import { novel_columns } from './client-components.tsx';
+import { novel_columns } from './table-columns.tsx';
 import { DataTable } from '@/app/novels/novels-list/data-table.tsx';
 import Loading from '@/components/derived/Loading.tsx';
 import { useSession } from 'next-auth/react'
@@ -10,7 +10,7 @@ import { fetch_backend } from '@/utils/fetch_backend.ts';
 
 const isNumeric = (num: any) => (typeof(num) === 'number' || typeof(num) === "string" && num.trim() !== '') && !isNaN(num as number);
 
-export default function Novels() {
+export default function Page() {
   const [isLoading, setLoading] = useState(true);
   const [novels, setNovels] = useState<NovelEntry[]>([]);
   const {data: session} = useSession();
