@@ -21,7 +21,7 @@ export const InputCell: any = <TData,>({ getValue, row, column, table }: InputCe
   }, [initialValue])
 
   const onBlur = () => {
-    table.options.meta?.updateData(row.index, column.id, value);
+    table.options.meta.updateCell(row.index, column.id, value);
   }
 
   // only allow editing for admins
