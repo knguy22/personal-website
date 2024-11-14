@@ -5,7 +5,6 @@ export const authOptions = {
   providers: [
     GithubProvider({
       profile(profile: any) {
-        console.log("GitHub profile: " + profile);
 
         let userRole = "user";
         if (profile?.email == process.env.ADMIN_EMAIL) {

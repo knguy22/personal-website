@@ -7,7 +7,7 @@ mod stats;
 use std::{error::Error, env};
 
 use axum::{
-    response::{Html, IntoResponse, Json}, extract::State, Router, routing::{get, post, delete}, extract::Path
+    response::{Html, IntoResponse, Json}, extract::State, http::StatusCode, Router, routing::{get, post, delete}, extract::Path
 };
 use dotenv::dotenv;
 use sea_orm::DatabaseConnection;
@@ -50,6 +50,10 @@ async fn main_handler() -> Html<&'static str> {
     Html("<h1>Hello, World!</h1>")
 }
 
+// all handlers must:
+// return a non-null JSON
+// return a status code (can be implicit)
+
 async fn novel_handler(state: State<AppState>) -> impl IntoResponse {
     println!("Fetching novels");
     let novels = db::fetch_novel_entries(&state.conn).await.unwrap_or_default();
@@ -57,12 +61,13 @@ async fn novel_handler(state: State<AppState>) -> impl IntoResponse {
     Json(novels)
 }
 
-async fn update_novels_handler(state: State<AppState>, Json(rows): Json<Vec<novel_entry::NovelEntry>>) -> impl IntoResponse {
+type UpdateNovelsResponse = Result<(StatusCode, Json<Vec<novel_entry::NovelEntry>>), (StatusCode, Json<String>)>;
+async fn update_novels_handler(state: State<AppState>, Json(rows): Json<Vec<novel_entry::NovelEntry>>) -> UpdateNovelsResponse {
     println!("Updating novels {}", rows.len());
     let res = db::update_novel_entries(&state.conn, &rows).await;
     match res {
-        Ok(novels) => Json(novels),
-        Err(_) => Json(Vec::new()),
+        Ok(novels) => Ok((StatusCode::CREATED, Json(novels))),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))),
     }
 }
 
@@ -72,12 +77,13 @@ async fn create_novel_row_handler(state: State<AppState>) -> impl IntoResponse {
     Json(novel)
 }
 
-async fn delete_novel_handler(state: State<AppState>, Path(id): Path<i32>) -> impl IntoResponse {
+type DeleteNovelResponse = Result<(StatusCode, Json<i32>), (StatusCode, Json<String>)>;
+async fn delete_novel_handler(state: State<AppState>, Path(id): Path<i32>) -> DeleteNovelResponse{
     println!("Deleting novels");
     let res = db::delete_novel_entry(&state.conn, id).await;
     match res {
-        Ok(()) => Json(r#"{"Success": true}"#.to_string()),
-        Err(_) => Json(r#"{"Success": false}"#.to_string()),
+        Ok(()) => Ok((StatusCode::OK, Json(id))),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))),
     }
 }
 

@@ -6,7 +6,6 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -33,13 +32,11 @@ export function DeleteRowButton({ row, table } : DeleteRowButtonProps) {
           Delete Row
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent aria-describedby={novel_component_id(row.original.id)}>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure? This will delete the following row:</AlertDialogTitle>
-          <AlertDialogDescription>
-            {novel_to_component(row.original)}
-          </AlertDialogDescription>
         </AlertDialogHeader>
+        {novel_to_component(row.original)}
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
@@ -51,6 +48,27 @@ export function DeleteRowButton({ row, table } : DeleteRowButtonProps) {
       </AlertDialogContent>
     </AlertDialog>
   )
+}
+
+// parses a novel entry as a minimized component
+function novel_to_component(novel: NovelEntry) {
+  return (
+    <div id={novel_component_id(novel.id)} className="pt-2 text-primary">
+      <div className="text-sm">Title: {novel.title}</div>
+      <div className="text-sm">Chapter: {novel.chapter}</div>
+      <div className="text-sm">Rating: {novel.rating}</div>
+      <div className="text-sm">Status: {novel.status}</div>
+      <div className="text-sm">Last Updated: {novel.date_modified.toString()}</div>
+    </div>
+  )
+}
+
+function novel_component_id(id: number) {
+  const to_return = id.toString() + "del-nov-comp";
+  if (!to_return) {
+    console.log("alksdfjlasdkfjkl")
+  }
+  return to_return
 }
 
 async function delete_row({ row, table } : DeleteRowButtonProps) {
@@ -75,17 +93,4 @@ async function delete_row({ row, table } : DeleteRowButtonProps) {
   }
 
   table.options.meta.updateTableData(data);
-}
-
-// parses a novel entry as a minimized component
-function novel_to_component(novel: NovelEntry) {
-  return (
-    <div className="pt-2 text-primary">
-      <div className="text-sm">Title: {novel.title}</div>
-      <div className="text-sm">Chapter: {novel.chapter}</div>
-      <div className="text-sm">Rating: {novel.rating}</div>
-      <div className="text-sm">Status: {novel.status}</div>
-      <div className="text-sm">Last Updated: {novel.date_modified.toString()}</div>
-    </div>
-  )
 }
