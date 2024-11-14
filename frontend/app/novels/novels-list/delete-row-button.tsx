@@ -53,11 +53,16 @@ export function DeleteRowButton({ row, table } : DeleteRowButtonProps) {
   )
 }
 
-function delete_row({ row, table } : DeleteRowButtonProps) {
+async function delete_row({ row, table } : DeleteRowButtonProps) {
   const id_to_delete: number = row.original.id;
 
   // delete from backend first
-  fetch_backend({path: "/api/delete_novel/" + id_to_delete.toString(), method: "DELETE", body: undefined});
+  const res: any | null = await fetch_backend({path: "/api/delete_novel/" + id_to_delete.toString(), method: "DELETE", body: undefined});
+
+  // check if the delete was successful
+  if (!res) {
+    return;
+  }
 
   // tanstack uses it's own id, this is not the id in the backend
   const tanstack_id_rows: any = table.getPreFilteredRowModel().flatRows;

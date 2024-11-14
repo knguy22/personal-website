@@ -13,12 +13,12 @@ export default async function Handler(
   const response = await fetch(backend_url, {
     method: back_req.method,
     headers: {
-    "Content-Type": "application/json",
+      "Content-Type": "application/json",
     },
     body: back_req.body,
   });
 
-  // handle the response
+  // response will not be ok for other issues like backend issues
   if (!response.ok) {
     const errorText = await response.text();
     return res.status(500).json({ error: errorText });
