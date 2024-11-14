@@ -25,8 +25,8 @@ export type NovelEntry = {
 
 export const novel_col_names: (keyof NovelEntry)[] = ["country", "title", "chapter", "rating", "status", "tags", "notes", "date_modified"];
 
-export function parse_novels(unprocessed_novels: NovelEntryApi[]): NovelEntry[] {
-  const novels: NovelEntry[] = unprocessed_novels.map((novel: NovelEntryApi) => ({
+export function api_to_entry(novel: NovelEntryApi): NovelEntry {
+  return {
     id: novel.id,
     country: novel.country,
     title: novel.title,
@@ -36,9 +36,21 @@ export function parse_novels(unprocessed_novels: NovelEntryApi[]): NovelEntry[] 
     tags: novel.tags.join(","),
     notes: novel.notes,
     date_modified: novel.date_modified
-  }));
+  }
+}
 
-  return novels;
+export function entry_to_api(novel: NovelEntry): NovelEntryApi {
+  return {
+    id: novel.id,
+    country: novel.country,
+    title: novel.title,
+    chapter: novel.chapter,
+    rating: novel.rating === "" ? 0 : parseInt(novel.rating, 10),
+    status: novel.status,
+    tags: process_tags(novel.tags),
+    notes: novel.notes,
+    date_modified: novel.date_modified
+  }
 }
 
 export function novel_entries_equal(a: NovelEntry, b: NovelEntry) {
