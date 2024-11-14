@@ -4,6 +4,7 @@ import { Button } from "../../../components/ui/button"
 import {
   AlertDialog,
   AlertDialogAction,
+  AlertDialogDescription,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogFooter,
@@ -11,6 +12,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
 import { fetch_backend } from "@/utils/fetch_backend"
 import { NovelEntry } from "./novel-types.ts"
@@ -32,10 +34,13 @@ export function DeleteRowButton({ row, table } : DeleteRowButtonProps) {
           Delete Row
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent aria-describedby={novel_component_id(row.original.id)}>
+      <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure? This will delete the following row:</AlertDialogTitle>
         </AlertDialogHeader>
+        <VisuallyHidden.Root>
+          <AlertDialogDescription></AlertDialogDescription>
+        </VisuallyHidden.Root>
         {novel_to_component(row.original)}
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -53,7 +58,7 @@ export function DeleteRowButton({ row, table } : DeleteRowButtonProps) {
 // parses a novel entry as a minimized component
 function novel_to_component(novel: NovelEntry) {
   return (
-    <div id={novel_component_id(novel.id)} className="pt-2 text-primary">
+    <div className="pt-2 text-primary">
       <div className="text-sm">Title: {novel.title}</div>
       <div className="text-sm">Chapter: {novel.chapter}</div>
       <div className="text-sm">Rating: {novel.rating}</div>
@@ -61,14 +66,6 @@ function novel_to_component(novel: NovelEntry) {
       <div className="text-sm">Last Updated: {novel.date_modified.toString()}</div>
     </div>
   )
-}
-
-function novel_component_id(id: number) {
-  const to_return = id.toString() + "del-nov-comp";
-  if (!to_return) {
-    console.log("alksdfjlasdkfjkl")
-  }
-  return to_return
 }
 
 async function delete_row({ row, table } : DeleteRowButtonProps) {
