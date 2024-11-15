@@ -7,31 +7,18 @@ import { useSession } from 'next-auth/react'
 
 import { novel_columns } from '../novels-list/table-columns';
 import { NovelEntry, NovelEntryApi, api_to_entry } from '../novels-list/novel-types.ts';
-import { InputCell } from '../novels-list/input-cell.tsx';
-
-import { DataTable } from './data-table.tsx';
+import { DataTable } from '../novels-list/data-table.tsx';
 
 export default function Page() {
+  const num_rand_novels = 10;
   const {data: session} = useSession();
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState<NovelEntry[]>([]);
 
-  // columns allow editing, which is something we don't want
-  // replace InputCell with TextCell
-  const columns = novel_columns.map((column) => {
-    if (column.cell === InputCell) {
-      return {
-        ...column,
-        cell: TextCell,
-      }
-    }
-    return column
-  })
-
   // load novel stats once
   useEffect(() => {
     const fetchNovels = async () => {
-      const raw_data: NovelEntryApi[] = await fetch_backend({path: "/api/random_novels/10", method: "GET", body: undefined});
+      const raw_data: NovelEntryApi[] = await fetch_backend({path: `/api/random_novels/${num_rand_novels}`, method: "GET", body: undefined});
       const data: NovelEntry[] = raw_data.map(api_to_entry);
       setData(data);
       setLoading(false);
@@ -56,17 +43,13 @@ export default function Page() {
     );
   }
 
-
   return (
-    isLoading ? <Loading/> :
-    <DataTable columns={columns} data={data} />
+    <div className="items-center justify-center">
+      <h1 className="text-4xl text-center pb-5 font-medium">{num_rand_novels} Random Webnovels</h1>
+      {isLoading 
+        ? <Loading/> 
+        : <DataTable columns={novel_columns} data={data} setData={setData}/>
+      }
+    </div>
   )
 };
-
-interface TextCell<TData> {
-  getValue: () => string
-}
-
-const TextCell: any = <TData,>({ getValue }: TextCell<TData>) => {
-  return <div className='max-h-12 max-w-44 overflow-x-auto text-nowrap'>{getValue()}</div>
-}
