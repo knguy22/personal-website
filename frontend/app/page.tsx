@@ -10,9 +10,9 @@ export default function Page() {
         intermittence.dev
       </div>
       <div className="flex justify-center space-x-16 pt-12">
-        <PreviewLink href="https://github.com/knguy22/webnovel-list" imageLink="/github-mark.png" alt="Link to github repository" name="Source Code" />
-        <PreviewLink href="https://github.com/knguy22/webnovel-list" imageLink="/linkedin-pfp-tetris.png" alt="Link to github repository" name="Source Code" />
-        <PreviewLink href="https://github.com/knguy22/webnovel-list" imageLink="/github-mark.png" alt="Link to github repository" name="Source Code" />
+        <PreviewLink name="Image To Tetris" href="https://github.com/knguy22/image-to-tetris" imageLink="/linkedin-pfp-tetris.png" alt="" />
+        <PreviewLink name="Blocky Chess Engine" href="https://github.com/knguy22/blocky-chess-engine" imageLink="/blocky-chess-game.png" alt="" />
+        <PreviewLink name="Jstris Statistics Discord Bot" href="https://github.com/knguy22/Jstris-Stats-Discord-Bot" imageLink="/badgerbot-gametime.png" alt="" />
       </div>
       <div className="flex justify-center space-x-16 pt-16">
         <IconLink description="Link to github repository" imageUrl="/github-mark.png" hrefUrl="https://github.com/knguy22/webnovel-list" />
@@ -22,25 +22,27 @@ export default function Page() {
 }
 
 interface PreviewLinkProps {
+  name: string
   href: string,
   imageLink: string,
   alt: string,
-  name: string
 }
 
-function PreviewLink( {href, imageLink, alt, name } : PreviewLinkProps ) {
+function PreviewLink( { name, href, imageLink, alt } : PreviewLinkProps ) {
   return (
-    <div>
-      <Link href={href} className='imageIconLink'>
+    <Link href={href} className='flex flex-col items-center'>
+      <div className='relative w-full h-96'>
         <Image
           src={imageLink}
-          width={200}
-          height={200}
           alt={alt}
+          // height={50} // Fix the height of the image container
+          // width={0} // Let the width scale with the aspect ratio
+          layout='fill'
+          objectFit='contain'
         />
-        <div className='text-center pt-3'>{name}</div>
-      </Link>
-    </div>
+      </div>
+      <div className='text-center'>{name}</div>
+    </Link>
   )
 }
 
