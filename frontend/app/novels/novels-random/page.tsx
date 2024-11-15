@@ -23,9 +23,14 @@ export default function Page() {
       setData(data);
       setLoading(false);
     };
+    
+    // only load novel stats one and with permissions
+    if (!session || session?.user?.role !== 'admin' || !isLoading) {
+      return;
+    }
 
     fetchNovels();
-  }, [])
+  }, [session, isLoading]);
 
   if (!session) {
     return (
