@@ -4,18 +4,22 @@ mod novel_entry;
 mod scripts;
 mod stats;
 
-use std::{error::Error, env};
+use std::{env, error::Error, sync::Arc};
 
 use axum::{
     response::{Html, IntoResponse, Json}, extract::State, http::StatusCode, Router, routing::{get, post, delete}, extract::Path
 };
 use dotenv::dotenv;
+use itertools::Itertools;
+use rand::{rngs::StdRng, seq::SliceRandom, SeedableRng};
 use sea_orm::DatabaseConnection;
+use tokio::sync::Mutex;
 
 // global state for routing
 #[derive(Clone)]
 struct AppState {
     conn: DatabaseConnection,
+    rng: Arc<Mutex<StdRng>>
 }
 
 #[tokio::main]
@@ -23,9 +27,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // initialize everything; run scripts if applicable
     let conn = init().await.unwrap();
     scripts::run_cli(&conn).await.unwrap();
+    let rng = Arc::new(Mutex::new(StdRng::from_entropy()));
 
     // build our application with a route
-    let state = AppState { conn };
+    let state = AppState { conn, rng };
     let domain = env::var("DOMAIN").unwrap();
     let app = Router::new()
         .route("/", get(main_handler))
@@ -34,6 +39,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .route("/api/create_novel", get(create_novel_row_handler))
         .route("/api/delete_novel/:id", delete(delete_novel_handler))
         .route("/api/novels_stats", get(get_novels_stats))
+        .route("/api/random_novels/:num_novels", get(get_random_novels))
         .with_state(state);
 
     // run it
@@ -57,7 +63,6 @@ async fn main_handler() -> Html<&'static str> {
 async fn novel_handler(state: State<AppState>) -> impl IntoResponse {
     println!("Fetching novels");
     let novels = db::fetch_novel_entries(&state.conn).await.unwrap_or_default();
-    println!("Fetched novels size {}", novels.len());
     Json(novels)
 }
 
@@ -91,6 +96,21 @@ async fn get_novels_stats(state: State<AppState>) -> impl IntoResponse {
     println!("Getting novels stats");
     let stats = stats::get_stats(&state.conn).await.unwrap();
     Json(stats)
+}
+
+async fn get_random_novels(state: State<AppState>, Path(num_novels): Path<usize>) -> impl IntoResponse {
+    println!("Fetching random novels: {num_novels}");
+
+    let novels = db::fetch_novel_entries(&state.conn).await.unwrap_or_default();
+    let amount = num_novels.min(novels.len());
+
+    // access the rng in a thread-safe way
+    let mut rng = state.rng.lock().await;
+    let random_novels = novels
+        .choose_multiple(&mut *rng, amount)
+        .map(|novel| novel.clone())
+        .collect_vec();
+    Json(random_novels)
 }
 
 async fn init() -> Result<DatabaseConnection, Box<dyn Error>> {
