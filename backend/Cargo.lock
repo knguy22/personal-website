@@ -2897,6 +2897,7 @@ dependencies = [
  "csv",
  "dotenv",
  "itertools",
+ "rand",
  "sea-orm",
  "serde",
  "serde_json",
