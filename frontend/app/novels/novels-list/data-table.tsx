@@ -290,7 +290,7 @@ function Filter({table, placeholder, col_name, class_extra}: FilterProps) {
   )
 }
 
-export const filterTags: FilterFn<NovelEntry> = (
+const filterTags: FilterFn<NovelEntry> = (
   row: Row<NovelEntry>, 
   columnId: string, 
   filterValue: string, 
