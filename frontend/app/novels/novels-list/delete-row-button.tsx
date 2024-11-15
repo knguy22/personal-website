@@ -46,6 +46,7 @@ export function DeleteRowButton({ row, table } : DeleteRowButtonProps) {
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => delete_row({row, table})}
+            className='text-red-500 bg-secondary hover:bg-secondary/80'
           >
             Continue
           </AlertDialogAction>
