@@ -2,39 +2,31 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { PreviewLink } from './previews.tsx';
 
 export default function Page() {
   return (
     <main className="w-full">
-      <div className="text-5xl font-bold flex-col items-center text-center justify-between pt-24">
-        intermittence.dev
+      <div className="text-5xl font-bold flex-col items-center text-center justify-between pt-14">
+        Hi, I'm Intermittence
+      </div>
+      <div className="text-2xl font-bold flex-col items-center text-center justify-between pt-12">
+        I also go by Kevin, and I like making cool stuff.<br/>
+        Here is some of the work I've done and am proud of.
       </div>
       <div className="flex justify-center space-x-16 pt-12">
-        <PreviewLink name="Image To Tetris" href="https://github.com/knguy22/image-to-tetris" imageLink="/linkedin-pfp-tetris.png" alt="" />
-        <PreviewLink name="Blocky Chess Engine" href="https://github.com/knguy22/blocky-chess-engine" imageLink="/blocky-chess-game.png" alt="" />
-        <PreviewLink name="Jstris Statistics Discord Bot" href="https://github.com/knguy22/Jstris-Stats-Discord-Bot" imageLink="/badgerbot-gametime.png" alt="" />
+        <PreviewLink previewKey="ImageToTetris" />
+        <PreviewLink previewKey="BlockyChessEngine" />
+      </div>
+      <div className="flex justify-center space-x-16 pt-12">
+        <PreviewLink previewKey="JstrisStatisticsDiscordBot" />
+        <PreviewLink previewKey="WebnovelList" />
       </div>
       <div className="flex justify-center space-x-16 pt-16">
         <IconLink description="Link to github repository" imageUrl="/github-mark.png" hrefUrl="https://github.com/knguy22/webnovel-list" />
       </div>
     </main>
   );
-}
-
-interface PreviewLinkProps {
-  name: string
-  href: string,
-  imageLink: string,
-  alt: string,
-}
-
-function PreviewLink( { name, href, imageLink, alt } : PreviewLinkProps ) {
-  return (
-    <Link href={href} className='flex flex-col items-center'>
-      <img src={imageLink} alt={alt} className='h-52 w-52 object-cover'></img>
-      <div className='text-center text-xl pt-6 w-52'>{name}</div>
-    </Link>
-  )
 }
 
 interface IconLinkProps {
