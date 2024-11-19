@@ -25,8 +25,12 @@ export default function Page() {
       <div className="flex justify-center space-x-16 pt-10">
         <PreviewLink previewKey="PersonalWebsite" />
       </div>
-      <div className="flex justify-center space-x-16 pt-16">
-        <IconLink description="Link to github repository" imageUrl="/github-mark.png" hrefUrl="https://github.com/knguy22/webnovel-list" />
+      <div className="text-2xl font-bold flex-col items-center text-center justify-between pt-12">
+        Check me out on my socials:
+      </div>
+      <div className="flex justify-center space-x-16 p-12">
+        <IconLink description="Link to github profile" imageUrl="/github-mark.png" hrefUrl="https://github.com/knguy22" />
+        <IconLink description="Link to linkedin profile" imageUrl="/linkedin.png" hrefUrl="https://www.linkedin.com/in/kevin-nguyen-89326a242/" />
       </div>
     </main>
   );
@@ -40,11 +44,11 @@ interface IconLinkProps {
 
 export function IconLink( {description, imageUrl, hrefUrl } : IconLinkProps ) {
   return (
-    <Link href={hrefUrl} className='imageIconLink'>
+    <Link href={hrefUrl}> 
       <Image
         src={imageUrl}
-        width={50}
-        height={50}
+        width={100}
+        height={100}
         alt={description}
       />
     </Link>

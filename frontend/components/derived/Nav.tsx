@@ -14,28 +14,28 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "../../app/api/auth/[...nextauth]/options"
 import ThemeToggle from "./ThemeToggle"
 
-const about_me_components: { title: string; href: string}[] = [
-  {
-    title: "About Me",
-    href: "/about-me",
-  },
-  {
-    title: "Education",
-    href: "/about-me/education",
-  },
-  {
-    title: "Experience",
-    href: "/about-me/experience",
-  },
-  {
-    title: "Projects",
-    href: "/about-me/projects",
-  },
-  {
-    title: "Hobbies",
-    href: "/about-me/hobbies",
-  },
-]
+// const about_me_components: { title: string; href: string}[] = [
+//   {
+//     title: "About Me",
+//     href: "/about-me",
+//   },
+//   {
+//     title: "Education",
+//     href: "/about-me/education",
+//   },
+//   {
+//     title: "Experience",
+//     href: "/about-me/experience",
+//   },
+//   {
+//     title: "Projects",
+//     href: "/about-me/projects",
+//   },
+//   {
+//     title: "Hobbies",
+//     href: "/about-me/hobbies",
+//   },
+// ]
 
 const novels_components: { title: string; href: string}[] = [
   {
@@ -66,7 +66,7 @@ export default async function NavBar() {
           </NavigationMenuLink>
         </NavigationMenuItem>
 
-        <NavigationMenuItem key="about-me">
+        {/* <NavigationMenuItem key="about-me">
           <NavigationMenuTrigger>About Me</NavigationMenuTrigger>
           <NavigationMenuContent className="">
             <ul className="p-3">
@@ -75,7 +75,7 @@ export default async function NavBar() {
               )}
             </ul>
           </NavigationMenuContent>
-        </NavigationMenuItem>
+        </NavigationMenuItem> */}
 
         <NavigationMenuItem key="Webnovels">
           <NavigationMenuTrigger>Webnovels</NavigationMenuTrigger>
