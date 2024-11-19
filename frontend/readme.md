@@ -10,6 +10,8 @@
 
 * BACKEND_URL
     * See which `DOMAIN` was used for the backend
+* NEXT_PUBLIC_URL
+    * yourFrontendUrl
 * NEXT_PUBLIC_API_URL
     * yourFrontendUrl/api
 * NEXTAUTH_URL
