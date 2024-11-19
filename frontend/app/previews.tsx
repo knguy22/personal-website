@@ -59,7 +59,6 @@ interface PreviewsProps {
 }
 
 export function PreviewLink( { previewKey } : PreviewsProps ) {
-  console.log(preview_info)
   const preview = preview_info[previewKey];
   return (
     <Link href={preview.href} className='rounded-md outline outline-violet-400 transition-colors 
