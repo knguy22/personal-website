@@ -5,6 +5,7 @@ const PreviewsKey = {
   BlockyChessEngine: "BlockyChessEngine",
   JstrisStatisticsDiscordBot: "JstrisStatisticsDiscordBot",
   WebnovelList: "WebnovelList",
+  PersonalWebsite: "PersonalWebsite",
 } as const;
 
 type PreviewsValue = {
@@ -35,9 +36,15 @@ const preview_info: Record<string, PreviewsValue> = {
   },
   WebnovelList: {
     name: "Webnovel List",
-    href: "https://github.com/knguy22/personal-website",
+    href: process.env.NEXT_PUBLIC_URL + "/novels/novels-stats",
     imageLink: "/webnovels-list.png",
     alt: "Webnovel List",
+  },
+  PersonalWebsite: {
+    name: "This Personal Website",
+    href: "https://github.com/knguy22/personal-website",
+    imageLink: "/wizard.png",
+    alt: "This Personal Website",
   },
 };
 
@@ -46,11 +53,14 @@ interface PreviewsProps {
 }
 
 export function PreviewLink( { previewKey } : PreviewsProps ) {
+  console.log(preview_info)
   const preview = preview_info[previewKey];
   return (
-    <Link href={preview.href} className='flex flex-col items-center'>
-      <img src={preview.imageLink} alt={preview.alt} className='h-52 w-52 object-cover'></img>
-      <div className='text-center text-xl pt-6 w-52'>{preview.name}</div>
+    <Link href={preview.href} className='flex flex-col justify-center items-center w-64 h-64 rounded-md outline outline-violet-400 transition-colors 
+        hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none 
+        disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50'>
+      <img src={preview.imageLink} alt={preview.alt} className='h-40 w-40 object-cover'></img>
+      <div className='text-center text-lg pt-4 w-48'>{preview.name}</div>
     </Link>
   )
 }

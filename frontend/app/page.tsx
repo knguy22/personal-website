@@ -12,15 +12,18 @@ export default function Page() {
       </div>
       <div className="text-2xl font-bold flex-col items-center text-center justify-between pt-12">
         I also go by Kevin, and I like making cool stuff.<br/>
-        Here is some of the work I've done and am proud of.
+        Here is some of the work I've done and am proud of:
       </div>
-      <div className="flex justify-center space-x-16 pt-12">
+      <div className="flex justify-center space-x-16 pt-10">
         <PreviewLink previewKey="ImageToTetris" />
         <PreviewLink previewKey="BlockyChessEngine" />
       </div>
-      <div className="flex justify-center space-x-16 pt-12">
+      <div className="flex justify-center space-x-16 pt-10">
         <PreviewLink previewKey="JstrisStatisticsDiscordBot" />
         <PreviewLink previewKey="WebnovelList" />
+      </div>
+      <div className="flex justify-center space-x-16 pt-10">
+        <PreviewLink previewKey="PersonalWebsite" />
       </div>
       <div className="flex justify-center space-x-16 pt-16">
         <IconLink description="Link to github repository" imageUrl="/github-mark.png" hrefUrl="https://github.com/knguy22/webnovel-list" />
