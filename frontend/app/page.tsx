@@ -36,7 +36,7 @@ function Projects() {
       <div className="text-3xl font-bold flex-col items-center text-center justify-between pt-12">
         Projects:
       </div>
-      <div className="flex flex-wrap justify-center gap-16 pt-10 px-12">
+      <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-5 pt-10 px-12">
         <PreviewLink previewKey="ImageToTetris" />
         <PreviewLink previewKey="BlockyChessEngine" />
         <PreviewLink previewKey="JstrisStatisticsDiscordBot" />
