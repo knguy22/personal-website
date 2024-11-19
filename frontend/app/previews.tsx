@@ -61,11 +61,11 @@ interface PreviewsProps {
 export function PreviewLink( { previewKey } : PreviewsProps ) {
   const preview = preview_info[previewKey];
   return (
-    <Link href={preview.href} className='rounded-md outline outline-violet-400 transition-colors 
-        hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none 
-        disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50'>
+    <Link href={preview.href} className='rounded-md outline outline-violet-400 transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50'>
         <div className='flex flex-col justify-center items-center p-6 w-72'>
-            <img src={preview.imageLink} alt={preview.alt} className='h-40 w-40 object-cover'></img>
+            <picture>
+                <img src={preview.imageLink} alt={preview.alt} className='h-40 w-40 object-cover'></img>
+            </picture>
             <div className='text-center text-lg pt-4 w-full'>{preview.name}</div>
             <div className='text-center text-sm pt-4 w-4/5'>{preview.desc}</div>
         </div>
