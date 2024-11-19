@@ -31,17 +31,8 @@ interface PreviewLinkProps {
 function PreviewLink( { name, href, imageLink, alt } : PreviewLinkProps ) {
   return (
     <Link href={href} className='flex flex-col items-center'>
-      <div className='relative w-full h-96'>
-        <Image
-          src={imageLink}
-          alt={alt}
-          // height={50} // Fix the height of the image container
-          // width={0} // Let the width scale with the aspect ratio
-          layout='fill'
-          objectFit='contain'
-        />
-      </div>
-      <div className='text-center'>{name}</div>
+      <img src={imageLink} alt={alt} className='h-52 w-52 object-cover'></img>
+      <div className='text-center text-xl pt-6 w-52'>{name}</div>
     </Link>
   )
 }
