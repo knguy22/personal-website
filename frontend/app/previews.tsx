@@ -29,7 +29,7 @@ const preview_info: Record<string, PreviewsValue> = {
     href: "https://github.com/knguy22/blocky-chess-engine",
     imageLink: "/blocky-chess-game.png",
     alt: "Blocky Chess Engine",
-    desc: "A program that plays chess at a high level.",
+    desc: "A program that plays chess at a high level and improve itself using training data from previous games.",
   },
   JstrisStatisticsDiscordBot: {
     name: "Jstris Stats Discord Bot",
