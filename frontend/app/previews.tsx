@@ -40,7 +40,7 @@ const preview_info: Record<string, PreviewsValue> = {
   },
   WebnovelList: {
     name: "Webnovel List",
-    href: process.env.NEXT_PUBLIC_URL + "/novels/novels-stats",
+    href: "/novels/novels-stats",
     imageLink: "/webnovels-list.png",
     alt: "Webnovel List",
     desc: "A tool to keep track of webnovels I've read and visualizing relevant statistics.",

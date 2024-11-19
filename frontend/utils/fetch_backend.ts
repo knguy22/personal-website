@@ -13,7 +13,7 @@ export async function fetch_backend(back_req: BackendRequest): Promise<any | nul
 
   // try block is needed because fetch will throw errors for network issues
   try {
-    let response = await fetch(process.env.NEXT_PUBLIC_API_URL + '/backend', fetch_arguments);
+    let response = await fetch('/api/backend', fetch_arguments);
     if (!response.ok) {
       return null;
     }
