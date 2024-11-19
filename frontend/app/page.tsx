@@ -8,7 +8,7 @@ export default function Page() {
   return (
     <main className="w-full">
       <div className="text-5xl font-bold flex-col items-center text-center justify-between pt-14">
-        Hi, I'm Intermittence
+        Hi, I'm Intermittence!
       </div>
       <div className="text-2xl font-bold flex-col items-center text-center justify-between pt-12">
         I also go by Kevin, and I like making cool stuff.<br/>
