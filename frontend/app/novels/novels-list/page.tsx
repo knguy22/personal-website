@@ -1,14 +1,14 @@
 'use client'
 
 import React, {useState, useEffect} from 'react';
-import { NovelEntry, NovelEntryApi, api_to_entry, novel_col_names } from './novel-types.ts';
-import { novel_columns } from './table-columns.tsx';
-import { DataTable } from '@/app/novels/novels-list/data-table.tsx';
 import Loading from '@/components/derived/Loading.tsx';
 import { useSession } from 'next-auth/react'
 import { fetch_backend } from '@/utils/fetch_backend.ts';
+import { NovelEntry, NovelEntryApi, api_to_entry } from './novel-types.ts';
+import { novel_columns } from './table-columns.tsx';
+import { DataTable } from './data-table.tsx';
 
-const isNumeric = (num: any) => (typeof(num) === 'number' || typeof(num) === "string" && num.trim() !== '') && !isNaN(num as number);
+const isNumeric = (num: unknown) => (typeof(num) === 'number' || typeof(num) === "string" && num.trim() !== '') && !isNaN(num as number);
 
 export default function Page() {
   const [isLoading, setLoading] = useState(true);

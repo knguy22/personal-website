@@ -2,15 +2,16 @@ import { useState, useEffect } from 'react';
 import { Row } from "@tanstack/react-table"
 import { fetch_backend } from '@/utils/fetch_backend.ts';
 import { NovelEntry, NovelEntryApi, novel_entries_equal, entry_to_api } from './novel-types';
+import { NovelTable } from './novel-table-type';
 
 interface DateCellProps {
-  getValue: any
+  getValue: () => string | Date
   row: Row<any>
-  table: any
+  table: NovelTable
 }
 
 // "any" used to be compatible with tanstack table
-export function DateCell ({ getValue, row, table } : DateCellProps) {
+export const DateCell: any = ({ getValue, row, table } : DateCellProps) => {
   const [date, setDate] = useState<Date>(new Date(getValue()));
   const [row_copy, setRowCopy] = useState(row);
 
@@ -35,7 +36,7 @@ export function DateCell ({ getValue, row, table } : DateCellProps) {
   }
 }
 
-async function update_row(row: Row<any>, setDate: (date: Date) => void, table: any): Promise<null> {
+async function update_row(row: Row<any>, setDate: (date: Date) => void, table: NovelTable): Promise<null> {
   // send the update to the backend
   const novel: NovelEntry = row['original'];
   const to_send: NovelEntryApi[] = [entry_to_api(novel)];

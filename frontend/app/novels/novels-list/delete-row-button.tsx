@@ -16,13 +16,14 @@ import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
 import { fetch_backend } from "@/utils/fetch_backend"
 import { NovelEntry } from "./novel-types.ts"
+import { NovelTable } from "./novel-table-type.ts";
 
 interface DeleteRowButtonProps {
   row: {original: NovelEntry, },
-  table: any,
+  table: NovelTable
 }
 
-export function DeleteRowButton({ row, table } : DeleteRowButtonProps) {
+export const DeleteRowButton: any = ({ row, table } : DeleteRowButtonProps) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -81,7 +82,7 @@ async function delete_row({ row, table } : DeleteRowButtonProps) {
   }
 
   // tanstack uses it's own id, this is not the id in the backend
-  const tanstack_id_rows: any = table.getPreFilteredRowModel().flatRows;
+  const tanstack_id_rows = table.getPreFilteredRowModel().flatRows;
   let data: NovelEntry[] = new Array();
   for (const tanstack_id in tanstack_id_rows) {
       const novel_id = tanstack_id_rows[tanstack_id].original.id;

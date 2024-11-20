@@ -1,10 +1,4 @@
 import GithubProvider from "next-auth/providers/github"
-import { OAuthConfig } from "next-auth/providers/oauth";
-
-
-type GithubProfile = {
-  email: string
-}
 
 export const authOptions = {
   // Configure one or more authentication providers
