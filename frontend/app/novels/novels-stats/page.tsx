@@ -48,7 +48,7 @@ function StatsTable({stats}: {stats: Stats}) {
   
   return (
     <div className="flex flex-col items-center space-y-5">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <NumberDisplay value={stats.novel_count} description="Total Novels" />
         <NumberDisplay value={stats.chapter_count} description="Total Chapters" />
         <NumberDisplay value={stats.average_rating.toPrecision(3)} description="Average Rating" />
