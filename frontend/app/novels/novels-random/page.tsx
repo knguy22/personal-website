@@ -18,7 +18,10 @@ export default function Page() {
   // load novel stats once
   useEffect(() => {
     const fetchNovels = async () => {
-      const raw_data: NovelEntryApi[] = await fetch_backend({path: `/api/random_novels/${num_rand_novels}`, method: "GET", body: undefined});
+      let raw_data: NovelEntryApi[] | null = await fetch_backend({path: `/api/random_novels/${num_rand_novels}`, method: "GET", body: undefined}) as NovelEntryApi[] | null;
+      if (!raw_data) {
+        raw_data = [];
+      }
       const data: NovelEntry[] = raw_data.map(api_to_entry);
       setData(data);
       setLoading(false);

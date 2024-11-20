@@ -1,7 +1,7 @@
 export type BackendRequest = {
     path: string;
     method: "GET" | "POST" | "PUT" | "DELETE";
-    body: unknown;
+    body: BodyInit | undefined;
 }
 
 export async function fetch_backend(back_req: BackendRequest): Promise<unknown | null> {
