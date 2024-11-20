@@ -54,8 +54,8 @@ function Socials() {
         Check me out or contact me:
       </div>
       <div className="flex justify-center space-x-16 pt-12">
-        <IconLink description="Link to github profile" imageUrl="/github-mark.png" hrefUrl="https://github.com/knguy22" />
-        <IconLink description="Link to linkedin profile" imageUrl="/linkedin.png" hrefUrl="https://www.linkedin.com/in/kevin-nguyen-89326a242/" />
+        <IconLink description="Link to github profile" imageUrl="/icons/github-mark.png" hrefUrl="https://github.com/knguy22" />
+        <IconLink description="Link to linkedin profile" imageUrl="/icons/linkedin.png" hrefUrl="https://www.linkedin.com/in/kevin-nguyen-89326a242/" />
       </div>
       <div className="flex justify-center flex-col text-center space-y-2 pt-10 pb-12 text-lg">
         <div>Discord: @intermittence</div>
