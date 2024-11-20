@@ -48,12 +48,11 @@ function StatsTable({stats}: {stats: Stats}) {
   
   return (
     <div className="flex flex-col items-center space-y-5">
-      <div className="flex justify-center space-x-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <NumberDisplay value={stats.novel_count} description="Total Novels" />
         <NumberDisplay value={stats.chapter_count} description="Total Chapters" />
         <NumberDisplay value={stats.average_rating.toPrecision(3)} description="Average Rating" />
-      </div>
-      <div className="flex justify-center space-x-8">
+        <NumberDisplay value={stats.volumes_completed} description="Volumes Completed" />
         <NumberDisplay value={stats.novels_completed} description="Novels Completed" />
         <NumberDisplay value={stats.novels_not_started} description="Novels Unstarted" />
       </div>
@@ -85,7 +84,7 @@ function StatsTable({stats}: {stats: Stats}) {
 // returns a div with the number being large, while the category name is small and placed right below
 function NumberDisplay({value, description}: {value: number | string, description: string}) {
   return (
-    <div className="flex flex-col items-center space-x-2">
+    <div className="flex flex-col items-center">
       <div className="text-3xl font-bold">{value}</div>
       <div className="text-sm">{description}</div>
     </div>

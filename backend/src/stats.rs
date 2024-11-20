@@ -1,5 +1,5 @@
 use crate::db;
-use crate::novel_entry::Status;
+use crate::novel_entry::{NovelEntry, Status};
 use std::error::Error;
 use std::collections::HashMap;
 use sea_orm::DatabaseConnection;
@@ -20,6 +20,7 @@ pub struct Stats {
     pub novel_count: u32,
     pub chapter_count: u32,
     pub average_rating: f32,
+    pub volumes_completed: u32,
     pub novels_completed: u32,
     pub novels_not_started: u32,
 
@@ -37,6 +38,7 @@ pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats, Box<dyn Error>>
     let novels = db::fetch_novel_entries(db).await?;
     let novel_count = novels.len() as u32;
     let chapter_count = novels.iter().map(|novel| novel.chapter.parse().unwrap_or(0)).sum();
+    let volumes_completed: u32 = novels.iter().map(|novel| completed_volume(&novel.chapter)).sum();
     let novels_completed = novels.iter().filter(|novel| novel.status == Status::Completed).count() as u32;
     let novels_not_started = novels.iter().filter(|novel| novel.chapter.len() == 0).count() as u32;
 
@@ -56,9 +58,59 @@ pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats, Box<dyn Error>>
         }
     }
 
+    let (country_dist, chapter_dist) = find_chapter_country_dist(&novels);
+
+    Ok(Stats {
+        novel_count,
+        chapter_count,
+        average_rating,
+        volumes_completed,
+        novels_completed,
+        novels_not_started,
+        rating_dist,
+        chapter_dist,
+        country_dist,
+    })
+}
+
+// volumes without any trailing information can be naively counted fully
+// novels with volumes can take the form of v{number} or v{number}{trailing info}
+// volumes with trailing info can only count of to {number - 1} completed
+// Ex: V11 = 11 volumes completed
+// Ex: V11C3 = 10 volumes completed
+fn completed_volume(chapter: &str) -> u32 {
+    // check if the novel contains volumes
+    if !chapter.starts_with("v") && !chapter.starts_with("V") {
+        return 0
+    }
+
+    // check if the rest of the chapter can be parsed as an integer
+    // if so, that means there is no trailing information
+    let volumes = chapter[1..].parse::<u32>().unwrap_or(u32::MAX);
+    if volumes != u32::MAX {
+        return volumes;
+    }
+
+    // handle the case where there is trailing information
+    // the last novel isn't completed
+    let mut volumes = 0;
+    for c in chapter[1..].chars() {
+        if c.is_numeric() {
+            volumes *= 10;
+            volumes += c.to_digit(10).unwrap();
+        } else {
+            break;
+        }
+    }
+
+    volumes - 1
+}
+
+
+fn find_chapter_country_dist(novels: &[NovelEntry]) -> (HashMap<String, u32>, HashMap<String, u32>) {
     let mut chapter_dist = HashMap::<ChapterCountBucket, u32>::new();
     let mut country_dist = HashMap::<String, u32>::new();
-    for novel in &novels {
+    for novel in novels {
         // count the frequency of each chapter count bucket
         let chapter_count = novel.chapter.parse::<u32>().unwrap_or(0);
         for (start, end) in &CHAPTER_COUNT_BUCKETS {
@@ -81,14 +133,20 @@ pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats, Box<dyn Error>>
         .map(|(k, v)| (k.0.to_string() + "-" + &k.1.to_string(), v))
         .collect();
 
-    Ok(Stats {
-        novel_count,
-        chapter_count,
-        average_rating,
-        novels_completed,
-        novels_not_started,
-        rating_dist,
-        chapter_dist,
-        country_dist,
-    })
+    (country_dist, chapter_dist)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_completed_volume() {
+        assert_eq!(completed_volume("v0"), 0);
+        assert_eq!(completed_volume("v1"), 1);
+        assert_eq!(completed_volume("v10"), 10);
+        assert_eq!(completed_volume("v11"), 11);
+        assert_eq!(completed_volume("v11C3"), 10);
+        assert_eq!(completed_volume("v22C3P2"), 21);
+    }
 }
