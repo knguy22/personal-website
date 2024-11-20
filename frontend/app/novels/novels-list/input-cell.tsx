@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react'
 import { Row, Column } from "@tanstack/react-table"
 import { useSession } from 'next-auth/react'
+import { NovelTable } from './novel-table-type'
 
 interface InputCellProps<TData> {
   getValue: () => string
-  row: Row<TData>
+  row: Row<TData>,
   column: Column<TData, unknown>
-  table: any
+  table: NovelTable
 }
 
 export const InputCell: any = <TData,>({ getValue, row, column, table }: InputCellProps<TData>) => {

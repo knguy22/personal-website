@@ -18,7 +18,7 @@ const chartConfig = {
 
 interface NovelBarChartProps {
   title: string
-  chartData: any[]
+  chartData: unknown[]
   chartConfigKey: keyof typeof chartConfig
   XAxisLabel: string,
   XAxisKey: string,

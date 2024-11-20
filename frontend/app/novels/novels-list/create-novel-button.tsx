@@ -3,7 +3,7 @@ import * as React from "react"
 import { Table as TanstackTable } from "@tanstack/react-table"
  
 import { Button } from "../../../components/ui/button"
-import { NovelEntry } from "./novel-types"
+import { NovelEntry, NovelEntryApi } from "./novel-types"
 import { fetch_backend } from "@/utils/fetch_backend"
 
 interface CreateNovelButtonProps {
@@ -35,10 +35,11 @@ export function CreateNovelButton({ tableData, setTableData }: CreateNovelButton
 }
 
 async function create_novel(): Promise<NovelEntry | null> {
-  const raw_novel = await fetch_backend({path: "/api/create_novel", method: "GET", body: undefined});
+  const raw_novel: NovelEntryApi | null = await fetch_backend({path: "/api/create_novel", method: "GET", body: undefined}) as NovelEntryApi | null;
   if (!raw_novel) {
     return null;
   }
+
   const novel: NovelEntry = {
     id: raw_novel.id,
     country: raw_novel.country,
