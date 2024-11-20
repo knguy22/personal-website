@@ -25,7 +25,7 @@ function SkillList( {title, skills}: SkillListProps) {
       <div className="rounded-md bg-secondary text-base font-bold p-3">{title}</div>
       <div className='justify-between text-base text-left pt-3 space-y-2'>
         {skills.map((skill) => (
-          <div className="pl-3">{skill}</div>
+          <div key={skill} className="pl-3">{skill}</div>
         ))}
       </div>
     </div>
@@ -40,7 +40,7 @@ export function Skills() {
       </div>
       <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-5">
         {skills_lists.map((skill_list) => (
-          <SkillList title={skill_list.title} skills={skill_list.skills} />
+          <SkillList key={skill_list.title} title={skill_list.title} skills={skill_list.skills} />
         ))}
       </div>
     </div>

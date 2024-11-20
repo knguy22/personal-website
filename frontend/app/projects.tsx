@@ -81,7 +81,7 @@ export function Projects() {
       </div>
       <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-5 pt-10">
         {Object.values(ProjectsKey).map((projectKey) => (
-          <ProjectLink projectKey={projectKey} />
+          <ProjectLink key={projectKey} projectKey={projectKey} />
         ))}
       </div>
     </div>
