@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-const PreviewsKey = {
+const ProjectsKey = {
   ImageToTetris: "ImageToTetris",
   BlockyChessEngine: "BlockyChessEngine",
   JstrisStatisticsDiscordBot: "JstrisStatisticsDiscordBot",
@@ -8,7 +8,7 @@ const PreviewsKey = {
   PersonalWebsite: "PersonalWebsite",
 } as const;
 
-type PreviewsValue = {
+type ProjectsValue = {
     name: string,
     href: string,
     imageLink: string,
@@ -16,59 +16,76 @@ type PreviewsValue = {
     desc: string,
 }
 
-const preview_info: Record<string, PreviewsValue> = {
+const project_info: Record<string, ProjectsValue> = {
   ImageToTetris: {
     name: "Image To Tetris",
     href: "https://github.com/knguy22/image-to-tetris",
-    imageLink: "/previews/linkedin-pfp-tetris.png",
+    imageLink: "/project_images/linkedin-pfp-tetris.png",
     alt: "Image To Tetris",
     desc: "A tool to efficiently convert images and videos into valid tetris configurations.",
   },
   BlockyChessEngine: {
     name: "Blocky Chess Engine",
     href: "https://github.com/knguy22/blocky-chess-engine",
-    imageLink: "/previews/blocky-chess-game.png",
+    imageLink: "/project_images/blocky-chess-game.png",
     alt: "Blocky Chess Engine",
     desc: "A program that plays chess at a high level and improve itself using training data from previous games.",
   },
   JstrisStatisticsDiscordBot: {
     name: "Jstris Stats Discord Bot",
     href: "https://github.com/knguy22/Jstris-Stats-Discord-Bot",
-    imageLink: "/previews/badgerbot-gametime.png",
+    imageLink: "/project_images/badgerbot-gametime.png",
     alt: "Jstris Statistics Discord Bot",
     desc: "A discord bot that provides Jstris statistics for competitive Tetris players.",
   },
   WebnovelList: {
     name: "Webnovel List",
     href: "/novels/novels-stats",
-    imageLink: "/previews/webnovels-list.png",
+    imageLink: "/project_images/webnovels-list.png",
     alt: "Webnovel List",
     desc: "A tool to keep track of webnovels I've read and visualizing relevant statistics.",
   },
   PersonalWebsite: {
     name: "This Personal Website",
     href: "https://github.com/knguy22/personal-website",
-    imageLink: "/previews/wizard.png",
+    imageLink: "/project_images/wizard.png",
     alt: "This Personal Website",
     desc: "A sandbox for me to try out new things. Currently hosts my portfolio and my webnovel list.",
   },
 };
 
-interface PreviewsProps {
-  previewKey: keyof typeof PreviewsKey
+interface ProjectsProps {
+  projectKey: keyof typeof ProjectsKey
 }
 
-export function PreviewLink( { previewKey } : PreviewsProps ) {
-  const preview = preview_info[previewKey];
+function ProjectLink( { projectKey } : ProjectsProps ) {
+  const project = project_info[projectKey];
   return (
-    <Link href={preview.href} className='rounded-md outline outline-violet-500 transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50'>
+    <Link href={project.href} className='rounded-md outline outline-violet-500 transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50'>
         <div className='flex flex-col justify-center items-center py-6'>
             <picture>
-                <img src={preview.imageLink} alt={preview.alt} className='h-40 w-40 object-cover'></img>
+              <img src={project.imageLink} alt={project.alt} className='h-40 w-40 object-cover'></img>
             </picture>
-            <div className='text-center text-lg pt-4 w-full'>{preview.name}</div>
-            <div className='text-center text-sm pt-4 w-4/5'>{preview.desc}</div>
+            <div className='text-center text-lg pt-4 w-full'>{project.name}</div>
+            <div className='text-center text-sm pt-4 w-4/5'>{project.desc}</div>
         </div>
     </Link>
+  )
+}
+
+export function Projects() {
+  return (
+    <div>
+      <div className="text-3xl font-bold flex-col items-center text-center justify-between pt-12">
+        Projects:
+      </div>
+      <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-5 pt-10 px-12">
+        <ProjectLink projectKey="ImageToTetris" />
+        <ProjectLink projectKey="BlockyChessEngine" />
+        <ProjectLink projectKey="JstrisStatisticsDiscordBot" />
+        <ProjectLink projectKey="WebnovelList" />
+        <ProjectLink projectKey="PersonalWebsite" />
+      </div>
+    </div>
   )
 }

@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { PreviewLink } from './previews.tsx';
+import { Projects } from './projects.tsx';
 
 
 export default function Page() {
@@ -20,28 +20,11 @@ export default function Page() {
 
 function Intro() {
   return (
-  <div className="text-lg flex flex-col justify-between w-1/2 pt-12 space-y-3 mx-auto">
+    <div className="text-lg flex flex-col justify-between w-1/2 pt-12 space-y-3 mx-auto">
       <div className='text-3xl font-bold text-center pb-4'>About Me:</div>
       <div>{"I'm a computer science student who likes creating programs to solve interesting problems, and I find joy in learning new things."}
       </div>
       <div>{"My work has spanned multiple domains, but I'm primarily interested in harnessing the power of data to solve real-world problems. This includes backend systems and database management."}
-      </div>
-    </div>
-  )
-}
-
-function Projects() {
-  return (
-    <div>
-      <div className="text-3xl font-bold flex-col items-center text-center justify-between pt-12">
-        Projects:
-      </div>
-      <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-5 pt-10 px-12">
-        <PreviewLink previewKey="ImageToTetris" />
-        <PreviewLink previewKey="BlockyChessEngine" />
-        <PreviewLink previewKey="JstrisStatisticsDiscordBot" />
-        <PreviewLink previewKey="WebnovelList" />
-        <PreviewLink previewKey="PersonalWebsite" />
       </div>
     </div>
   )
