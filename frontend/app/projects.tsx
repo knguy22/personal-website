@@ -75,16 +75,14 @@ function ProjectLink( { projectKey } : ProjectsProps ) {
 
 export function Projects() {
   return (
-    <div>
+    <div className='w-2/3 mx-auto'>
       <div className="text-3xl font-bold flex-col items-center text-center justify-between pt-12">
         Projects:
       </div>
-      <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-5 pt-10 px-12">
-        <ProjectLink projectKey="ImageToTetris" />
-        <ProjectLink projectKey="BlockyChessEngine" />
-        <ProjectLink projectKey="JstrisStatisticsDiscordBot" />
-        <ProjectLink projectKey="WebnovelList" />
-        <ProjectLink projectKey="PersonalWebsite" />
+      <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-5 pt-10">
+        {Object.values(ProjectsKey).map((projectKey) => (
+          <ProjectLink projectKey={projectKey} />
+        ))}
       </div>
     </div>
   )

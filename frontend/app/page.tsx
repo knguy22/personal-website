@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Projects } from './projects.tsx';
+import { Skills } from './skills.tsx';
 
 
 export default function Page() {
@@ -13,6 +14,7 @@ export default function Page() {
       </div>
       <Intro />
       <Projects />
+      <Skills />
       <Socials />
     </main>
   );
