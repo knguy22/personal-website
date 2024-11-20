@@ -1,10 +1,10 @@
 export type BackendRequest = {
     path: string;
     method: "GET" | "POST" | "PUT" | "DELETE";
-    body: any | undefined;
+    body: unknown;
 }
 
-export async function fetch_backend(back_req: BackendRequest): Promise<any | null> {
+export async function fetch_backend(back_req: BackendRequest): Promise<unknown | null> {
   let fetch_arguments = {
     method: "POST",
     headers: back_req.body ? {"Content-Type": "application/json"} : undefined,

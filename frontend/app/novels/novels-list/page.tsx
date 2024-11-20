@@ -1,7 +1,7 @@
 'use client'
 
 import React, {useState, useEffect} from 'react';
-import { NovelEntry, NovelEntryApi, api_to_entry } from './novel-types.ts';
+import { NovelEntry, NovelEntryApi, api_to_entry, novel_col_names } from './novel-types.ts';
 import { novel_columns } from './table-columns.tsx';
 import { DataTable } from '@/app/novels/novels-list/data-table.tsx';
 import Loading from '@/components/derived/Loading.tsx';
@@ -19,7 +19,11 @@ export default function Page() {
   useEffect(() => {
     const fetchNovels = async () => {
       try {
-        const novelsData: NovelEntryApi[] = await fetch_backend({path: "/api/novels", method: "GET", body: undefined});
+        let novelsData: NovelEntryApi[] | null = await fetch_backend({path: "/api/novels", method: "GET", body: undefined}) as NovelEntryApi[] | null;
+        if (!novelsData) {
+          novelsData = [];
+        }
+
         const convertedNovels: NovelEntry[] = novelsData.map(api_to_entry);
 
         // sort novels by rating by default

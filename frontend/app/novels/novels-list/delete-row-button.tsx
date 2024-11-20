@@ -18,7 +18,7 @@ import { fetch_backend } from "@/utils/fetch_backend"
 import { NovelEntry } from "./novel-types.ts"
 
 interface DeleteRowButtonProps {
-  row: any,
+  row: {original: NovelEntry, },
   table: any,
 }
 
@@ -73,7 +73,7 @@ async function delete_row({ row, table } : DeleteRowButtonProps) {
   const id_to_delete: number = row.original.id;
 
   // delete from backend first
-  const res: any | null = await fetch_backend({path: "/api/delete_novel/" + id_to_delete.toString(), method: "DELETE", body: undefined});
+  const res = await fetch_backend({path: "/api/delete_novel/" + id_to_delete.toString(), method: "DELETE", body: undefined});
 
   // check if the delete was successful
   if (!res) {
