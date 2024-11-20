@@ -54,6 +54,7 @@ function StatsTable({stats}: {stats: Stats}) {
         <NumberDisplay value={stats.average_rating.toPrecision(3)} description="Average Rating" />
       </div>
       <div className="flex justify-center space-x-8">
+        <NumberDisplay value={stats.volumes_completed} description="Volumes Completed" />
         <NumberDisplay value={stats.novels_completed} description="Novels Completed" />
         <NumberDisplay value={stats.novels_not_started} description="Novels Unstarted" />
       </div>

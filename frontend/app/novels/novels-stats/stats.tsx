@@ -3,6 +3,7 @@ export type Stats = {
   novel_count: number,
   chapter_count: number,
   average_rating: number,
+  volumes_completed: number,
   novels_completed: number,
   novels_not_started: number,
 
