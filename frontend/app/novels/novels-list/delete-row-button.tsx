@@ -16,10 +16,10 @@ import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
 import { fetch_backend } from "@/utils/fetch_backend"
 import { NovelEntry } from "./novel-types.ts"
-import { NovelTable } from "./novel-table-type.ts";
+import { NovelRow, NovelTable } from "./novel-table-type.ts";
 
 interface DeleteRowButtonProps {
-  row: {original: NovelEntry, },
+  row: NovelRow,
   table: NovelTable
 }
 

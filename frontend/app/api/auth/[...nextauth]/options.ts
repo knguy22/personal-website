@@ -11,7 +11,6 @@ export const authOptions = {
           userRole = "admin";
         }
 
-
         return {
             ...profile,
             role: userRole

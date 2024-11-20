@@ -1,26 +1,24 @@
 import { useState, useEffect } from 'react';
-import { Row } from "@tanstack/react-table"
 import { fetch_backend } from '@/utils/fetch_backend.ts';
 import { NovelEntry, NovelEntryApi, novel_entries_equal, entry_to_api } from './novel-types';
-import { NovelTable } from './novel-table-type';
+import { NovelRow, NovelTable } from './novel-table-type';
 
 interface DateCellProps {
   getValue: () => string | Date
-  row: Row<any>
+  row: NovelRow
   table: NovelTable
 }
 
-// "any" used to be compatible with tanstack table
 export const DateCell: any = ({ getValue, row, table } : DateCellProps) => {
   const [date, setDate] = useState<Date>(new Date(getValue()));
   const [row_copy, setRowCopy] = useState(row);
 
   useEffect(() => {
     // don't spam updates
-    if (novel_entries_equal(row['original'], row_copy['original'])) {
+    if (novel_entries_equal(row.original, row_copy.original)) {
       return;
     }
-    if (row['original'].id != row_copy['original'].id) {
+    if (row.original.id != row_copy.original.id) {
       return;
     }
     setRowCopy(row);
@@ -36,9 +34,9 @@ export const DateCell: any = ({ getValue, row, table } : DateCellProps) => {
   }
 }
 
-async function update_row(row: Row<any>, setDate: (date: Date) => void, table: NovelTable): Promise<null> {
+async function update_row(row: NovelRow, setDate: (date: Date) => void, table: NovelTable): Promise<null> {
   // send the update to the backend
-  const novel: NovelEntry = row['original'];
+  const novel: NovelEntry = row.original;
   const to_send: NovelEntryApi[] = [entry_to_api(novel)];
   const novels: NovelEntryApi[] | null = await fetch_backend({path: "/api/update_novels", method: "POST", body: JSON.stringify(to_send)}) as NovelEntryApi[] | null;
 

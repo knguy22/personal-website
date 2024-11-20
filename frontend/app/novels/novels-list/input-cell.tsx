@@ -7,7 +7,7 @@ import { NovelTable } from './novel-table-type'
 
 interface InputCellProps<TData> {
   getValue: () => string
-  row: Row<TData>
+  row: Row<TData>,
   column: Column<TData, unknown>
   table: NovelTable
 }
