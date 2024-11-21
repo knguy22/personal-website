@@ -1,5 +1,6 @@
 import * as React from "react"
 
+import { Row, Table } from "@tanstack/react-table"
 import { Button } from "../../../components/ui/button"
 import {
   AlertDialog,
@@ -16,14 +17,13 @@ import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
 import { fetch_backend } from "@/utils/fetch_backend"
 import { NovelEntry } from "./novel-types.ts"
-import { NovelRow, NovelTable } from "./novel-table-type.ts";
 
 interface DeleteRowButtonProps {
-  row: NovelRow,
-  table: NovelTable
+  row: Row<NovelEntry>,
+  table: Table<NovelEntry>
 }
 
-export const DeleteRowButton: any = ({ row, table } : DeleteRowButtonProps) => {
+export const DeleteRowButton = ({ row, table } : DeleteRowButtonProps) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -91,5 +91,5 @@ async function delete_row({ row, table } : DeleteRowButtonProps) {
       }
   }
 
-  table.options.meta.updateTableData(data);
+  table.options.meta?.updateTableData(data);
 }
