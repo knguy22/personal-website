@@ -1,15 +1,9 @@
 import { useState, useEffect } from 'react';
+import { Row, Table, CellContext } from "@tanstack/react-table";
 import { fetch_backend } from '@/utils/fetch_backend.ts';
 import { NovelEntry, NovelEntryApi, novel_entries_equal, entry_to_api } from './novel-types';
-import { NovelRow, NovelTable } from './novel-table-type';
 
-interface DateCellProps {
-  getValue: () => string | Date
-  row: NovelRow
-  table: NovelTable
-}
-
-export const DateCell: any = ({ getValue, row, table } : DateCellProps) => {
+export const DateCell = ({ getValue, row, table } : CellContext<NovelEntry, Date | string>) => {
   const [date, setDate] = useState<Date>(new Date(getValue()));
   const [row_copy, setRowCopy] = useState(row);
 
@@ -34,7 +28,7 @@ export const DateCell: any = ({ getValue, row, table } : DateCellProps) => {
   }
 }
 
-async function update_row(row: NovelRow, setDate: (date: Date) => void, table: NovelTable): Promise<null> {
+async function update_row(row: Row<NovelEntry>, setDate: (date: Date) => void, table: Table<NovelEntry>): Promise<null> {
   // send the update to the backend
   const novel: NovelEntry = row.original;
   const to_send: NovelEntryApi[] = [entry_to_api(novel)];
@@ -48,6 +42,6 @@ async function update_row(row: NovelRow, setDate: (date: Date) => void, table: N
   // update the date
   const new_date = novels[0].date_modified;
   setDate(new Date(new_date));
-  table.options.meta.updateCell(row.index, 'date_modified', new_date);
+  table.options.meta?.updateCell(row.index, 'date_modified', new_date);
   return null;
 }

@@ -1,18 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Row, Column } from "@tanstack/react-table"
 import { useSession } from 'next-auth/react'
-import { NovelTable } from './novel-table-type'
+import { CellContext } from "@tanstack/react-table";
 
-interface InputCellProps<TData> {
-  getValue: () => string
-  row: Row<TData>,
-  column: Column<TData, unknown>
-  table: NovelTable
-}
-
-export const InputCell: any = <TData,>({ getValue, row, column, table }: InputCellProps<TData>) => {
+export const InputCell = <TData,>({ getValue, row, column, table }: CellContext<TData, string>) => {
   const initialValue = getValue();
   const [value, setValue] = useState(initialValue);
   const {data: session} = useSession();
@@ -22,7 +14,7 @@ export const InputCell: any = <TData,>({ getValue, row, column, table }: InputCe
   }, [initialValue])
 
   const onBlur = () => {
-    table.options.meta.updateCell(row.index, column.id, value);
+    table.options.meta?.updateCell(row.index, column.id, value);
   }
 
   // only allow editing for admins

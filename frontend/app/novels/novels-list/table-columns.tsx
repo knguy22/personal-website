@@ -1,6 +1,6 @@
 'use client'
 
-import { ColumnDef, FilterFn } from "@tanstack/react-table"
+import { CellContext, ColumnDef, FilterFn } from "@tanstack/react-table"
 import { ArrowUpDown} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { NovelEntry } from './novel-types';
@@ -8,12 +8,16 @@ import { InputCell } from '@/app/novels/novels-list/input-cell';
 import { DateCell } from "./date-cell";
 
 declare module '@tanstack/table-core' {
+  interface TableMeta<TData> {
+    updateCell: (rowIndex: number, columnId: string, value: string | Date) => void
+    updateTableData: (data: TData[]) => void
+  }
   interface FilterFns {
     filterTags: FilterFn<NovelEntry>
   }
 }
 
-export const novel_columns: ColumnDef<NovelEntry>[] = [
+export const novel_columns: ColumnDef<NovelEntry, string>[] = [
   {
     accessorKey: "country",
     header: ({ column }) => {
