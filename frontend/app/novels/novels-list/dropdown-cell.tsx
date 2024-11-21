@@ -1,9 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useState } from 'react'
 import { CellContext, Row, Column, Table } from "@tanstack/react-table"
-import { Status, StatusType, str_to_status, status_to_str } from './novel-types'
+import { Status, str_to_status, status_to_str } from './novel-types'
 
 import {
   DropdownMenu,
