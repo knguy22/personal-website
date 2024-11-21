@@ -9,11 +9,11 @@ const ProjectsKey = {
 } as const;
 
 type ProjectsValue = {
-    name: string,
-    href: string,
-    imageLink: string,
-    alt: string,
-    desc: string,
+  name: string,
+  href: string,
+  imageLink: string,
+  alt: string,
+  desc: string,
 }
 
 const project_info: Record<string, ProjectsValue> = {

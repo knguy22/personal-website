@@ -1,11 +1,12 @@
 'use client'
 
-import { CellContext, ColumnDef, FilterFn } from "@tanstack/react-table"
+import { ColumnDef, FilterFn } from "@tanstack/react-table"
 import { ArrowUpDown} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { NovelEntry } from './novel-types';
 import { InputCell } from '@/app/novels/novels-list/input-cell';
 import { DateCell } from "./date-cell";
+import { StatusDropdownCell } from "./dropdown-cell";
 
 declare module '@tanstack/table-core' {
   interface TableMeta<TData> {
@@ -95,7 +96,7 @@ export const novel_columns: ColumnDef<NovelEntry, string>[] = [
       )
     },
     filterFn: 'includesString',
-    cell: InputCell,
+    cell: StatusDropdownCell,
   },
   {
     accessorKey: "tags",
