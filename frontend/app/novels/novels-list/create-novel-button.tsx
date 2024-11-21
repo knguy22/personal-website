@@ -3,7 +3,7 @@ import * as React from "react"
 import { Table as TanstackTable } from "@tanstack/react-table"
  
 import { Button } from "../../../components/ui/button"
-import { NovelEntry, NovelEntryApi } from "./novel-types"
+import { api_to_entry, NovelEntry, NovelEntryApi } from "./novel-types"
 import { fetch_backend } from "@/utils/fetch_backend"
 
 interface CreateNovelButtonProps {
@@ -39,17 +39,5 @@ async function create_novel(): Promise<NovelEntry | null> {
   if (!raw_novel) {
     return null;
   }
-
-  const novel: NovelEntry = {
-    id: raw_novel.id,
-    country: raw_novel.country,
-    title: raw_novel.title,
-    chapter: raw_novel.chapter,
-    rating: raw_novel.rating !== 0 ? String(raw_novel.rating) : "",
-    status: raw_novel.status,
-    tags: raw_novel.tags.join(","),
-    notes: raw_novel.notes,
-    date_modified: raw_novel.date_modified
-  }
-  return novel;
+  return api_to_entry(raw_novel);
 }

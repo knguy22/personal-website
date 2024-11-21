@@ -17,13 +17,31 @@ export type NovelEntry = {
   title: string,
   chapter: string,
   rating: string,
-  status: string,
+  status: StatusType,
   tags: string,
   notes: string,
   date_modified: Date,
 }
 
 export const novel_col_names: (keyof NovelEntry)[] = ["country", "title", "chapter", "rating", "status", "tags", "notes", "date_modified"];
+
+const Status = {
+  Reading: "Reading",
+  Completed: "Completed",
+  Waiting: "Waiting",
+  Dropped: "Dropped",
+  Hiatus: "Hiatus",
+  Invalid: "Invalid",
+} as const;
+
+export type StatusType = typeof Status[keyof typeof Status];
+
+function to_status(value: string): StatusType {
+  if (value in Status) {
+    return Status[value as keyof typeof Status];
+  }
+  return Status.Invalid;
+}
 
 export function api_to_entry(novel: NovelEntryApi): NovelEntry {
   return {
@@ -32,7 +50,7 @@ export function api_to_entry(novel: NovelEntryApi): NovelEntry {
     title: novel.title,
     chapter: novel.chapter,
     rating: novel.rating !== 0 ? String(novel.rating) : "",
-    status: novel.status,
+    status: to_status(novel.status),
     tags: novel.tags.join(","),
     notes: novel.notes,
     date_modified: novel.date_modified
@@ -46,7 +64,7 @@ export function entry_to_api(novel: NovelEntry): NovelEntryApi {
     title: novel.title,
     chapter: novel.chapter,
     rating: novel.rating === "" ? 0 : parseInt(novel.rating, 10),
-    status: novel.status,
+    status: novel.status.toString(),
     tags: process_tags(novel.tags),
     notes: novel.notes,
     date_modified: novel.date_modified
