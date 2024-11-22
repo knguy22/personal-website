@@ -1,6 +1,6 @@
 'use client'
 
-import React, {useState, useEffect} from 'react';
+import React, {useState } from 'react';
 import Loading from '@/components/derived/Loading.tsx';
 import { useSession } from 'next-auth/react'
 import { NovelEntry } from './novel-types.ts';
