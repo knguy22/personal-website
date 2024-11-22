@@ -83,7 +83,7 @@ async function delete_row({ row, table } : DeleteRowButtonProps) {
 
   // tanstack uses it's own id, this is not the id in the backend
   const tanstack_id_rows = table.getPreFilteredRowModel().flatRows;
-  let data: NovelEntry[] = new Array();
+  const data: NovelEntry[] = [];
   for (const tanstack_id in tanstack_id_rows) {
       const novel_id = tanstack_id_rows[tanstack_id].original.id;
       if (novel_id !== id_to_delete) {

@@ -1,5 +1,6 @@
 import GithubProvider from "next-auth/providers/github"
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const authOptions = {
   // Configure one or more authentication providers
   providers: [
@@ -37,3 +38,4 @@ export const authOptions = {
     }
   }
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */

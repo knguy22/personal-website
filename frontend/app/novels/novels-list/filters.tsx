@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input"
 export function FilterList({ table }: FilterListProp) {
 
   function findKeyByValue(obj: { [key: string]: keyof NovelEntry }, value: keyof NovelEntry): string | undefined {
-    return Object.entries(obj).find(([key, val]) => val === value)?.[0];
+    return Object.entries(obj).find(([, val]) => val === value)?.[0];
   }
 
   const filter_keys: { [key: string]: keyof NovelEntry } = {

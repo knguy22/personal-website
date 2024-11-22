@@ -53,7 +53,7 @@ export function DataTable ({
     session?.user?.role !== 'admin' ? columns : 
     [...columns, {
       accessorKey: "delete_row",
-      header: ({}) => { return ""; },
+      header: () => { return ""; },
       cell: DeleteRowButton
     }];
 

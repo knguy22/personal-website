@@ -35,10 +35,10 @@ export default function Page() {
 
 function StatsTable({stats}: {stats: Stats}) {
   // convert distributions into table ready data
-  let rating_dist = stats.rating_dist.map((count, index) => ({rating: index + 1, count: count}));
-  let chapter_dist = Object.entries(stats.chapter_dist)
+  const rating_dist = stats.rating_dist.map((count, index) => ({rating: index + 1, count: count}));
+  const chapter_dist = Object.entries(stats.chapter_dist)
     .map(([chapter, count]) => ({chapter: chapter, count: count}));
-  let country_dist = Object.entries(stats.country_dist)
+  const country_dist = Object.entries(stats.country_dist)
     .map(([country, count]) => ({country: AbbreToCountry[country], count: count}));
 
   // make sure table ready data is sorted

@@ -22,7 +22,7 @@ export function CreateNovelButton({ tableData, setTableData }: CreateNovelButton
           if (!novel) {
             return;
           }
-          let tableDataCopy = [...tableData];
+          const tableDataCopy = [...tableData];
           tableDataCopy.push(novel);
           setTableData(tableDataCopy)
         })
