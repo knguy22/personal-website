@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { CellContext } from "@tanstack/react-table";
+import { PublicCell } from './public-cell';
 
 export const InputCell = <TData,>({ getValue, row, column, table }: CellContext<TData, string>) => {
   const initialValue = getValue();
@@ -19,7 +20,7 @@ export const InputCell = <TData,>({ getValue, row, column, table }: CellContext<
 
   // only allow editing for admins
   if (session?.user?.role !== 'admin') {
-    return <div className='max-h-8 max-w-44 overflow-x-auto text-nowrap'>{value}</div>
+    return <PublicCell value={value} />
   }
   return (
     <input
