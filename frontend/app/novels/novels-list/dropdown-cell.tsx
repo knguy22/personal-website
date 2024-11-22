@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useSession } from 'next-auth/react'
 import { Row, Column, Table } from "@tanstack/react-table"
 
 import {
@@ -10,6 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+
+import { PublicCell } from './public-cell'
 
 interface DropdownCellProps<TData, ValueType> {
   getValue: () => string;
@@ -23,10 +26,16 @@ interface DropdownCellProps<TData, ValueType> {
 
 export function DropdownCell<TData, ValueType>({ getValue, row, column, table, cell_values, value_to_str, str_to_value }: DropdownCellProps<TData, ValueType>) {
   const [value, setValue] = useState<ValueType>(str_to_value(getValue()));
+  const {data: session} = useSession();
 
   function onChange(newValue: ValueType) {
     setValue(newValue);
     table.options.meta?.updateCell(row.index, column.id, value_to_str(newValue));
+  }
+
+  // only allow editing for admins
+  if (session?.user?.role !== 'admin') {
+    return <PublicCell value={value_to_str(value)} />
   }
 
   return (
