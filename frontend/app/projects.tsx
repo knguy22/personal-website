@@ -22,7 +22,8 @@ const project_info: Record<string, ProjectsValue> = {
     href: "https://github.com/knguy22/image-to-tetris",
     imageLink: "/project_images/linkedin-pfp-tetris.png",
     alt: "Image To Tetris",
-    desc: "A tool to efficiently convert images and videos into valid tetris configurations.",
+    desc: "A tool to efficiently convert images and videos into valid Tetris configurations. An audio to tetris audio clips approximator \
+    is also a WIP.",
   },
   BlockyChessEngine: {
     name: "Blocky Chess Engine",
@@ -36,11 +37,11 @@ const project_info: Record<string, ProjectsValue> = {
     href: "https://github.com/knguy22/Jstris-Stats-Discord-Bot",
     imageLink: "/project_images/badgerbot-gametime.png",
     alt: "Jstris Statistics Discord Bot",
-    desc: "A discord bot that provides Jstris statistics for competitive Tetris players.",
+    desc: "A Discord bot that provides Jstris statistics for competitive Tetris players.",
   },
   WebnovelList: {
     name: "Webnovel List",
-    href: "/novels/novels-stats",
+    href: "/novels/novels-list",
     imageLink: "/project_images/webnovels-list.png",
     alt: "Webnovel List",
     desc: "A tool to keep track of webnovels I've read and visualizing relevant statistics.",

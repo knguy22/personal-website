@@ -24,9 +24,12 @@ function Intro() {
   return (
     <div className="text-lg flex flex-col justify-between w-1/2 pt-12 space-y-3 mx-auto">
       <div className='text-3xl font-bold text-center pb-4'>About Me:</div>
-      <div>{"I'm a computer science student who likes creating programs to solve interesting problems, and I find joy in learning new things."}
+      <div>
+        {"I'm a computer science student who likes creating programs to solve interesting problems."}
       </div>
-      <div>{"My work has spanned multiple domains, but I'm primarily interested in harnessing the power of data to solve real-world problems. This includes backend systems and database management."}
+      <div>
+        {"My work has spanned multiple domains including image manipulation, audio processing, and machine learning. I plan\
+        on continuing to expand my knowledge in these areas and more."}
       </div>
     </div>
   )
@@ -58,7 +61,7 @@ interface IconLinkProps {
 
 function IconLink( {description, imageUrl, hrefUrl } : IconLinkProps ) {
   return (
-    <Link href={hrefUrl}> 
+    <Link href={hrefUrl} className='transition ease-in-out hover:scale-110'>
       <Image
         src={imageUrl}
         width={100}

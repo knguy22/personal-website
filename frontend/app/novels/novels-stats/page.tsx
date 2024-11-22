@@ -35,10 +35,10 @@ export default function Page() {
 
 function StatsTable({stats}: {stats: Stats}) {
   // convert distributions into table ready data
-  let rating_dist = stats.rating_dist.map((count, index) => ({rating: index + 1, count: count}));
-  let chapter_dist = Object.entries(stats.chapter_dist)
+  const rating_dist = stats.rating_dist.map((count, index) => ({rating: index + 1, count: count}));
+  const chapter_dist = Object.entries(stats.chapter_dist)
     .map(([chapter, count]) => ({chapter: chapter, count: count}));
-  let country_dist = Object.entries(stats.country_dist)
+  const country_dist = Object.entries(stats.country_dist)
     .map(([country, count]) => ({country: AbbreToCountry[country], count: count}));
 
   // make sure table ready data is sorted
@@ -50,7 +50,7 @@ function StatsTable({stats}: {stats: Stats}) {
   country_dist.sort((a, b) => b.count - a.count);
   
   return (
-    <div className="flex flex-col items-center space-y-5">
+    <div className="flex flex-col items-center space-y-5 pb-5">
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <NumberDisplay value={stats.novel_count} description="Total Novels" />
         <NumberDisplay value={stats.chapter_count} description="Total Chapters" />

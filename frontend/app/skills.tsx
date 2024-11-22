@@ -1,17 +1,17 @@
 
 const skills_lists: SkillListProps[] = [
-    {
-        title: "Proficient Languages:",
-        skills: ["Python", "Rust", "C++", "JavaScript", "TypeScript", "HTML"],
-    },
-    {
-        title: "Familiar Languages:",
-        skills: ["Java", "C", "CSS", "SQL"],
-    },
-    {
-        title: "Frameworks:",
-        skills: ["React", "Next.js", "Tailwind", "Django", "Axum"],
-    },
+  {
+      title: "Proficient Languages:",
+      skills: ["Python", "Rust", "C++", "JavaScript", "TypeScript", "HTML"],
+  },
+  {
+      title: "Familiar Languages:",
+      skills: ["Java", "C", "CSS", "SQL"],
+  },
+  {
+      title: "Frameworks:",
+      skills: ["React", "Next.js", "Tailwind", "Django", "Axum"],
+  },
 ]
 
 interface SkillListProps {

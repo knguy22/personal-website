@@ -1,5 +1,4 @@
 import * as React from "react"
-import Link from "next/link"
 import { 
   NavigationMenu,
   NavigationMenuList,
@@ -76,7 +75,7 @@ export default async function NavBar() {
 const ListItem = React.forwardRef<
   React.ElementRef<"a">,
   React.ComponentPropsWithoutRef<"a">
->(({ className, title, children, ...props }, href) => {
+>(({ title, ...props }, href) => {
   return (
     <li>
       <NavigationMenuLink asChild key={title}>

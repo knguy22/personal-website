@@ -104,6 +104,6 @@ export function process_tags(tags: string | undefined): string[] {
 
 // not a json, params will not be labeled
 export function to_string_arr(novel: NovelEntry): string[] {
-  let cols = novel_col_names.map((key) => novel[key]);
+  const cols = novel_col_names.map((key) => novel[key]);
   return cols.map((col) => String(col));
 }

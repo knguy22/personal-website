@@ -35,10 +35,8 @@ import { DeleteRowButton } from "./delete-row-button"
 
 import { NovelEntry } from "./novel-types"
 
-type NovelEntryValue = string;
-
 interface DataTableProps {
-  columns: ColumnDef<NovelEntry, NovelEntryValue>[]
+  columns: ColumnDef<NovelEntry, string>[]
   data: NovelEntry[]
   setData: React.Dispatch<React.SetStateAction<NovelEntry[]>>
 }
@@ -51,11 +49,11 @@ export function DataTable ({
 
   // additional functionality (delete row) that requires admin permissions
   const {data: session} = useSession();
-  const columns_with_buttons: ColumnDef<NovelEntry, NovelEntryValue>[] = 
+  const columns_with_buttons: ColumnDef<NovelEntry, string>[] = 
     session?.user?.role !== 'admin' ? columns : 
     [...columns, {
       accessorKey: "delete_row",
-      header: ({}) => { return ""; },
+      header: () => { return ""; },
       cell: DeleteRowButton
     }];
 
@@ -114,54 +112,8 @@ export function DataTable ({
       <TableOptionsRow table={table} tableData={data} setTableData={setData}/>
       <div className="rounded-md border">
         <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                <TableHead key="#" className="font-semibold">
-                  #
-                </TableHead>
-
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row, index) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  <TableCell>
-                    {index + 1 + pagination.pageSize * pagination.pageIndex}
-                  </TableCell>
-
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length + 1} className="h-24 text-center">
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
+          <DataTableHeader table={table} />
+          <DataTableBody table={table} columns={columns} pagination={pagination} />
         </Table>
       </div>
     </div>
@@ -175,7 +127,6 @@ interface TableOptionsRowProps {
 }
 
 function TableOptionsRow({ table, tableData, setTableData }: TableOptionsRowProps) {
-
   const {data: session} = useSession();
 
   return (
@@ -207,4 +158,79 @@ function TableOptionsRow({ table, tableData, setTableData }: TableOptionsRowProp
       </div>
     </div>
   );
+}
+
+interface DataTableHeaderProps {
+  table: TanstackTable<NovelEntry>
+}
+
+function DataTableHeader({ table }: DataTableHeaderProps) {
+  return (
+    <TableHeader>
+      {table.getHeaderGroups().map((headerGroup) => (
+        <TableRow key={headerGroup.id}>
+          <TableHead key="#" className="font-semibold">
+            #
+          </TableHead>
+
+          {headerGroup.headers.map((header) => {
+            return (
+              <TableHead key={header.id}>
+                {header.isPlaceholder
+                  ? null
+                  : flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+              </TableHead>
+            )
+          })}
+        </TableRow>
+      ))}
+    </TableHeader>
+  )
+}
+
+interface DataTableBodyProps {
+  table: TanstackTable<NovelEntry>
+  columns: ColumnDef<NovelEntry, string>[]
+  pagination: { pageIndex: number, pageSize: number }
+}
+
+function DataTableBody({ table, columns, pagination }: DataTableBodyProps) {
+  // only render rows if there is data to render
+  if (table.getRowModel().rows.length === 0) {
+    return (
+      <TableBody>
+        <TableRow>
+          <TableCell colSpan={columns.length + 1} className="h-24 text-center">
+            No results.
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    )
+  }
+
+  return (
+    <TableBody>
+      {table.getRowModel().rows.map((row, index) => (
+        <TableRow
+          key={row.id}
+          data-state={row.getIsSelected() && "selected"}
+        >
+          {/* Number each row starting from 1 */}
+          <TableCell>
+            {index + 1 + pagination.pageSize * pagination.pageIndex}
+          </TableCell>
+
+          {row.getVisibleCells().map((cell) => (
+            <TableCell key={cell.id}>
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </TableCell>
+          ))}
+        </TableRow>
+      ))
+      }
+    </TableBody>
+  )
 }
