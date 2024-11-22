@@ -117,7 +117,7 @@ export function DataTable ({
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                <TableHead key="#">
+                <TableHead key="#" className="font-semibold">
                   #
                 </TableHead>
 

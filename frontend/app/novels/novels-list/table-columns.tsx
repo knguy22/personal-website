@@ -73,11 +73,11 @@ export const novel_columns: ColumnDef<NovelEntry, string>[] = [
 function ColumnHeader( { title, column }: { title: string, column: Column<NovelEntry, string> } ) {
   return (
     <Button
-      variant="ghost"
+      variant="link"
       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
     >
       {title}
-      <ArrowUpDown className="ml-2 h-4 w-4" />
+      <ArrowUpDown className="ml-1" />
     </Button>
   )
 }
