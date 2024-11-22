@@ -21,7 +21,13 @@ export const DateCell = ({ getValue, row, table } : CellContext<NovelEntry, Date
   }, [date, row, row_copy, table]);
 
   try {
-    return date.toISOString();
+    return (
+      <div>
+        {date.toDateString()}
+        <br />
+        {date.toLocaleTimeString()}
+      </div>
+    )
   }
   catch (error) {
     return "";
