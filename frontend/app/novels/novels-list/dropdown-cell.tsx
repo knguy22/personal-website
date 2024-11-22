@@ -31,25 +31,21 @@ export function DropdownCell<TData, ValueType>({ getValue, row, column, table, c
   }
 
   return (
-    <div className="">
-      <div className="">
-        <DropdownMenu>
-          <DropdownMenuTrigger>{value_to_str(value)}</DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuSeparator />
-            {
-              Object.keys(cell_values).map((key) => {
-                return (
-                  <DropdownMenuItem key={key} onClick={() => onChange(cell_values[key])}>
-                    {value_to_str(cell_values[key])}
-                  </DropdownMenuItem>
-                )
-              })
-            }
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger>{value_to_str(value)}</DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuSeparator />
+        {
+          Object.keys(cell_values).map((key) => {
+            return (
+              <DropdownMenuItem key={key} onClick={() => onChange(cell_values[key])}>
+                {value_to_str(cell_values[key])}
+              </DropdownMenuItem>
+            )
+          })
+        }
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 
