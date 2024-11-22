@@ -31,7 +31,6 @@ export default function Page() {
 
   return (
     <div className="items-center justify-center">
-      <h1 className="text-4xl text-center pb-5 font-medium">My Webnovels List</h1>
       <TableDropdown setNovels={setNovels} setLoading={setLoading} />
       {isLoading
         ? <Loading />

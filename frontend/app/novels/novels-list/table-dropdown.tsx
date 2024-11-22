@@ -23,11 +23,11 @@ import { NovelEntry, NovelEntryApi, api_to_entry } from "./novel-types"
 const num_rand_novels = 10;
 const table_dropdown_config: {label: string, backendEndpoint: string}[] = [
   {
-    label: "Novel Table",
+    label: "My Webnovels List",
     backendEndpoint: "/api/novels",
   },
   {
-    label: "Random Novels",
+    label: `${num_rand_novels} Random Novels`,
     backendEndpoint: `/api/random_novels/${num_rand_novels}`,
   }
 ]
@@ -51,22 +51,27 @@ export function TableDropdown({ setNovels, setLoading } : TableDropdownProps) {
   const [value, setValue] = useState(table_dropdown_config[0].label);
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger>{value}</DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuLabel>{"Current Table"}</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        {
-          table_dropdown_config.map(({label, backendEndpoint}) => {
-            return (
-              <DropdownMenuItem key={label} onClick={() => fetch_table_data({ label, backendEndpoint, setLoading, setNovels, setValue })}>
-                {label}
-              </DropdownMenuItem>
-            )
-          })
-        }
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <h1 className="text-4xl text-center pb-2 font-medium">
+      <DropdownMenu>
+        <DropdownMenuTrigger 
+          className="border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md p-4">
+            {value}
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuLabel>{"Current Table"}</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {
+            table_dropdown_config.map(({label, backendEndpoint}) => {
+              return (
+                <DropdownMenuItem key={label} onClick={() => fetch_table_data({ label, backendEndpoint, setLoading, setNovels, setValue })}>
+                  {label}
+                </DropdownMenuItem>
+              )
+            })
+          }
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </h1>
   )
 }
 
@@ -80,10 +85,9 @@ interface fetch_table_data_props {
 
 async function fetch_table_data( { label, backendEndpoint, setLoading, setNovels, setValue }: fetch_table_data_props) {
   setLoading(true);
-  const novels: NovelEntryApi[] | null = await fetch_backend({path: backendEndpoint, method: "GET", body: undefined}) as NovelEntryApi[] | null
+  let novels: NovelEntryApi[] | null = await fetch_backend({path: backendEndpoint, method: "GET", body: undefined}) as NovelEntryApi[] | null
   if (!novels) {
-    setLoading(false);
-    return null;
+    novels = [];
   }
 
   const convertedNovels: NovelEntry[] = novels.map(api_to_entry);
