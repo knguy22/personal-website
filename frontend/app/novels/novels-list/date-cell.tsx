@@ -20,18 +20,13 @@ export const DateCell = ({ getValue, row, table } : CellContext<NovelEntry, Date
     update_row(row, setDate, table);
   }, [date, row, row_copy, table]);
 
-  try {
-    return (
-      <div>
-        {date.toDateString()}
-        <br />
-        {date.toLocaleTimeString()}
-      </div>
-    )
-  }
-  catch (error) {
-    return "";
-  }
+  return (
+    <div>
+      {date.toDateString()}
+      <br />
+      {date.toLocaleTimeString()}
+    </div>
+  )
 }
 
 async function update_row(row: Row<NovelEntry>, setDate: (date: Date) => void, table: Table<NovelEntry>): Promise<null> {
