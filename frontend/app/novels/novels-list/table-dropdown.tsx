@@ -38,6 +38,8 @@ interface TableDropdownProps {
 }
 
 export function TableDropdown({ setNovels, setLoading } : TableDropdownProps) {
+  const [value, setValue] = useState(table_dropdown_config[0].label);
+
   // by default just load the entire novel list
   useEffect(() => {
     fetch_table_data({ 
@@ -46,9 +48,7 @@ export function TableDropdown({ setNovels, setLoading } : TableDropdownProps) {
       setLoading,
       setNovels,
       setValue});
-  }, [])
-
-  const [value, setValue] = useState(table_dropdown_config[0].label);
+  }, [setLoading, setNovels, setValue]);
 
   return (
     <h1 className="text-4xl text-center pb-2 font-medium">
