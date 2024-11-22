@@ -23,10 +23,6 @@ const novels_components: { title: string; href: string}[] = [
     title: "My List",
     href: "/novels/novels-list",
   },
-  {
-    title: "Random Novels",
-    href: "/novels/novels-random",
-  },
 ]
 
 export default async function NavBar() {
