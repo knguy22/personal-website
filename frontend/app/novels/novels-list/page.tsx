@@ -3,62 +3,15 @@
 import React, {useState, useEffect} from 'react';
 import Loading from '@/components/derived/Loading.tsx';
 import { useSession } from 'next-auth/react'
-import { fetch_backend } from '@/utils/fetch_backend.ts';
-import { NovelEntry, NovelEntryApi, api_to_entry } from './novel-types.ts';
+import { NovelEntry } from './novel-types.ts';
+import { TableDropdown } from './table-dropdown.tsx';
 import { novel_columns } from './table-columns.tsx';
 import { DataTable } from './data-table.tsx';
-
-const isNumeric = (num: unknown) => (typeof(num) === 'number' || typeof(num) === "string" && num.trim() !== '') && !isNaN(num as number);
 
 export default function Page() {
   const [isLoading, setLoading] = useState(true);
   const [novels, setNovels] = useState<NovelEntry[]>([]);
   const {data: session} = useSession();
-
-  // load raw novels once
-  useEffect(() => {
-    const fetchNovels = async () => {
-      try {
-        let novelsData: NovelEntryApi[] | null = await fetch_backend({path: "/api/novels", method: "GET", body: undefined}) as NovelEntryApi[] | null;
-        if (!novelsData) {
-          novelsData = [];
-        }
-
-        const convertedNovels: NovelEntry[] = novelsData.map(api_to_entry);
-
-        // sort novels by rating by default
-        convertedNovels.sort((a, b) => {
-            const aIsNumeric = isNumeric(a.rating);
-            const bIsNumeric = isNumeric(b.rating);
-
-            // If both are numeric, compare them as numbers
-            if (aIsNumeric && bIsNumeric) {
-                return parseInt(b.rating) - parseInt(a.rating);
-            }
-            
-            // If one is numeric and the other is not, the numeric one should come first
-            if (aIsNumeric) return -1;
-            if (bIsNumeric) return 1;
-            
-            // If neither are numeric, compare them as strings
-            return a.rating.localeCompare(b.rating);
-        });
-
-        setNovels(convertedNovels);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // only load novel stats one and with permissions
-    if (!session || session?.user?.role !== 'admin' || !isLoading) {
-      return;
-    }
-
-    fetchNovels();
-  }, [session, isLoading]);
 
   if (!session) {
     return (
@@ -79,6 +32,7 @@ export default function Page() {
   return (
     <div className="items-center justify-center">
       <h1 className="text-4xl text-center pb-5 font-medium">My Webnovels List</h1>
+      <TableDropdown setNovels={setNovels} setLoading={setLoading} />
       {isLoading
         ? <Loading />
         : <DataTable columns={novel_columns} data={novels} setData={setNovels} />
