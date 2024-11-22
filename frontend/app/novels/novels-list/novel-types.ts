@@ -8,7 +8,7 @@ export type NovelEntryApi = {
   status: string,
   tags: string[],
   notes: string,
-  date_modified: Date,
+  date_modified: string,
 }
 
 export type NovelEntry = {
@@ -20,7 +20,7 @@ export type NovelEntry = {
   status: StatusType,
   tags: string,
   notes: string,
-  date_modified: Date,
+  date_modified: string,
 }
 
 export const novel_col_names: (keyof NovelEntry)[] = ["country", "title", "chapter", "rating", "status", "tags", "notes", "date_modified"];

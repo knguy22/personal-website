@@ -90,7 +90,7 @@ export function DataTable ({
       columnFilters,
     },
     meta: {
-      updateCell: (rowIndex: number, columnId: string, value: string | Date) => {
+      updateCell: (rowIndex: number, columnId: string, value: string) => {
         setData((old) =>
           old.map((row, index) => {
             if (index === rowIndex) {

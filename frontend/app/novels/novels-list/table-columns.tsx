@@ -13,7 +13,7 @@ import { CellContext } from "@tanstack/react-table"
 
 declare module '@tanstack/table-core' {
   interface TableMeta<TData> {
-    updateCell: (rowIndex: number, columnId: string, value: string | Date) => void
+    updateCell: (rowIndex: number, columnId: string, value: string) => void
     updateTableData: (data: TData[]) => void
   }
   interface FilterFns {
