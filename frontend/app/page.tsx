@@ -61,7 +61,7 @@ interface IconLinkProps {
 
 function IconLink( {description, imageUrl, hrefUrl } : IconLinkProps ) {
   return (
-    <Link href={hrefUrl}> 
+    <Link href={hrefUrl} className='transition ease-in-out hover:scale-110'>
       <Image
         src={imageUrl}
         width={100}
