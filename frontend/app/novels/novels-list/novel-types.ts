@@ -8,7 +8,7 @@ export type NovelEntryApi = {
   status: string,
   tags: string[],
   notes: string,
-  date_modified: Date,
+  date_modified: string,
 }
 
 export type NovelEntry = {
@@ -57,7 +57,7 @@ export function api_to_entry(novel: NovelEntryApi): NovelEntry {
     status: str_to_status(novel.status),
     tags: novel.tags.join(","),
     notes: novel.notes,
-    date_modified: novel.date_modified
+    date_modified: new Date(novel.date_modified),
   }
 }
 
@@ -71,7 +71,7 @@ export function entry_to_api(novel: NovelEntry): NovelEntryApi {
     status: novel.status.toString(),
     tags: process_tags(novel.tags),
     notes: novel.notes,
-    date_modified: novel.date_modified
+    date_modified: novel.date_modified.toISOString(),
   }
 }
 
