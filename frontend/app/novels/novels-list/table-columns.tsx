@@ -1,12 +1,15 @@
 'use client'
 
-import { ColumnDef, FilterFn } from "@tanstack/react-table"
+import { Column, ColumnDef, FilterFn } from "@tanstack/react-table"
 import { ArrowUpDown} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { NovelEntry } from './novel-types';
 import { InputCell } from '@/app/novels/novels-list/input-cell';
 import { DateCell } from "./date-cell";
-import { StatusDropdownCell } from "./dropdown-cell";
+
+import { DropdownCell } from "./dropdown-cell";
+import { Status, str_to_status, status_to_str } from './novel-types'
+import { CellContext } from "@tanstack/react-table"
 
 declare module '@tanstack/table-core' {
   interface TableMeta<TData> {
@@ -21,128 +24,74 @@ declare module '@tanstack/table-core' {
 export const novel_columns: ColumnDef<NovelEntry, string>[] = [
   {
     accessorKey: "country",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Country
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
+    header: ({ column }) => { return ColumnHeader({ title: "Country", column }) },
     filterFn: 'includesString',
     cell: InputCell,
   },
   {
     accessorKey: "title",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Title
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
+    header: ({ column }) => { return ColumnHeader({ title: "Title", column }) },
     filterFn: 'includesString',
     cell: InputCell,
   },
   {
     accessorKey: "chapter",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Chapter
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
+    header: ({ column }) => { return ColumnHeader({ title: "Chapter", column }) },
     cell: InputCell,
   },
   {
     accessorKey: "rating",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Rating
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
+    header: ({ column }) => { return ColumnHeader({ title: "Rating", column }) },
     filterFn: 'equalsString',
     cell: InputCell,
   },
   {
     accessorKey: "status",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Status
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
+    header: ({ column }) => { return ColumnHeader({ title: "Status", column }) },
     filterFn: 'includesString',
     cell: StatusDropdownCell,
   },
   {
     accessorKey: "tags",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Tags
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
+    header: ({ column }) => { return ColumnHeader({ title: "Tags", column }) },
     filterFn: 'filterTags',
     cell: InputCell,
   },
   {
     accessorKey: "notes",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Notes
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
+    header: ({ column }) => { return ColumnHeader({ title: "Notes", column }) },
     filterFn: 'includesString',
     cell: InputCell,
   },
   {
     accessorKey: "date_modified",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Date Modified
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
+    header: ({ column }) => { return ColumnHeader({ title: "Date Modified", column }) },
     cell: DateCell,
   },
 ];
+
+function ColumnHeader( { title, column }: { title: string, column: Column<NovelEntry, string> } ) {
+  return (
+    <Button
+      variant="ghost"
+      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    >
+      {title}
+      <ArrowUpDown className="ml-2 h-4 w-4" />
+    </Button>
+  )
+}
+
+function StatusDropdownCell<TData>({ getValue, row, column, table }: CellContext<TData, string>) {
+  return (
+    <DropdownCell
+      getValue={getValue}
+      row={row}
+      column={column}
+      table={table}
+      cell_values={Status}
+      value_to_str={status_to_str}
+      str_to_value={str_to_status}
+    />
+  )
+}

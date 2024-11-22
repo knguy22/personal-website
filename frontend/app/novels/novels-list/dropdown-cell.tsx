@@ -1,8 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { CellContext, Row, Column, Table } from "@tanstack/react-table"
-import { Status, str_to_status, status_to_str } from './novel-types'
+import { Row, Column, Table } from "@tanstack/react-table"
 
 import {
   DropdownMenu,
@@ -46,19 +45,5 @@ export function DropdownCell<TData, ValueType>({ getValue, row, column, table, c
         }
       </DropdownMenuContent>
     </DropdownMenu>
-  )
-}
-
-export function StatusDropdownCell<TData>({ getValue, row, column, table }: CellContext<TData, string>) {
-  return (
-    <DropdownCell
-      getValue={getValue}
-      row={row}
-      column={column}
-      table={table}
-      cell_values={Status}
-      value_to_str={status_to_str}
-      str_to_value={str_to_status}
-    />
   )
 }
