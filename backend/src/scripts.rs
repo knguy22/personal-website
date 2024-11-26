@@ -38,12 +38,12 @@ pub async fn run_cli(conn: &DatabaseConnection) -> Result<(), Box<dyn Error>> {
 
     if cli.insert_novels_csv.is_some() {
         let start_id = db::get_next_id(conn).await?;
-        let rows = read_csv(start_id,&cli.insert_novels_csv.unwrap().to_str().unwrap().to_string()).await?;
+        let rows = read_orig_csv(start_id,&cli.insert_novels_csv.unwrap().to_str().unwrap().to_string()).await?;
         let _ = db::insert_novel_entries(conn, &rows).await?;
     }
 
     if cli.update_novels_csv.is_some() {
-        let rows = read_csv(0, &cli.update_novels_csv.unwrap().to_str().unwrap().to_string()).await?;
+        let rows = read_orig_csv(0, &cli.update_novels_csv.unwrap().to_str().unwrap().to_string()).await?;
         let _ = db::update_novel_entries(conn, &rows).await?;
     }
 
@@ -55,9 +55,23 @@ pub async fn run_cli(conn: &DatabaseConnection) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+/*
+This functionality was used when I was porting my google sheets of webnovels to my website for the first time.
+This will likely not be ever used again in the future.
+*/
 
-type CsvRecord = (Option<String>, Option<String>, Option<String>, Option<u32>, Option<String>, Option<String>, Option<String>);
-async fn read_csv(mut start_id: i32, csv_file: &String) -> Result<Vec<NovelEntry>, Box<dyn Error>> {
+#[derive(Debug, serde::Deserialize, Eq, PartialEq)]
+struct OrigCsvRecord {
+    country: Option<String>,
+    title: Option<String>,
+    chapter: Option<String>,
+    rating: Option<u32>,
+    status: Option<String>,
+    tags: Option<String>,
+    notes: Option<String>,
+}
+
+async fn read_orig_csv(mut start_id: i32, csv_file: &String) -> Result<Vec<NovelEntry>, Box<dyn Error>> {
     let mut rdr = csv::Reader::from_path(csv_file).unwrap();
     let mut data = Vec::new();
 
@@ -65,7 +79,7 @@ async fn read_csv(mut start_id: i32, csv_file: &String) -> Result<Vec<NovelEntry
     println!("Headers read: {:?}", headers);
 
     for res in rdr.deserialize() {
-        let t: CsvRecord;
+        let t: OrigCsvRecord;
         match res {
             Ok(r) => t = r,
             Err(err) => {
@@ -76,13 +90,13 @@ async fn read_csv(mut start_id: i32, csv_file: &String) -> Result<Vec<NovelEntry
         
         let record = NovelEntry{
             id: start_id,
-            country: t.0.unwrap_or_default(),
-            title: t.1.unwrap_or_default(),
-            chapter: t.2.unwrap_or_default(),
-            rating: t.3.unwrap_or_default(),
-            status: Status::new(&t.4.unwrap_or_default()),
-            tags: NovelEntry::parse_tags(&t.5.unwrap_or_default()),
-            notes: t.6.unwrap_or_default(),
+            country: t.country.unwrap_or_default(),
+            title: t.title.unwrap_or_default(),
+            chapter: t.chapter.unwrap_or_default(),
+            rating: t.rating.unwrap_or_default(),
+            status: Status::new(&t.status.unwrap_or_default()),
+            tags: NovelEntry::parse_tags(&t.tags.unwrap_or_default()),
+            notes: t.notes.unwrap_or_default(),
             date_modified: Local::now().to_utc(),
         };
 
@@ -97,7 +111,9 @@ async fn read_csv(mut start_id: i32, csv_file: &String) -> Result<Vec<NovelEntry
     Ok(data)
 }
 
-// id,name,assoc_names,original_language,authors,genres,tags,start_year,licensed,original_publisher,english_publisher,complete_original,chapters_original_current,complete_translated,release_freq,activity_week_rank,activity_month_rank,activity_all_time_rank,on_reading_lists,reading_list_month_rank,reading_list_all_time_rank,rating,rating_votes,related_series_ids,recommended_series_ids,recommendation_list_ids,chapter_latest_translated
+/*
+The novel tags come from the novelupdates data collected in this repository: https://github.com/shaido987/novel-dataset.
+*/
 #[derive(Debug, serde::Deserialize, Eq, PartialEq)]
 struct NovelTagsCsvRecord {
     id: Option<i32>,
