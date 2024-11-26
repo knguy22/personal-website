@@ -7,10 +7,15 @@ mod stats;
 use std::{env, error::Error, sync::Arc};
 
 use axum::{
-    response::{Html, IntoResponse, Json}, extract::State, http::StatusCode, Router, routing::{get, post, delete}, extract::Path
+    response::{Html, IntoResponse, Json},
+    extract::{State, Path, multipart::Multipart},
+    routing::{get, post, delete},
+    http::StatusCode, Router,
 };
+use csv::ReaderBuilder;
 use dotenv::dotenv;
 use itertools::Itertools;
+use novel_entry::NovelEntry;
 use rand::{rngs::StdRng, seq::SliceRandom, SeedableRng};
 use sea_orm::DatabaseConnection;
 use tokio::sync::Mutex;
@@ -25,17 +30,18 @@ struct AppState {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     // initialize everything; run scripts if applicable
+    let rng = Arc::new(Mutex::new(StdRng::from_entropy()));
     let conn = init().await.unwrap();
     scripts::run_cli(&conn).await.unwrap();
-    let rng = Arc::new(Mutex::new(StdRng::from_entropy()));
 
     // build our application with a route
-    let state = AppState { conn, rng };
+    let state = AppState { conn , rng };
     let domain = env::var("DOMAIN").unwrap();
     let app = Router::new()
         .route("/", get(main_handler))
         .route("/api/novels", get(novel_handler))
         .route("/api/update_novels", post(update_novels_handler))
+        .route("/api/upload_novels_backup", post(upload_novels_backup))
         .route("/api/create_novel", get(create_novel_row_handler))
         .route("/api/delete_novel/:id", delete(delete_novel_handler))
         .route("/api/novels_stats", get(get_novels_stats))
@@ -56,9 +62,11 @@ async fn main_handler() -> Html<&'static str> {
     Html("<h1>Hello, World!</h1>")
 }
 
-// all handlers must:
-// return a non-null JSON
-// return a status code (can be implicit)
+/* 
+all handlers must:
+return a non-null JSON
+return a status code (can be implicit)
+*/
 
 async fn novel_handler(state: State<AppState>) -> impl IntoResponse {
     println!("Fetching novels");
@@ -74,6 +82,49 @@ async fn update_novels_handler(state: State<AppState>, Json(rows): Json<Vec<nove
         Ok(novels) => Ok((StatusCode::CREATED, Json(novels))),
         Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))),
     }
+}
+
+async fn upload_novels_backup(state: State<AppState>, mut multipart: Multipart) -> impl IntoResponse {
+    println!("Uploading novels backup");
+
+    let mut rows = Vec::new();
+    while let Some(field) = multipart.next_field().await.unwrap() {
+        if let Some(_filename) = field.file_name() {
+
+            let file_content = match field.bytes().await {
+                Ok(content) => content,
+                Err(_err) => return Ok((StatusCode::BAD_REQUEST, Json("Failed to read file".to_string())))
+            };
+
+            let mut csv_reader = ReaderBuilder::new()
+                .has_headers(true)
+                .from_reader(file_content.as_ref());
+
+            // Parse the CSV content
+            for result in csv_reader.deserialize::<NovelEntry>() {
+                match result {
+                    Ok(record) => rows.push(record),
+                    Err(_err) => return Ok((StatusCode::BAD_REQUEST, Json("Invalid CSV file".to_string())))
+                }
+            }
+        }
+    }
+
+    // drop all existing novels to reset it
+    if let Err(err) = db::drop_all_novels(&state.conn).await {
+        return Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(err.to_string()),
+        ))
+    };
+
+    // upload the backup novels
+    let res = db::insert_novel_entries(&state.conn, &rows).await;
+    match res {
+        Ok(()) => Ok((StatusCode::ACCEPTED, Json(rows.len().to_string()))),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))),
+    }
+
 }
 
 async fn create_novel_row_handler(state: State<AppState>) -> impl IntoResponse {

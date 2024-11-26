@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 async-std = {version = "1.13.0", features = ["attributes"]}
-axum = { version = "0.7.5", features = ["macros"] }
+axum = { version = "0.7.5", features = ["macros", "multipart"] }
 chrono = "0.4.38"
 clap = { version = "4.5.17", features = ["derive"] }
 csv = "1.3"
