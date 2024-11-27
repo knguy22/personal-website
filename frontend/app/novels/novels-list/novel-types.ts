@@ -23,7 +23,7 @@ export type NovelEntry = {
   date_modified: string,
 }
 
-export const novel_col_names: (keyof NovelEntry)[] = ["country", "title", "chapter", "rating", "status", "tags", "notes", "date_modified"];
+export const novel_col_names: (keyof NovelEntry)[] = ["id", "country", "title", "chapter", "rating", "status", "tags", "notes", "date_modified"];
 
 export const Status = {
   Reading: "Reading",
@@ -100,10 +100,4 @@ export function process_tags(tags: string | undefined): string[] {
     return [];
   }
   return tags.split(',').map((tag) => tag.trim());
-}
-
-// not a json, params will not be labeled
-export function to_string_arr(novel: NovelEntry): string[] {
-  const cols = novel_col_names.map((key) => novel[key]);
-  return cols.map((col) => String(col));
 }
