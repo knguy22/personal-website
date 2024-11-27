@@ -20,15 +20,26 @@ import {
 import { fetch_backend } from "@/utils/fetch_backend"
 import { NovelEntry, NovelEntryApi, api_to_entry } from "./novel-types"
 
+type DropdownConfig = {
+  label: string;
+  path: string;
+  method: "GET" | "POST" | "PUT" | "DELETE";
+  body: BodyInit
+}
+
 const num_rand_novels = 10;
-const table_dropdown_config: {label: string, backendEndpoint: string}[] = [
+const table_dropdown_config: DropdownConfig[] = [
   {
     label: "My Webnovels List",
-    backendEndpoint: "/api/novels",
+    path: "/api/novels",
+    method: "GET",
+    body: JSON.stringify(undefined),
   },
   {
     label: `${num_rand_novels} Random Novels`,
-    backendEndpoint: `/api/random_novels/${num_rand_novels}`,
+    path: `/api/random_novels`,
+    method: "POST",
+    body: JSON.stringify(num_rand_novels),
   }
 ]
 
@@ -43,8 +54,7 @@ export function TableDropdown({ setNovels, setLoading } : TableDropdownProps) {
   // by default just load the entire novel list
   useEffect(() => {
     fetch_table_data({ 
-      label: table_dropdown_config[0].label, 
-      backendEndpoint: table_dropdown_config[0].backendEndpoint, 
+      dropdown: table_dropdown_config[0],
       setLoading,
       setNovels,
       setValue});
@@ -61,10 +71,10 @@ export function TableDropdown({ setNovels, setLoading } : TableDropdownProps) {
           <DropdownMenuLabel>{"Current Table"}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {
-            table_dropdown_config.map(({label, backendEndpoint}) => {
+            table_dropdown_config.map((dropdown) => {
               return (
-                <DropdownMenuItem key={label} onClick={() => fetch_table_data({ label, backendEndpoint, setLoading, setNovels, setValue })}>
-                  {label}
+                <DropdownMenuItem key={dropdown.label} onClick={() => fetch_table_data({ dropdown, setLoading, setNovels, setValue })}>
+                  {dropdown.label}
                 </DropdownMenuItem>
               )
             })
@@ -76,16 +86,18 @@ export function TableDropdown({ setNovels, setLoading } : TableDropdownProps) {
 }
 
 interface fetch_table_data_props {
-  label: string
-  backendEndpoint: string,
+  dropdown: DropdownConfig,
   setLoading: (loading: boolean) => void,
   setNovels: (novels: NovelEntry[]) => void,
   setValue: (value: string) => void
 }
 
-async function fetch_table_data( { label, backendEndpoint, setLoading, setNovels, setValue }: fetch_table_data_props) {
+async function fetch_table_data( { dropdown, setLoading, setNovels, setValue }: fetch_table_data_props) {
   setLoading(true);
-  let novels: NovelEntryApi[] | null = await fetch_backend({path: backendEndpoint, method: "GET", body: undefined}) as NovelEntryApi[] | null
+  let novels: NovelEntryApi[] | null = await fetch_backend(
+    {path: dropdown.path, method: dropdown.method, body: dropdown.body, contentType: "application/json"}
+  ) as NovelEntryApi[] | null;
+
   if (!novels) {
     novels = [];
   }
@@ -110,7 +122,7 @@ async function fetch_table_data( { label, backendEndpoint, setLoading, setNovels
     return a.rating.localeCompare(b.rating);
   });
 
-  setValue(label);
+  setValue(dropdown.label);
   setNovels(convertedNovels);
   setLoading(false);
 }

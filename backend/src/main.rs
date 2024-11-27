@@ -8,7 +8,7 @@ use std::{env, error::Error, sync::Arc};
 
 use axum::{
     response::{Html, IntoResponse, Json},
-    extract::{State, Path, multipart::Multipart},
+    extract::{State, multipart::Multipart},
     routing::{get, post, delete},
     http::StatusCode, Router,
 };
@@ -43,9 +43,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .route("/api/update_novels", post(update_novels_handler))
         .route("/api/upload_novels_backup", post(upload_novels_backup))
         .route("/api/create_novel", get(create_novel_row_handler))
-        .route("/api/delete_novel/:id", delete(delete_novel_handler))
+        .route("/api/delete_novel", delete(delete_novel_handler))
         .route("/api/novels_stats", get(get_novels_stats))
-        .route("/api/random_novels/:num_novels", get(get_random_novels))
+        .route("/api/random_novels", post(get_random_novels))
         .with_state(state);
 
     // run it
@@ -134,11 +134,11 @@ async fn create_novel_row_handler(state: State<AppState>) -> impl IntoResponse {
 }
 
 type DeleteNovelResponse = Result<(StatusCode, Json<i32>), (StatusCode, Json<String>)>;
-async fn delete_novel_handler(state: State<AppState>, Path(id): Path<i32>) -> DeleteNovelResponse{
+async fn delete_novel_handler(state: State<AppState>, id: Json<i32>) -> DeleteNovelResponse{
     println!("Deleting novels");
-    let res = db::delete_novel_entry(&state.conn, id).await;
+    let res = db::delete_novel_entry(&state.conn, *id).await;
     match res {
-        Ok(()) => Ok((StatusCode::OK, Json(id))),
+        Ok(()) => Ok((StatusCode::OK, Json(*id))),
         Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))),
     }
 }
@@ -149,8 +149,8 @@ async fn get_novels_stats(state: State<AppState>) -> impl IntoResponse {
     Json(stats)
 }
 
-async fn get_random_novels(state: State<AppState>, Path(num_novels): Path<usize>) -> impl IntoResponse {
-    println!("Fetching random novels: {num_novels}");
+async fn get_random_novels(state: State<AppState>, num_novels: Json<usize>) -> impl IntoResponse {
+    println!("Fetching random novels: {}", *num_novels);
 
     let novels = db::fetch_novel_entries(&state.conn).await.unwrap_or_default();
     let amount = num_novels.min(novels.len());

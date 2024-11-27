@@ -1,25 +1,35 @@
-export type BackendRequest = {
-    path: string;
-    method: "GET" | "POST" | "PUT" | "DELETE";
-    body: BodyInit | undefined;
-}
+'use server'
 
-export async function fetch_backend(back_req: BackendRequest): Promise<unknown | null> {
-  const fetch_arguments = {
-    method: "POST",
-    headers: back_req.body ? {"Content-Type": "application/json"} : undefined,
-    body: JSON.stringify(back_req),
-  };
+export interface BackendRequest {
+  path: string;
+  method: "GET" | "POST" | "PUT" | "DELETE";
+  body?: BodyInit;
+  contentType?: string;
+} 
+
+export async function fetch_backend({ path, method, body, contentType }: BackendRequest): Promise<unknown | null> {
+  if (process.env.BACKEND_URL === undefined) {
+    return null;
+  }
+  const backend_url: string = process.env.BACKEND_URL + path;
 
   // try block is needed because fetch will throw errors for network issues
   try {
-    const response = await fetch('/api/backend', fetch_arguments);
+    const init: RequestInit = {
+      method: method,
+      headers: contentType === undefined ? undefined : {
+        "Content-Type": contentType,
+      },
+      body: body,
+    };
+    const response = await fetch(backend_url, init);
+
+    // response will also not be ok for other issues like backend issues
     if (!response.ok) {
-      return null;
+      return null
     }
     return await response.json();
   } catch {
     return null;
   }
 }
-

@@ -35,7 +35,7 @@ export function CreateNovelButton({ tableData, setTableData }: CreateNovelButton
 }
 
 async function create_novel(): Promise<NovelEntry | null> {
-  const raw_novel: NovelEntryApi | null = await fetch_backend({path: "/api/create_novel", method: "GET", body: undefined}) as NovelEntryApi | null;
+  const raw_novel: NovelEntryApi | null = await fetch_backend({path: "/api/create_novel", method: "GET"}) as NovelEntryApi | null;
   if (!raw_novel) {
     return null;
   }

@@ -33,7 +33,9 @@ async function update_row(row: Row<NovelEntry>, setDate: (date: Date) => void, t
   // send the update to the backend
   const novel: NovelEntry = row.original;
   const to_send: NovelEntryApi[] = [entry_to_api(novel)];
-  const novels: NovelEntryApi[] | null = await fetch_backend({path: "/api/update_novels", method: "POST", body: JSON.stringify(to_send)}) as NovelEntryApi[] | null;
+  const novels: NovelEntryApi[] | null = await fetch_backend(
+    {path: "/api/update_novels", method: "POST", body: JSON.stringify(to_send), contentType: "application/json"}
+  ) as NovelEntryApi[] | null;
 
   // check if the update was successful
   if (!novels) {

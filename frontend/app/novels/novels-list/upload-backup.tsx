@@ -13,6 +13,8 @@ import { Input } from "@/components/ui/input"
 import { DialogClose } from "@radix-ui/react-dialog"
 import { ChangeEvent, FormEvent, useState } from "react"
 
+import { fetch_backend } from "@/utils/fetch_backend"
+
 export function UploadBackupDialog() {
   const [file, setFile] = useState<File | null>(null);
 
@@ -22,8 +24,25 @@ export function UploadBackupDialog() {
   }
 
   async function onSubmit(event: FormEvent) {
-    // prevents refreshing the entire page
+    // prevent the form from refreshing components
     event.preventDefault(); 
+
+    if (!file) {
+      return
+    }
+
+    const formData = new FormData();
+    formData.append('uploadedFile', file);
+
+    let res: unknown | null = await fetch_backend(
+      {path: "/api/upload_novels_backup", method: "POST", body: formData}
+    );
+
+    // check whether the backend successfully updated the data
+    // if so, refresh the entire page
+    if (res) {
+      window.location.reload();
+    }
   }
 
   return (
