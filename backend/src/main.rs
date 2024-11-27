@@ -12,7 +12,6 @@ use axum::{
     routing::{get, post, delete},
     http::StatusCode, Router,
 };
-use csv::ReaderBuilder;
 use dotenv::dotenv;
 use itertools::Itertools;
 use novel_entry::NovelEntry;
@@ -88,23 +87,23 @@ async fn upload_novels_backup(state: State<AppState>, mut multipart: Multipart) 
     println!("Uploading novels backup");
 
     let mut rows = Vec::new();
-    while let Some(field) = multipart.next_field().await.unwrap() {
-        if let Some(_filename) = field.file_name() {
+    while let Some(field) = multipart.next_field().await.map_err(|op| (StatusCode::BAD_REQUEST, Json(op.to_string())))?{
+        if let Some(filename) = field.file_name() {
+            if filename.ends_with(".json") {
+                // Read the JSON file content
+                let bytes = field.bytes().await.unwrap();
 
-            let file_content = match field.bytes().await {
-                Ok(content) => content,
-                Err(_err) => return Ok((StatusCode::BAD_REQUEST, Json("Failed to read file".to_string())))
-            };
-
-            let mut csv_reader = ReaderBuilder::new()
-                .has_headers(true)
-                .from_reader(file_content.as_ref());
-
-            // Parse the CSV content
-            for result in csv_reader.deserialize::<NovelEntry>() {
-                match result {
-                    Ok(record) => rows.push(record),
-                    Err(_err) => return Ok((StatusCode::BAD_REQUEST, Json("Invalid CSV file".to_string())))
+                // Deserialize JSON into MyData struct
+                match serde_json::from_slice::<Vec<NovelEntry>>(&bytes) {
+                    Ok(data) => {
+                        rows.extend(data);
+                    }
+                    Err(err) => {
+                        return Err((
+                            StatusCode::UNPROCESSABLE_ENTITY,
+                            Json(err.to_string()),
+                        ))
+                    }
                 }
             }
         }

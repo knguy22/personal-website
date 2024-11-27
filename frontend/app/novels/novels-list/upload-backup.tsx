@@ -54,7 +54,7 @@ export function UploadBackupDialog() {
         <DialogHeader>
           <DialogTitle className="text-center">{`Upload Backup`}</DialogTitle>
           <DialogDescription className="text-left">
-            {`Valid backups are csv files with the same format as the csv given by the "Download CSV" option.`}<br/><br/>
+            {`Valid backups are JSON files with the same format as the JSON given by the "Download JSON" option.`}<br/><br/>
             <b>WARNING:</b> {`old data will be overwritten by the backup. Make sure you have saved the current page's data if you need it.`}
           </DialogDescription>
           <form onSubmit={onSubmit} className="py-2 space-y-3">

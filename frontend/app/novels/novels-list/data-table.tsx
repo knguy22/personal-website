@@ -30,7 +30,7 @@ import { Button } from "../../../components/ui/button"
 
 import { FilterList, filterTags } from './filters'
 import { CreateNovelButton } from './create-novel-button'
-import { DownloadCsvButton } from "./download-csv-button"
+import { DownloadJsonButton } from "./download-json-button"
 import { DeleteRowButton } from "./delete-row-button"
 import { UploadBackupDialog } from "./upload-backup"
 
@@ -134,7 +134,7 @@ function TableOptionsRow({ table, tableData, setTableData }: TableOptionsRowProp
     <div className="flex items-center justify-between">
       <FilterList table={table}/>
       <div className="space-x-2 py-4">
-        <DownloadCsvButton tableData={tableData}/>
+        <DownloadJsonButton tableData={tableData}/>
         <UploadBackupDialog />
         {/* only allow admins to create new novels */}
         {session?.user?.role === 'admin' ? 
