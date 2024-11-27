@@ -34,7 +34,7 @@ export function UploadBackupDialog() {
     const formData = new FormData();
     formData.append('uploadedFile', file);
 
-    let res: unknown | null = await fetch_backend(
+    const res: unknown | null = await fetch_backend(
       {path: "/api/upload_novels_backup", method: "POST", body: formData}
     );
 

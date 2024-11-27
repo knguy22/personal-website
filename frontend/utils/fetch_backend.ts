@@ -26,7 +26,7 @@ export async function fetch_backend({ path, method, body, contentType }: Backend
 
     // response will also not be ok for other issues like backend issues
     if (!response.ok) {
-      return null
+      return null;
     }
     return await response.json();
   } catch {
