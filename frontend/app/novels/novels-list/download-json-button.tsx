@@ -16,11 +16,12 @@ export function DownloadJsonButton({ tableData }: DownloadJsonButtonProps) {
         // export to api since it can be used in the backend
         const novelTableData = tableData.map(entry_to_api);
 
+        const now = new Date();
         const blob = new Blob([JSON.stringify(novelTableData)], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.setAttribute("href", url);
-        link.setAttribute("download", `${Date.now()}.json`);
+        link.setAttribute("download", `novels_${now.toISOString()}.json`);
         document.body.appendChild(link);
         link.click();
         link.remove();
