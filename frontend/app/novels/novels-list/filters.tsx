@@ -36,9 +36,10 @@ export function FilterList({ table }: FilterListProp) {
   const [dropDownVal, setDropDownVal] = React.useState<keyof NovelEntry>(filter_keys.Title);
 
   return (
-    <div className="flex space-x-2">
+    <div className="flex items-center space-x-2">
       <div className="border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md p-2">
         <DropdownMenu>
+          {/* val to key for dropdown label */}
           <DropdownMenuTrigger>{findKeyByValue(filter_keys, dropDownVal)}</DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuLabel>{"Filter by"}</DropdownMenuLabel>
@@ -69,7 +70,7 @@ interface FilterProps {
 
 function Filter({table, placeholder, col_name}: FilterProps) {
   return (
-    <div>
+    <div className="flex items-center space-x-2 pr-2">
       <Input
         placeholder={placeholder}
         value={(table.getColumn(col_name)?.getFilterValue() as string) ?? ""}
