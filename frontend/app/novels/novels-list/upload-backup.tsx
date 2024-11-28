@@ -12,12 +12,10 @@ import {
 import { Input } from "@/components/ui/input"
 import { DialogClose } from "@radix-ui/react-dialog"
 import { ChangeEvent, FormEvent, useState } from "react"
-import { useSession } from 'next-auth/react'
 
 import { fetch_backend } from "@/utils/fetch_backend"
 
 export function UploadBackupDialog() {
-  const {data: session} = useSession();
   const [file, setFile] = useState<File | null>(null);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -45,11 +43,6 @@ export function UploadBackupDialog() {
     if (res) {
       window.location.reload();
     }
-  }
-
-  // only allow uploading for admins
-  if (session?.user?.role !== 'admin') {
-    return null;
   }
 
   return (
