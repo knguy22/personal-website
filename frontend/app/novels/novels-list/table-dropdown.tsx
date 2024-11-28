@@ -94,10 +94,11 @@ interface fetch_table_data_props {
 
 async function fetch_table_data( { dropdown, setLoading, setNovels, setValue }: fetch_table_data_props) {
   setLoading(true);
-  let novels: NovelEntryApi[] | null = await fetch_backend(
+  let response = await fetch_backend(
     {path: dropdown.path, method: dropdown.method, body: dropdown.body, contentType: "application/json"}
-  ) as NovelEntryApi[] | null;
+  );
 
+  let novels = response.data as NovelEntryApi[] | null;
   if (!novels) {
     novels = [];
   }

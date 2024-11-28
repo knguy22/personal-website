@@ -5,11 +5,16 @@ export interface BackendRequest {
   method: "GET" | "POST" | "PUT" | "DELETE";
   body?: BodyInit;
   contentType?: string;
-} 
+}
 
-export async function fetch_backend({ path, method, body, contentType }: BackendRequest): Promise<unknown | null> {
+export type BackendRequestResponse = {
+  data: unknown;
+  error: unknown;
+}
+
+export async function fetch_backend({ path, method, body, contentType }: BackendRequest): Promise<BackendRequestResponse> {
   if (process.env.BACKEND_URL === undefined) {
-    return null;
+    return {data: null, error: "BACKEND_URL is not defined"};
   }
   const backend_url: string = process.env.BACKEND_URL + path;
 
@@ -26,10 +31,10 @@ export async function fetch_backend({ path, method, body, contentType }: Backend
 
     // response will also not be ok for other issues like backend issues
     if (!response.ok) {
-      return null;
+      return {data: null, error: await response.text()};
     }
-    return await response.json();
-  } catch {
-    return null;
+    return {data: await response.json(), error: null}
+  } catch (e) {
+    return {data: null, error: e};
   }
 }
