@@ -2,6 +2,7 @@
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { z } from "zod";
 
 const public_routes: string[] = [
   "/api/novels",
@@ -16,19 +17,27 @@ const admin_routes: string[] = [
   "/api/delete_novel",
 ];
 
-export interface BackendRequest {
-  path: string;
-  method: "GET" | "POST" | "PUT" | "DELETE";
-  body?: BodyInit;
-  contentType?: string;
-}
+const BackendRequestSchema = z.object({
+  path: z.string(),
+  method: z.enum(["GET", "POST", "PUT", "DELETE"]),
+  body: z.unknown().optional(),
+  contentType: z.string().optional(),
+});
+export type BackendRequest = z.infer<typeof BackendRequestSchema>;
 
 export type BackendRequestResponse = {
   data: unknown;
   error: unknown;
 }
 
-export async function fetch_backend({ path, method, body, contentType }: BackendRequest): Promise<BackendRequestResponse> {
+export async function fetch_backend(input: BackendRequest): Promise<BackendRequestResponse> {
+  // validate input using zod
+  const res = BackendRequestSchema.safeParse(input);
+  if (!res.success) {
+    return {data: null, error: res.error};
+  }
+  const {path, method, body, contentType} = res.data;
+
   // validate backend url
   if (process.env.BACKEND_URL === undefined) {
     return {data: null, error: "BACKEND_URL is not defined"};
