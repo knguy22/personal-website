@@ -135,7 +135,7 @@ function TableOptionsRow({ table, tableData, setTableData }: TableOptionsRowProp
       <FilterList table={table}/>
       <div className="hidden sm:flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-2 py-4">
         <DownloadJsonButton tableData={tableData}/>
-        {session?.user?.role === 'admin' ?  <UploadBackupDialog/> : null }
+        {session?.user?.role === 'admin' ?  <UploadBackupDialog/> : <UploadBackupDialog/> }
       </div>
       <div className="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-2 py-4">
         {session?.user?.role === 'admin' ?  <CreateNovelButton table={table} tableData={tableData} setTableData={setTableData}/> : null }

@@ -34,13 +34,13 @@ export function UploadBackupDialog() {
     const formData = new FormData();
     formData.append('uploadedFile', file);
 
-    const res: unknown | null = await fetch_backend(
+    const res = await fetch_backend(
       {path: "/api/upload_novels_backup", method: "POST", body: formData}
     );
 
     // check whether the backend successfully updated the data
     // if so, refresh the entire page
-    if (res) {
+    if (!res.error) {
       window.location.reload();
     }
   }
