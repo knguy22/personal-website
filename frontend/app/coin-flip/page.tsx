@@ -9,6 +9,9 @@ export default function CoinFlip() {
   const [isFlipping, setIsFlipping] = useState(false);
   const isHeadsRef = useRef(isHeads);
 
+  let a: number = 5;
+  let b: number = a + '5';
+
   const flip = useCallback(async () => {
     const result = Math.random() < 0.5;
     const numFlips = 8 + Number(result);

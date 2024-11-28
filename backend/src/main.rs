@@ -85,7 +85,7 @@ async fn update_novels_handler(state: State<AppState>, Json(rows): Json<Vec<nove
 
 async fn upload_novels_backup(state: State<AppState>, mut multipart: Multipart) -> impl IntoResponse {
     println!("Uploading novels backup");
-
+    row
     let mut rows = Vec::new();
     while let Some(field) = multipart.next_field().await.map_err(|op| (StatusCode::BAD_REQUEST, Json(op.to_string())))?{
         if let Some(filename) = field.file_name() {
