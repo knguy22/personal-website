@@ -20,7 +20,7 @@ const admin_routes: string[] = [
 const BackendRequestSchema = z.object({
   path: z.string(),
   method: z.enum(["GET", "POST", "PUT", "DELETE"]),
-  body: z.unknown().optional(),
+  body: z.unknown(),
   contentType: z.string().optional(),
 });
 export type BackendRequest = z.infer<typeof BackendRequestSchema>;
@@ -60,7 +60,7 @@ export async function fetch_backend(input: BackendRequest): Promise<BackendReque
       headers: contentType === undefined ? undefined : {
         "Content-Type": contentType,
       },
-      body: body,
+      body: body as BodyInit,
     };
     const response = await fetch(backend_url, init);
 
