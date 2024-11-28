@@ -12,11 +12,10 @@ export default function Page() {
   // load novel stats once
   useEffect(() => {
     const fetchStats = async () => {
-      const data: Stats | null = await fetch_backend({path: "/api/novels_stats", method: "GET"}) as Stats | null;
-      if (!data) {
-        return;
+      const res = await fetch_backend({path: "/api/novels_stats", method: "GET"});
+      if (res.data) {
+        setStats(res.data as Stats);
       }
-      setStats(data);
     };
 
     fetchStats();
