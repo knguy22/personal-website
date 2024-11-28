@@ -133,7 +133,7 @@ function TableOptionsRow({ table, tableData, setTableData }: TableOptionsRowProp
   return (
     <div className="flex items-center justify-between">
       <FilterList table={table}/>
-      <div className="space-x-2 py-4">
+      <div className="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-2 py-4">
         <DownloadJsonButton tableData={tableData}/>
         <UploadBackupDialog />
         {/* only allow admins to create new novels */}

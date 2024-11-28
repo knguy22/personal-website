@@ -66,10 +66,9 @@ interface FilterProps {
   table: TanstackTable<NovelEntry>,
   placeholder: string
   col_name: keyof NovelEntry
-  class_extra?: string
 }
 
-function Filter({table, placeholder, col_name, class_extra}: FilterProps) {
+function Filter({table, placeholder, col_name}: FilterProps) {
   return (
     <div className="flex items-center space-x-2 pr-2">
       <Input
@@ -79,7 +78,7 @@ function Filter({table, placeholder, col_name, class_extra}: FilterProps) {
           table.getColumn(col_name)?.setFilterValue(event.target.value);
           }
         }
-        className={"max-w-sm" + (class_extra ? " " + class_extra : "")}
+        className="w-10/12"
       />
     </div>
   )
