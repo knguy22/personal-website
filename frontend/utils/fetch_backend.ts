@@ -38,7 +38,7 @@ export async function fetch_backend({ path, method, body, contentType }: Backend
   // validate permissions for routes
   const session = await getServerSession(authOptions);
   if (!public_routes.includes(path) && !admin_routes.includes(path)) {
-    return {data: null, error: "Invalid route"}; 
+    return {data: null, error: "Invalid route"};
   }
   if (session?.user?.role !== 'admin' && admin_routes.includes(path)) {
     return {data: null, error: "Unauthorized"};
