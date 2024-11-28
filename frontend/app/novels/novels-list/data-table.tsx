@@ -133,9 +133,11 @@ function TableOptionsRow({ table, tableData, setTableData }: TableOptionsRowProp
   return (
     <div className="flex items-center justify-between">
       <FilterList table={table}/>
-      <div className="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-2 py-4">
+      <div className="hidden sm:flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-2 py-4">
         <DownloadJsonButton tableData={tableData}/>
         {session?.user?.role === 'admin' ?  <UploadBackupDialog/> : null }
+      </div>
+      <div className="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-2 py-4">
         {session?.user?.role === 'admin' ?  <CreateNovelButton table={table} tableData={tableData} setTableData={setTableData}/> : null }
         <Button
           variant="outline"
