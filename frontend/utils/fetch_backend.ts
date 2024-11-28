@@ -61,6 +61,6 @@ export async function fetch_backend({ path, method, body, contentType }: Backend
     }
     return {data: await response.json(), error: null}
   } catch (e) {
-    return {data: null, error: e};
+    return {data: null, error: JSON.stringify(e)};
   }
 }

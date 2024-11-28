@@ -7,27 +7,37 @@ import Loading from "@/components/derived/Loading.tsx";
 import { NovelBarChart } from "./charts.tsx";
 
 export default function Page() {
-  const [stats, setStats] = useState<Stats>();
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [isLoading, setLoading] = useState(true);
 
   // load novel stats once
   useEffect(() => {
     const fetchStats = async () => {
       const res = await fetch_backend({path: "/api/novels_stats", method: "GET"});
-      if (res.data) {
+      console.log(res);
+      if (!res.error) {
         setStats(res.data as Stats);
       }
+      setLoading(false);
     };
 
     fetchStats();
-  }, [])
+  }, [setStats, setLoading]);
+
+  // handle loading and errors
+  let body = <Loading/>;
+  if (!isLoading) {
+    if (stats === null) {
+      body = <h2 className="text-center text-2xl">Failed to load stats</h2>;
+    } else {
+      body = <StatsTable stats={stats} />;
+    }
+  }
 
   return (
     <>
       <h1 className="text-4xl text-center pb-5 font-medium">My Webnovel Stats</h1>
-      {stats ? 
-        <StatsTable stats={stats} /> 
-        : <Loading/>
-      }
+      {body}
     </>
   );
 }
