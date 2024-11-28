@@ -55,7 +55,7 @@ export function UploadBackupDialog() {
   return (
     <Dialog>
       <DialogTrigger>
-        <Button variant="outline">Upload Backup</Button>
+        <Button variant="outline" size="sm">Upload Backup</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
