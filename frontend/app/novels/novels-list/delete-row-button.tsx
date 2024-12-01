@@ -74,7 +74,7 @@ async function delete_row({ row, table } : DeleteRowButtonProps) {
   const id_to_delete: number = row.original.id;
 
   // delete from backend first
-  const res = await fetch_backend({path: "/api/delete_novel/", method: "DELETE", body: JSON.stringify(id_to_delete), contentType: "application/json"});
+  const res = await fetch_backend({path: "/api/delete_novel", method: "DELETE", body: JSON.stringify(id_to_delete), contentType: "application/json"});
 
   // check if the delete was successful
   if (res.error) {
