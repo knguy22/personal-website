@@ -53,8 +53,11 @@ pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats, Box<dyn Error>>
     // count the frequency of each valid rating
     let mut rating_dist = [0; 10];
     for novel in &novels {
-        if novel.rating > 0 {
-            rating_dist[(novel.rating - 1) as usize] += 1;
+        if novel.rating == 0 {
+            continue;
+        }
+        if let Some(rating_count) = rating_dist.get_mut((novel.rating - 1) as usize) {
+            *rating_count += 1;
         }
     }
 
