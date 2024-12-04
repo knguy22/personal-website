@@ -4,7 +4,7 @@ import { Column, ColumnDef, FilterFn } from "@tanstack/react-table"
 import { ArrowUpDown} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { NovelEntry } from './novel-types';
-import { InputCell } from '@/app/novels/novels-list/input-cell';
+import { InputCell, RatingInputCell } from '@/app/novels/novels-list/input-cell';
 import { DateCell } from "./date-cell";
 
 import { DropdownCell } from "./dropdown-cell";
@@ -21,7 +21,7 @@ declare module '@tanstack/table-core' {
   }
 }
 
-export const novel_columns: ColumnDef<NovelEntry, string>[] = [
+export const novel_columns: ColumnDef<NovelEntry, string | number>[] = [
   {
     accessorKey: "country",
     header: ({ column }) => { return ColumnHeader({ title: "Country", column }) },
@@ -43,7 +43,7 @@ export const novel_columns: ColumnDef<NovelEntry, string>[] = [
     accessorKey: "rating",
     header: ({ column }) => { return ColumnHeader({ title: "Rating", column }) },
     filterFn: 'equalsString',
-    cell: InputCell,
+    cell: RatingInputCell,
   },
   {
     accessorKey: "status",
@@ -70,7 +70,7 @@ export const novel_columns: ColumnDef<NovelEntry, string>[] = [
   },
 ];
 
-function ColumnHeader( { title, column }: { title: string, column: Column<NovelEntry, string> } ) {
+function ColumnHeader( { title, column }: { title: string, column: Column<NovelEntry, string | number> } ) {
   return (
     <Button
       variant="link"
