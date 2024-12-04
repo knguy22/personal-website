@@ -21,7 +21,7 @@ declare module '@tanstack/table-core' {
   }
 }
 
-export const novel_columns: ColumnDef<NovelEntry, string | number>[] = [
+export const novel_columns: ColumnDef<NovelEntry, string>[] = [
   {
     accessorKey: "country",
     header: ({ column }) => { return ColumnHeader({ title: "Country", column }) },
@@ -70,7 +70,7 @@ export const novel_columns: ColumnDef<NovelEntry, string | number>[] = [
   },
 ];
 
-function ColumnHeader( { title, column }: { title: string, column: Column<NovelEntry, string | number> } ) {
+function ColumnHeader( { title, column }: { title: string, column: Column<NovelEntry, string> } ) {
   return (
     <Button
       variant="link"

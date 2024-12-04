@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react'
 import { CellContext } from "@tanstack/react-table";
 import { PublicCell } from './public-cell';
 
-export function InputCell<TData>({ getValue, row, column, table, ...props }: CellContext<TData, string | number>) {
+export function InputCell<TData>({ getValue, row, column, table, ...props }: CellContext<TData, string>) {
   const initialValue = getValue();
   const [value, setValue] = useState(initialValue);
   const {data: session} = useSession();
@@ -15,12 +15,12 @@ export function InputCell<TData>({ getValue, row, column, table, ...props }: Cel
   }, [initialValue])
 
   const onBlur = () => {
-    table.options.meta?.updateCell(row.index, column.id, typeof value === 'number' ? value.toString() : value);
+    table.options.meta?.updateCell(row.index, column.id, value);
   }
 
   // only allow editing for admins
   if (session?.user?.role !== 'admin') {
-    return <PublicCell value={typeof value === 'number' ? value.toString() : value} />
+    return <PublicCell value={value} />
   }
   return (
     <input
@@ -33,7 +33,7 @@ export function InputCell<TData>({ getValue, row, column, table, ...props }: Cel
   )
 }
 
-export function RatingInputCell<TData>(props: CellContext<TData, string | number>) {
+export function RatingInputCell<TData>(props: CellContext<TData, string>) {
   const new_props = {
     ...props,
     type: 'number',
