@@ -15,12 +15,12 @@ export function InputCell<TData>({ getValue, row, column, table, ...props }: Cel
   }, [initialValue])
 
   const onBlur = () => {
-    table.options.meta?.updateCell(row.index, column.id, value.toString());
+    table.options.meta?.updateCell(row.index, column.id, typeof value === 'number' ? value.toString() : value);
   }
 
   // only allow editing for admins
   if (session?.user?.role !== 'admin') {
-    return <PublicCell value={value.toString()} />
+    return <PublicCell value={typeof value === 'number' ? value.toString() : value} />
   }
   return (
     <input
