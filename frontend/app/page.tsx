@@ -7,9 +7,6 @@ import { IconLink } from './icon-link.tsx';
 export default function Page() {
   return (
     <main className="w-full">
-      <div className="text-5xl font-bold flex-col items-center text-center justify-between pt-14">
-        {"Hi, I'm Intermittence!"}
-      </div>
       <Intro />
       <Projects />
       <Skills />
@@ -56,8 +53,8 @@ function Socials() {
         />
       </div>
       <div className="flex justify-center flex-col text-center space-y-2 pt-10 pb-12 text-lg">
-        <div>Discord: @intermittence</div>
         <div>Email: kevinngguyen1@gmail.com</div>
+        <div>Discord: @intermittence</div>
       </div>
     </div>
   )

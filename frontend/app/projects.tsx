@@ -3,6 +3,7 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import Image from 'next/image';
 import { IconLink } from './icon-link';
 
 const ProjectsKey = {
@@ -83,31 +84,22 @@ interface ProjectContentProps {
 
 function ProjectContent({ project } : ProjectContentProps) {
   return (
-    <Dialog>
-      <DialogTrigger>
-        <Thumbnail project={project} />
-      </DialogTrigger>
-      <DialogContent>
-        <div className='flex flex-col justify-center items-center space-y-2'>
-            <picture>
-              <img src={project.imageLink} alt={project.alt} className='h-40 w-40 object-cover'></img>
-            </picture>
-            <div className='text-center text-lg w-full'>{project.name}</div>
-            <div className='text-sm w-4/5'>{project.desc}</div>
-            <IconLink 
-              description="Link to project" 
-              imageUrl="/icons/github-mark.png" 
-              hrefUrl={project.href}
-              width={50}
-              height={50}
-            />
-        </div>
-      </DialogContent>
-    </Dialog>
-
+    <div className='flex flex-col justify-center items-center space-y-2'>
+        <picture>
+          <img src={project.imageLink} alt={project.alt} className='h-40 w-40 object-cover'></img>
+        </picture>
+        <div className='text-center text-lg w-full'>{project.name}</div>
+        <div className='text-sm w-4/5'>{project.desc}</div>
+        <IconLink 
+          description="Link to project" 
+          imageUrl="/icons/github-mark.png" 
+          hrefUrl={project.href}
+          width={50}
+          height={50}
+        />
+    </div>
   )
 }
-
 
 export function Projects() {
   return (
@@ -117,7 +109,14 @@ export function Projects() {
       </div>
       <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-rows-1 gap-5 pt-10">
         {Object.values(ProjectsKey).map((projectKey) => (
-          <ProjectContent key={projectKey} project={project_info[projectKey]} />
+          <Dialog>
+            <DialogTrigger>
+              <Thumbnail project={project_info[projectKey]} />
+            </DialogTrigger>
+            <DialogContent>
+              <ProjectContent project={project_info[projectKey]} />
+            </DialogContent>
+          </Dialog>
         ))}
       </div>
     </div>
