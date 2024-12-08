@@ -8,9 +8,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { DialogClose } from "@radix-ui/react-dialog"
 import { ChangeEvent, FormEvent, useState } from "react"
 
 import { fetch_backend } from "@/utils/fetch_backend"
