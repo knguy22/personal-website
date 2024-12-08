@@ -49,6 +49,7 @@ const project_info: Record<string, ProjectsValue> = {
     desc: "A program that plays chess at a high level. It does so using specialized search algorithms and an evaluation function \
     trained using machine learning.",
     languages: ["C++", "CMake"],
+    technologies: ["GoogleTest"],
     domains: ["Machine Learning", "Alpha-Beta Pruning", "Hashing", "Data Processing"],
   },
   JstrisStatisticsDiscordBot: {
@@ -68,7 +69,7 @@ const project_info: Record<string, ProjectsValue> = {
     desc: "A website that I can call my own. This currently hosts my portfolio and my webnovel list, which \
     keeps track of my webnovels I have read and their corresponding statistics.",
     languages: ["TypeScript", "JavaScript", "Rust"],
-    technologies: ["React", "Next.js", "Tailwind", "Axum"],
+    technologies: ["React", "Next.js", "Tailwind", "Axum", "PostgreSQL"],
     domains: ["Databases", "Data Processing"],
   },
 };
@@ -105,7 +106,7 @@ function ProjectSkillsList({ title, skills } : ProjectSkillsListProps) {
   return (
     <div>
       <div className='font-bold mb-1'>{title}</div>
-      <ul className="list-disc pl-4">
+      <ul className="list-disc pl-3">
         {skills.map((skill) => (
           <li key={skill}>{skill}</li>
         ))}
@@ -127,7 +128,7 @@ function ProjectContent({ project } : ProjectContentProps) {
       </picture>
       <DialogTitle className='text-center text-lg w-full'>{project.name}</DialogTitle>
       <DialogDescription className='text-sm w-4/5 pt-3'>{project.desc}</DialogDescription>
-      <div className='grid grid-cols-3 text-sm text-left py-3 w-4/5'>
+      <div className='grid grid-cols-2 md:grid-cols-3 gap-y-2 py-3 w-4/5 text-sm text-left'>
         <ProjectSkillsList title="Languages:"  skills={project.languages} />
         <ProjectSkillsList title="Technologies:" skills={project.technologies} />
         <ProjectSkillsList title="Domains:" skills={project.domains} />
