@@ -2,15 +2,20 @@ import {
   Dialog,
   DialogContent,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
+
+import {
+  DialogTitle,
+  DialogDescription
+} from "@radix-ui/react-dialog";
+
 import { IconLink } from './icon-link';
-import { Technologies } from "./technologies";
+import { Languages, Technologies, Domains, Skills } from "./skills";
 
 const ProjectsKey = {
   ImageToTetris: "ImageToTetris",
   BlockyChessEngine: "BlockyChessEngine",
   JstrisStatisticsDiscordBot: "JstrisStatisticsDiscordBot",
-  WebnovelList: "WebnovelList",
   PersonalWebsite: "PersonalWebsite",
 } as const;
 
@@ -20,7 +25,9 @@ type ProjectsValue = {
   imageLink: string,
   alt: string,
   desc: string,
-  techs: Technologies[],
+  languages?: Languages[],
+  technologies?: Technologies[],
+  domains?: Domains[],
 }
 
 const project_info: Record<string, ProjectsValue> = {
@@ -31,15 +38,18 @@ const project_info: Record<string, ProjectsValue> = {
     alt: "Image To Tetris",
     desc: "A tool to efficiently convert images and videos into valid Tetris configurations. An audio to tetris audio clips approximator \
     is also a WIP.",
-    techs: ["Rust", "Python"],
+    languages: ["Rust", "Python"],
+    domains: ["Image Processing", "Audio Processing", "Multithreading"],
   },
   BlockyChessEngine: {
     name: "Blocky Chess Engine",
     href: "https://github.com/knguy22/blocky-chess-engine",
     imageLink: "/project_images/blocky-chess-game.png",
     alt: "Blocky Chess Engine",
-    desc: "A program that plays chess at a high level and improve itself using training data from previous games.",
-    techs: ["C++"],
+    desc: "A program that plays chess at a high level. It does so using specialized search algorithms and an evaluation function \
+    trained using machine learning.",
+    languages: ["C++", "CMake"],
+    domains: ["Machine Learning", "Alpha-Beta Pruning", "Hashing", "Data Processing"],
   },
   JstrisStatisticsDiscordBot: {
     name: "Jstris Statistics Discord Bot",
@@ -47,23 +57,19 @@ const project_info: Record<string, ProjectsValue> = {
     imageLink: "/project_images/badgerbot-gametime.png",
     alt: "Jstris Statistics Discord Bot",
     desc: "A Discord bot that provides Jstris statistics for competitive Tetris players.",
-    techs: ["Python"],
-  },
-  WebnovelList: {
-    name: "Webnovel List",
-    href: "/novels/novels-list",
-    imageLink: "/project_images/webnovels-list.png",
-    alt: "Webnovel List",
-    desc: "A tool to keep track of webnovels I've read and visualizing relevant statistics.",
-    techs: ["Rust", "TypeScript", "React", "HTML", "CSS", "Tailwind", "Next.js", "Axum"],
+    languages: ["Python"],
+    domains: ["Webscraping", "Data Processing"],
   },
   PersonalWebsite: {
     name: "This Personal Website",
     href: "https://github.com/knguy22/personal-website",
     imageLink: "/project_images/wizard.png",
     alt: "This Personal Website",
-    desc: "A sandbox for me to try out new things. Currently hosts my portfolio and my webnovel list.",
-    techs: ["Rust", "TypeScript", "React", "HTML", "CSS", "Tailwind", "Next.js", "Axum"],
+    desc: "A website that I can call my own. This currently hosts my portfolio and my webnovel list, which \
+    keeps track of my webnovels I have read and their corresponding statistics.",
+    languages: ["TypeScript", "JavaScript", "Rust"],
+    technologies: ["React", "Next.js", "Tailwind", "Axum"],
+    domains: ["Databases", "Data Processing"],
   },
 };
 
@@ -84,6 +90,31 @@ function Thumbnail({ project } : ThumbnailProps) {
   )
 }
 
+interface ProjectSkillsListProps {
+  title: string
+  skills?: Skills[]
+}
+
+function ProjectSkillsList({ title, skills } : ProjectSkillsListProps) {
+  if (skills === undefined) {
+    return (
+      <></>
+    )
+  }
+
+  return (
+    <div>
+      <div className='font-bold mb-1'>{title}</div>
+      <ul className="list-disc pl-4">
+        {skills.map((skill) => (
+          <li key={skill}>{skill}</li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+
 interface ProjectContentProps {
   project: ProjectsValue
 }
@@ -94,20 +125,20 @@ function ProjectContent({ project } : ProjectContentProps) {
       <picture>
         <img src={project.imageLink} alt={project.alt} className='h-40 w-40 object-cover'></img>
       </picture>
-      <div className='text-center text-lg w-full'>{project.name}</div>
-      <div className='text-sm w-3/5 pt-4'>{project.desc}</div>
-      <div className='grid grid-cols-3 text-sm text-left pt-3 w-3/5'>
-        {project.techs.map((tech) => (
-          <div key={tech} className="">{tech}</div>
-        ))}
+      <DialogTitle className='text-center text-lg w-full'>{project.name}</DialogTitle>
+      <DialogDescription className='text-sm w-4/5 pt-3'>{project.desc}</DialogDescription>
+      <div className='grid grid-cols-3 text-sm text-left py-3 w-4/5'>
+        <ProjectSkillsList title="Languages:"  skills={project.languages} />
+        <ProjectSkillsList title="Technologies:" skills={project.technologies} />
+        <ProjectSkillsList title="Domains:" skills={project.domains} />
       </div>
 
       <IconLink 
         description="Link to project" 
         imageUrl="/icons/github-mark.png" 
         hrefUrl={project.href}
-        width={50}
-        height={50}
+        width={60}
+        height={60}
       />
     </div>
   )

@@ -1,7 +1,7 @@
 'use client'
 
 import { Projects } from './projects.tsx';
-import { Skills } from './skills.tsx';
+import { SkillsSection } from './skills.tsx';
 import { IconLink } from './icon-link.tsx';
 
 export default function Page() {
@@ -9,7 +9,7 @@ export default function Page() {
     <main className="w-full">
       <Intro />
       <Projects />
-      <Skills />
+      <SkillsSection />
       <Socials />
     </main>
   );
