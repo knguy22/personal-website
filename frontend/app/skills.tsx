@@ -21,9 +21,9 @@ export const Technologies = {
   Tailwind: "Tailwind",
   Django: "Django",
   Axum: "Axum",
-  Discordpy: "Discord.py",
   PostgreSQL: "PostgreSQL",
   MySQL: "MySQL",
+  GTest: "GoogleTest",
 } as const;
 export type Technologies = typeof Technologies[keyof typeof Technologies];
 
