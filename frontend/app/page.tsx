@@ -1,5 +1,3 @@
-'use client'
-
 import { Projects } from './projects.tsx';
 import { SkillsSection } from './skills.tsx';
 import { IconLink } from './icon-link.tsx';
