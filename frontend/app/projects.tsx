@@ -1,14 +1,9 @@
-import Link from 'next/link';
-import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
-  DialogClose,
 } from "@/components/ui/dialog"
+import { IconLink } from './icon-link';
 
 const ProjectsKey = {
   ImageToTetris: "ImageToTetris",
@@ -93,15 +88,20 @@ function ProjectContent({ project } : ProjectContentProps) {
         <Thumbnail project={project} />
       </DialogTrigger>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle className="text-center">{project.name}</DialogTitle>
-          <DialogDescription className="text-left">{project.desc}</DialogDescription>
-          <DialogClose className="flex flex-row w-full justify-around">
-            <Button type="button" variant="outline" className="bg-secondary hover:bg-secondary/80">
-              {`Exit`}
-            </Button>
-          </DialogClose>
-        </DialogHeader>
+        <div className='flex flex-col justify-center items-center space-y-2'>
+            <picture>
+              <img src={project.imageLink} alt={project.alt} className='h-40 w-40 object-cover'></img>
+            </picture>
+            <div className='text-center text-lg w-full'>{project.name}</div>
+            <div className='text-sm w-4/5'>{project.desc}</div>
+            <IconLink 
+              description="Link to project" 
+              imageUrl="/icons/github-mark.png" 
+              hrefUrl={project.href}
+              width={50}
+              height={50}
+            />
+        </div>
       </DialogContent>
     </Dialog>
 

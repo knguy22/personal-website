@@ -1,10 +1,8 @@
 'use client'
 
-import Image from 'next/image';
-import Link from 'next/link';
 import { Projects } from './projects.tsx';
 import { Skills } from './skills.tsx';
-
+import { IconLink } from './icon-link.tsx';
 
 export default function Page() {
   return (
@@ -42,32 +40,25 @@ function Socials() {
         Check me out or contact me:
       </div>
       <div className="flex justify-center space-x-16 pt-12">
-        <IconLink description="Link to github profile" imageUrl="/icons/github-mark.png" hrefUrl="https://github.com/knguy22" />
-        <IconLink description="Link to linkedin profile" imageUrl="/icons/linkedin.png" hrefUrl="https://www.linkedin.com/in/kevin-nguyen-89326a242/" />
+        <IconLink 
+          description="Link to Github profile" 
+          imageUrl="/icons/github-mark.png" 
+          hrefUrl="https://github.com/knguy22"
+          width={100}
+          height={100} 
+        />
+        <IconLink 
+          description="Link to LinkedIn profile" 
+          imageUrl="/icons/linkedin.png" 
+          hrefUrl="https://www.linkedin.com/in/kevin-nguyen-89326a242/" 
+          width={100}
+          height={100}
+        />
       </div>
       <div className="flex justify-center flex-col text-center space-y-2 pt-10 pb-12 text-lg">
         <div>Discord: @intermittence</div>
         <div>Email: kevinngguyen1@gmail.com</div>
       </div>
     </div>
-  )
-}
-
-interface IconLinkProps {
-  description: string
-  imageUrl: string
-  hrefUrl: string
-}
-
-function IconLink( {description, imageUrl, hrefUrl } : IconLinkProps ) {
-  return (
-    <Link href={hrefUrl} className='transition ease-in-out hover:scale-110'>
-      <Image
-        src={imageUrl}
-        width={100}
-        height={100}
-        alt={description}
-      />
-    </Link>
   )
 }
