@@ -1,22 +1,64 @@
+export const Languages = {
+  Python: "Python",
+  Rust: "Rust",
+  Cplusplus: "C++",
+  JavaScript: "JavaScript",
+  TypeScript: "TypeScript",
+  HTML: "HTML",
+  Java: "Java",
+  C: "C",
+  CSS: "CSS",
+  SQL: "SQL",
+  CMake: "CMake",
+  Make: "Make",
+  Bash: "Bash",
+} as const;
+export type Languages = typeof Languages[keyof typeof Languages];
+
+export const Technologies = {
+  React: "React",
+  Nextjs: "Next.js",
+  Tailwind: "Tailwind",
+  Django: "Django",
+  Axum: "Axum",
+  Discordpy: "Discord.py",
+  PostgreSQL: "PostgreSQL",
+  MySQL: "MySQL",
+} as const;
+export type Technologies = typeof Technologies[keyof typeof Technologies];
+
+export const Domains = {
+  ImageProcessing: "Image Processing",
+  AudioProcessing: "Audio Processing",
+  MachineLearning: "Machine Learning",
+  Multithreading: "Multithreading",
+  AlphaBetaPruning: "Alpha-Beta Pruning",
+  Hashing: "Hashing",
+  Webscraping: "Webscraping",
+  Databases: "Databases",
+  DataProcessing: "Data Processing",
+} as const;
+export type Domains = typeof Domains[keyof typeof Domains];
+export type Skills = Languages | Technologies | Domains;
 
 const skills_lists: SkillListProps[] = [
   {
       title: "Proficient Languages:",
-      skills: ["Python", "Rust", "C++", "JavaScript", "TypeScript", "HTML"],
+      skills: ["Python", "Rust", "C++", "JavaScript", "TypeScript"],
   },
   {
       title: "Familiar Languages:",
-      skills: ["Java", "C", "CSS", "SQL"],
+      skills: ["Java", "C", "SQL", "Bash", "Make", "CMake"],
   },
   {
-      title: "Frameworks:",
-      skills: ["React", "Next.js", "Tailwind", "Django", "Axum"],
+      title: "Technologies:",
+      skills: Object.values(Technologies),
   },
 ]
 
 interface SkillListProps {
   title: string
-  skills: string[]
+  skills: Skills[]
 }
 
 function SkillList( {title, skills}: SkillListProps) {
@@ -32,7 +74,7 @@ function SkillList( {title, skills}: SkillListProps) {
   )
 }
 
-export function Skills() {
+export function SkillsSection() {
   return (
     <div className="w-2/3 mx-auto">
       <div className="text-3xl font-bold flex-col items-center text-center justify-between pt-12 pb-8">
