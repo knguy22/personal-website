@@ -1,3 +1,4 @@
+import { Technologies } from "./technologies"
 
 const skills_lists: SkillListProps[] = [
   {
@@ -16,7 +17,7 @@ const skills_lists: SkillListProps[] = [
 
 interface SkillListProps {
   title: string
-  skills: string[]
+  skills: Technologies[]
 }
 
 function SkillList( {title, skills}: SkillListProps) {
