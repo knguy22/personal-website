@@ -96,9 +96,9 @@ function ProjectContent({ project } : ProjectContentProps) {
       </picture>
       <div className='text-center text-lg w-full'>{project.name}</div>
       <div className='text-sm w-3/5 pt-4'>{project.desc}</div>
-      <div className='text-sm text-left pt-3 space-y-1 w-3/5'>
+      <div className='grid grid-cols-3 text-sm text-left pt-3 w-3/5'>
         {project.techs.map((tech) => (
-          <div key={tech}>{tech}</div>
+          <div key={tech} className="">{tech}</div>
         ))}
       </div>
 
