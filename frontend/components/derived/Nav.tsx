@@ -48,12 +48,6 @@ export default async function NavBar() {
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
-
-        <NavigationMenuItem key="coin-flip">
-          <NavigationMenuLink href="/coin-flip" className={navigationMenuTriggerStyle()}>
-            Coin Flip
-          </NavigationMenuLink>
-        </NavigationMenuItem>
       </NavigationMenuList>
 
 
