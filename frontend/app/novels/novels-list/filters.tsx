@@ -70,17 +70,16 @@ interface FilterProps {
 
 function Filter({table, placeholder, col_name}: FilterProps) {
   return (
-    <div className="flex items-center space-x-2 pr-2">
-      <Input
-        placeholder={placeholder}
-        value={(table.getColumn(col_name)?.getFilterValue() as string) ?? ""}
-        onChange={(event) => {
-          table.getColumn(col_name)?.setFilterValue(event.target.value);
-          }
+    <Input
+      type="search"
+      placeholder={placeholder}
+      value={(table.getColumn(col_name)?.getFilterValue() as string) ?? ""}
+      onChange={(event) => {
+        table.getColumn(col_name)?.setFilterValue(event.target.value);
         }
-        className="w-10/12"
-      />
-    </div>
+      }
+      className="w-10/12 px-2"
+    />
   )
 }
 
