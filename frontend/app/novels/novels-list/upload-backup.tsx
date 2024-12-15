@@ -13,6 +13,9 @@ import {
 import { Input } from "@/components/ui/input"
 import { ChangeEvent, FormEvent, useState } from "react"
 
+import { cn } from "@/lib/utils"
+import { buttonVariants } from "@/components/ui/button"
+
 import { fetch_backend } from "@/utils/fetch_backend"
 
 export function UploadBackupDialog() {
@@ -47,8 +50,8 @@ export function UploadBackupDialog() {
 
   return (
     <Dialog>
-      <DialogTrigger>
-        <Button variant="outline" size="sm">Upload Backup</Button>
+      <DialogTrigger className={cn(buttonVariants({ variant: "outline", size: "sm", className: "" }))}>
+        Upload Backup
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
