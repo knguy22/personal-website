@@ -145,6 +145,8 @@ pub async fn create_empty_row(db: &DatabaseConnection) -> Result<NovelEntry, Box
         tags: Vec::new(),
         notes: String::new(),
         date_modified: Local::now().to_utc(),
+        date_started: None,
+        date_completed: None,
     };
     let model = novel_entry_to_active_model(&novel);
     let _ = model.insert(db).await?;

@@ -27,6 +27,8 @@ pub struct NovelEntry {
     pub tags: Vec<String>,
     pub notes: String,
     pub date_modified: DateTime<Utc>,
+    pub date_started: Option<DateTime<Utc>>,
+    pub date_completed: Option<DateTime<Utc>>,
 }
 
 // used when importing from csv
@@ -87,6 +89,8 @@ pub fn novel_entry_to_active_model(novel: &NovelEntry) -> novels::ActiveModel {
         tags: serde_json::to_value(novel.tags.clone()).unwrap(),
         notes: Some(novel.notes.clone()), 
         date_modified: novel.date_modified.naive_utc(),
+        date_started: novel.date_started.map(|date| date.naive_utc()),
+        date_completed: novel.date_completed.map(|date| date.naive_utc()),
     }.into_active_model()
 }
 
@@ -101,6 +105,8 @@ pub fn model_to_novel_entry(model: novels::Model) -> NovelEntry {
         tags: json_value_to_vec_str(&model.tags).unwrap_or_default(),
         notes: model.notes.unwrap_or_default(), 
         date_modified: model.date_modified.and_utc(),
+        date_started: model.date_started.map(|date| date.and_utc()),
+        date_completed: model.date_completed.map(|date| date.and_utc()),
     }
 }
 
