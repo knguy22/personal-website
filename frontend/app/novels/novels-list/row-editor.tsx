@@ -47,7 +47,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
       if (key === "date_modified" || key === "id") {
         continue;
       }
-      table.options.meta?.updateCell(row.index, key, value.toString());
+      table.options.meta?.updateCell(row.index, key, value);
     }
 
     // update backend
@@ -120,7 +120,7 @@ function EditorInput({ column_id, display_name, novel, setNovel, ...props } : Ed
     <div className="flex flex-col space-y-1">
       <div className="text-md">{display_name}</div>
       <Input
-        value={value}
+        value={value ? value : ""}
         readOnly={session?.user?.role !== 'admin'}
         onChange={e => setValue(e.target.value)}
         onBlur={onBlur}
@@ -156,6 +156,10 @@ interface DropdownInputProps {
 function DropdownInput({ column_id, display_name, novel, setNovel, cell_values}: DropdownInputProps) {
   const [value, setValue] = useState(novel[column_id]);
   const {data: session} = useSession();
+
+  if (value === null) {
+    return null;
+  }
 
   function update_value(value: string) {
     setValue(value);
@@ -212,7 +216,7 @@ function LargeEditorInputProps({ column_id, display_name, novel, setNovel, ...pr
     <div className="flex flex-col space-y-1">
       <div className="text-md">{display_name}</div>
       <Textarea
-        value={value}
+        value={value ? value : ""}
         readOnly={session?.user?.role !== 'admin'}
         onChange={e => setValue(e.target.value)}
         onBlur={onBlur}
