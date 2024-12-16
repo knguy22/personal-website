@@ -31,33 +31,25 @@ import { Button } from "../../../components/ui/button"
 import { FilterList, filterTags } from './filters'
 import { CreateNovelButton } from './create-novel-button'
 import { DownloadJsonButton } from "./download-json-button"
-import { DeleteRowButton } from "./delete-row-button"
 import { UploadBackupDialog } from "./upload-backup"
 
 import { NovelEntry } from "./novel-types"
 
 interface DataTableProps {
   columns: ColumnDef<NovelEntry, string>[]
+  admin_columns: ColumnDef<NovelEntry, string>[]
   data: NovelEntry[]
   setData: React.Dispatch<React.SetStateAction<NovelEntry[]>>
 }
 
 export function DataTable ({
   columns,
+  admin_columns,
   data,
   setData,
 }: DataTableProps) {
 
-  // additional functionality (delete row) that requires admin permissions
   const {data: session} = useSession();
-  const columns_with_buttons: ColumnDef<NovelEntry, string>[] = 
-    session?.user?.role !== 'admin' ? columns : 
-    [...columns, {
-      accessorKey: "delete_row",
-      header: () => { return ""; },
-      cell: DeleteRowButton
-    }];
-
 
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
@@ -72,7 +64,7 @@ export function DataTable ({
 
   const table = useReactTable({
     data: data,
-    columns: columns_with_buttons,
+    columns: session?.user?.role === 'admin' ? admin_columns : columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
@@ -87,6 +79,12 @@ export function DataTable ({
       pagination,
       sorting,
       columnFilters,
+      columnVisibility: {
+        country: false,
+        status: false,
+        tags: false,
+        notes: false,
+      }
     },
     meta: {
       updateCell: (rowIndex: number, columnId: string, value: string) => {

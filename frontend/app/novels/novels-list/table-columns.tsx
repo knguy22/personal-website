@@ -1,15 +1,16 @@
 'use client'
 
-import { Column, ColumnDef, FilterFn } from "@tanstack/react-table"
+import { CellContext, Column, ColumnDef, FilterFn } from "@tanstack/react-table"
 import { ArrowUpDown} from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { NovelEntry } from './novel-types';
 import { InputCell, RatingInputCell } from '@/app/novels/novels-list/input-cell';
-import { DateCell } from "./date-cell";
+import { DeleteRowButton } from "./delete-row-button";
 
+import { DateCell } from "./date-cell";
 import { DropdownCell } from "./dropdown-cell";
 import { Status, str_to_status, status_to_str } from './novel-types'
-import { CellContext } from "@tanstack/react-table"
 
 declare module '@tanstack/table-core' {
   interface TableMeta<TData> {
@@ -70,6 +71,14 @@ export const novel_columns: ColumnDef<NovelEntry, string>[] = [
   },
 ];
 
+export const admin_novel_columns: ColumnDef<NovelEntry, string>[] = [...novel_columns,
+  {
+    accessorKey: "Delete Row",
+    header: () => { return ""; },
+    cell: DeleteRowButton
+  },
+];
+
 function ColumnHeader( { title, column }: { title: string, column: Column<NovelEntry, string> } ) {
   return (
     <Button
@@ -93,5 +102,11 @@ function StatusDropdownCell<TData>({ getValue, row, column, table }: CellContext
       value_to_str={status_to_str}
       str_to_value={str_to_status}
     />
+  )
+}
+
+function EmptyCell<TData>({ getValue, row, column, table }: CellContext<TData, string>) {
+  return (
+    <></>
   )
 }
