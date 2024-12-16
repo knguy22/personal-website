@@ -69,14 +69,11 @@ export const novel_columns: ColumnDef<NovelEntry, string>[] = [
     header: ({ column }) => { return ColumnHeader({ title: "Date Modified", column }) },
     cell: DateCell,
   },
-];
-
-export const admin_novel_columns: ColumnDef<NovelEntry, string>[] = [...novel_columns,
   {
     accessorKey: "Edit Row",
-    header: () => { return ""; },
+    header: () => { return <></> },
     cell: RowEditor
-  },
+  }
 ];
 
 function ColumnHeader( { title, column }: { title: string, column: Column<NovelEntry, string> } ) {

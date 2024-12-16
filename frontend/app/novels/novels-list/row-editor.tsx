@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import { useSession } from 'next-auth/react'
 
-import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -31,9 +30,11 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-center">{row.original.title}</DialogTitle>
-          <DialogDescription className="grid grid-cols-3">
-            <EditorInput init_value={row.original.country} column_id="country" row={row} table={table} />
-            <EditorInput init_value={row.original.rating} column_id="rating" row={row} table={table} />
+          <DialogDescription className="grid grid-cols-3 gap-x-4 gap-y-3">
+            <EditorInput column_id="country" display_name="Country" row={row} table={table} />
+            <EditorInput column_id="title" display_name="Title" row={row} table={table} />
+            <RatingEditorInput column_id="rating" display_name="Rating" row={row} table={table} />
+            <EditorInput column_id="country" display_name="Chapter" row={row} table={table} />
           </DialogDescription>
           <DeleteRowButton row={row} table={table} />
         </DialogHeader>
@@ -43,33 +44,34 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
 }
 
 interface EditorInputProps {
-  init_value: string
-  column_id: string
+  column_id: keyof NovelEntry
+  display_name: string
   row: Row<NovelEntry>
   table: Table<NovelEntry>
 }
 
-function EditorInput({ init_value, column_id, row, table, ...props } : EditorInputProps) {
-  const [value, setValue] = useState(init_value);
+function EditorInput({ column_id, display_name, row, table, ...props } : EditorInputProps) {
+  const [value, setValue] = useState(row.original[column_id]);
   const {data: session} = useSession();
 
-  const onBlur = () => {
-    table.options.meta?.updateCell(row.index, column_id, value);
-  }
-
   // only allow editing for admins
+  let content;
   if (session?.user?.role !== 'admin') {
-    return <div className='max-h-10 max-w-44 overflow-auto text-nowrap scrollbar-thin'>{value}</div>
-  }
-  return (
-    <div>
-      <input
+    content = <div className='max-h-10 max-w-44 overflow-auto text-nowrap scrollbar-thin'>{value}</div>;
+  } else {
+    content = 
+      <Input
         value={value}
         onChange={e => setValue(e.target.value)}
-        onBlur={onBlur}
-        className='h-full w-full'
+        className='w-full'
         {...props}
       />
+  }
+
+  return (
+    <div className="flex flex-col space-y-1">
+      <div className="text-md">{display_name}</div>
+      {content}
     </div>
 
   )

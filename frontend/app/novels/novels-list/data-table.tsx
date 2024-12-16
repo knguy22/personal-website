@@ -37,14 +37,12 @@ import { NovelEntry } from "./novel-types"
 
 interface DataTableProps {
   columns: ColumnDef<NovelEntry, string>[]
-  admin_columns: ColumnDef<NovelEntry, string>[]
   data: NovelEntry[]
   setData: React.Dispatch<React.SetStateAction<NovelEntry[]>>
 }
 
 export function DataTable ({
   columns,
-  admin_columns,
   data,
   setData,
 }: DataTableProps) {
@@ -64,7 +62,7 @@ export function DataTable ({
 
   const table = useReactTable({
     data: data,
-    columns: session?.user?.role === 'admin' ? admin_columns : columns,
+    columns: columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
