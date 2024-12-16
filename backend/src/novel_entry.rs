@@ -66,16 +66,6 @@ impl NovelEntry {
     pub fn parse_tags(s: &String) -> Vec<String> {
         s.split_terminator(',').map(String::from).collect()
     }
-    
-    pub fn is_empty(&self) -> bool {
-        self.country.is_empty() &&
-        self.title.is_empty() &&
-        self.chapter.is_empty() &&
-        self.rating == 0 &&
-        self.status == Status::Invalid &&
-        self.tags.is_empty() &&
-        self.notes.is_empty()
-    }
 }
 
 pub fn novel_entry_to_active_model(novel: &NovelEntry) -> novels::ActiveModel {
