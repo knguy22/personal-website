@@ -6,10 +6,10 @@ import { ArrowUpDown} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { NovelEntry } from './novel-types';
 import { InputCell, RatingInputCell } from '@/app/novels/novels-list/input-cell';
-import { DeleteRowButton } from "./delete-row-button";
 
 import { DateCell } from "./date-cell";
 import { DropdownCell } from "./dropdown-cell";
+import { RowEditor } from "./row-editor";
 import { Status, str_to_status, status_to_str } from './novel-types'
 
 declare module '@tanstack/table-core' {
@@ -73,9 +73,9 @@ export const novel_columns: ColumnDef<NovelEntry, string>[] = [
 
 export const admin_novel_columns: ColumnDef<NovelEntry, string>[] = [...novel_columns,
   {
-    accessorKey: "Delete Row",
+    accessorKey: "Edit Row",
     header: () => { return ""; },
-    cell: DeleteRowButton
+    cell: RowEditor
   },
 ];
 
