@@ -13,4 +13,6 @@ pub enum Novels {
     Tags,
     Notes,
     DateModified,
+    DateStarted,
+    DateCompleted,
 }
