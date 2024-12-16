@@ -101,9 +101,3 @@ function StatusDropdownCell<TData>({ getValue, row, column, table }: CellContext
     />
   )
 }
-
-function EmptyCell<TData>({ getValue, row, column, table }: CellContext<TData, string>) {
-  return (
-    <></>
-  )
-}
