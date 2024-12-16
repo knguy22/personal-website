@@ -58,24 +58,32 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-center">{row.original.title}</DialogTitle>
-          <DialogDescription className="grid gap-y-3 pb-3">
-            <EditorInput column_id="title" display_name="Title" novel={row.original} setNovel={setNovel} />
-            <div className="grid grid-cols-3 gap-x-4 gap-y-3">
+          <DialogTitle>{row.original.title}</DialogTitle>
+          <DialogDescription>
+            <div className="grid grid-cols-3 gap-x-4 gap-y-3 pt-3">
+              <div className="col-span-3">
+                <EditorInput column_id="title" display_name="Title" novel={row.original} setNovel={setNovel}/>
+              </div>
               <EditorInput column_id="country" display_name="Country" novel={row.original} setNovel={setNovel} />
               <RatingEditorInput column_id="rating" display_name="Rating" novel={row.original} setNovel={setNovel} />
               <EditorInput column_id="chapter" display_name="Chapter" novel={row.original} setNovel={setNovel} />
               <DropdownCell column_id="status" display_name="Status" novel={row.original} cell_values={Status} />
               <div className="col-span-2 flex flex-col space-y-1">
                 <div className="text-md">{"Date Modified"}</div>
-                <div className="flex flex-row justify-center h-10 rounded-md border border-input bg-background px-3 space-x-2 text-sm ring-offset-background">
-                  <div className="flex items-center">{date.toDateString()}</div>
-                  <div className="flex items-center">{date.toLocaleTimeString()}</div>
-                </div>
+                <BorderedCell>
+                  <div className="flex flex-row space-x-1">
+                    <div className="flex items-center">{date.toDateString()}</div>
+                    <div className="flex items-center">{date.toLocaleTimeString()}</div>
+                  </div>
+                </BorderedCell>
+              </div>
+              <div className="col-span-3">
+                <EditorInput column_id="notes" display_name="Notes" novel={row.original} setNovel={setNovel} />
+              </div>
+              <div className="col-span-3">
+                <EditorInput column_id="tags" display_name="Tags" novel={row.original} setNovel={setNovel} />
               </div>
             </div>
-            <EditorInput column_id="notes" display_name="Notes" novel={row.original} setNovel={setNovel} />
-            <EditorInput column_id="tags" display_name="Tags" novel={row.original} setNovel={setNovel} />
           </DialogDescription>
           <Button onClick={() => update_novel(novel)}>Save</Button>
           <DeleteRowButton row={row} table={table} />
@@ -103,7 +111,7 @@ function EditorInput({ column_id, display_name, novel, setNovel, ...props } : Ed
   // only allow editing for admins
   let content;
   if (session?.user?.role !== 'admin') {
-    content = <div className='max-h-10 max-w-44 overflow-auto text-nowrap scrollbar-thin'>{value}</div>;
+    content = <BorderedCell>{value}</BorderedCell>
   } else {
     content = 
       <Input
@@ -151,7 +159,7 @@ function DropdownCell({ column_id, display_name, novel, cell_values}: DropdownCe
   // only allow editing for admins
   let content;
   if (session?.user?.role !== 'admin') {
-    content = <PublicCell value={value.toString()} />
+    content = <BorderedCell>{value}</BorderedCell>
   } else{
     content = 
       <div className="flex flex-row justify-center h-10 rounded-md border border-input bg-background px-3 space-x-2 text-sm ring-offset-background">
@@ -174,20 +182,23 @@ function DropdownCell({ column_id, display_name, novel, cell_values}: DropdownCe
   }
 
   return (
-    <div className="space-y-1">
+    <div className="col-span-1 space-y-1">
       <div>{display_name}</div>
       {content}
     </div>
   )
 }
 
-interface PublicCellProps {
-    value: string
+interface BorderedCellProps {
+  children?: React.ReactNode;
 }
 
-// cell that is not editable
-function PublicCell( {value}: PublicCellProps) {
-    return <div className='max-h-10 max-w-44 overflow-auto text-nowrap scrollbar-thin'>{value}</div>
+export function BorderedCell({ children }: BorderedCellProps) {
+  return (
+    <div className="flex items-center w-full h-10 overflow-x-auto text-wrap rounded-md border border-input bg-background px-3 text-sm ring-offset-background">
+      {children}
+    </div>
+  )
 }
 
 async function update_row(novel: NovelEntry, row_idx: number, table: Table<NovelEntry>): Promise<string | null> {
