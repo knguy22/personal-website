@@ -68,15 +68,15 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
           <EditorInput column_id="country" display_name="Country" novel={row.original} setNovel={setNovel} />
           <RatingEditorInput column_id="rating" display_name="Rating" novel={row.original} setNovel={setNovel} />
           <EditorInput column_id="chapter" display_name="Chapter" novel={row.original} setNovel={setNovel} />
-          <DropdownCell column_id="status" display_name="Status" novel={row.original} cell_values={Status} />
+          <DropdownInput column_id="status" display_name="Status" novel={row.original} cell_values={Status} />
           <div className="col-span-2 flex flex-col space-y-1">
             <div className="text-md">{"Date Modified"}</div>
-            <BorderedCell>
+            <Bordered>
               <div className="flex flex-row space-x-1">
                 <div className="flex items-center">{date.toDateString()}</div>
                 <div className="flex items-center">{date.toLocaleTimeString()}</div>
               </div>
-            </BorderedCell>
+            </Bordered>
           </div>
           <div className="col-span-3">
             <EditorInput column_id="notes" display_name="Notes" novel={row.original} setNovel={setNovel} />
@@ -113,7 +113,7 @@ function EditorInput({ column_id, display_name, novel, setNovel, ...props } : Ed
   // only allow editing for admins
   let content;
   if (session?.user?.role !== 'admin') {
-    content = <BorderedCell>{value}</BorderedCell>
+    content = <Bordered>{value}</Bordered>
   } else {
     content = 
       <Input
@@ -147,55 +147,53 @@ function RatingEditorInput(props: EditorInputProps) {
   )
 }
 
-interface DropdownCellProps {
+interface DropdownInputProps {
   column_id: keyof NovelEntry
   display_name: string
   novel: NovelEntry
   cell_values: { [key: string]: string };
 }
 
-function DropdownCell({ column_id, display_name, novel, cell_values}: DropdownCellProps) {
+function DropdownInput({ column_id, display_name, novel, cell_values}: DropdownInputProps) {
   const [value, setValue] = useState(novel[column_id]);
   const {data: session} = useSession();
 
   // only allow editing for admins
   let content;
   if (session?.user?.role !== 'admin') {
-    content = <BorderedCell>{value}</BorderedCell>
+    content = value;
   } else{
     content = 
-      <div className="flex flex-row justify-center h-10 rounded-md border border-input bg-background px-3 space-x-2 text-sm ring-offset-background">
-        <DropdownMenu>
-          <DropdownMenuTrigger className="w-full text-left">{value.toString()}</DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuSeparator />
-            {
-              Object.keys(cell_values).map((key) => {
-                return (
-                  <DropdownMenuItem key={key} onClick={() => setValue(cell_values[key])}>
-                    {cell_values[key]}
-                  </DropdownMenuItem>
-                )
-              })
-            }
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger className="w-full text-left">{value.toString()}</DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuSeparator />
+          {
+            Object.keys(cell_values).map((key) => {
+              return (
+                <DropdownMenuItem key={key} onClick={() => setValue(cell_values[key])}>
+                  {cell_values[key]}
+                </DropdownMenuItem>
+              )
+            })
+          }
+        </DropdownMenuContent>
+      </DropdownMenu>
   }
 
   return (
     <div className="col-span-1 space-y-1">
       <div>{display_name}</div>
-      {content}
+      <Bordered>{content}</Bordered>
     </div>
   )
 }
 
-interface BorderedCellProps {
+interface BorderedProps {
   children?: React.ReactNode;
 }
 
-export function BorderedCell({ children }: BorderedCellProps) {
+export function Bordered({ children }: BorderedProps) {
   return (
     <div className="flex items-center w-full h-10 overflow-x-auto text-wrap rounded-md border border-input bg-background px-3 text-sm ring-offset-background">
       {children}
