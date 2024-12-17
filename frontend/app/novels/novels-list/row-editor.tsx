@@ -73,7 +73,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
           <EditorInput column_id="country" display_name="Country" novel={row.original} setNovel={setNovel} />
           <RatingEditorInput column_id="rating" display_name="Rating" novel={row.original} setNovel={setNovel} />
           <EditorInput column_id="chapter" display_name="Chapter" novel={row.original} setNovel={setNovel} />
-          <DropdownInput column_id="status" display_name="Status" novel={row.original} cell_values={Status} />
+          <DropdownInput column_id="status" display_name="Status" novel={row.original} setNovel={setNovel} cell_values={Status} />
           <div className="col-span-2 flex flex-col space-y-1">
             <div className="text-md">{"Date Modified"}</div>
             <Bordered>
@@ -156,12 +156,18 @@ interface DropdownInputProps {
   column_id: keyof NovelEntry
   display_name: string
   novel: NovelEntry
+  setNovel: (novel: NovelEntry) => void
   cell_values: { [key: string]: string };
 }
 
-function DropdownInput({ column_id, display_name, novel, cell_values}: DropdownInputProps) {
+function DropdownInput({ column_id, display_name, novel, setNovel, cell_values}: DropdownInputProps) {
   const [value, setValue] = useState(novel[column_id]);
   const {data: session} = useSession();
+
+  function update_value(value: string) {
+    setValue(value);
+    setNovel({...novel, [column_id]: value});
+  }
 
   // only allow editing for admins
   let content;
@@ -176,7 +182,7 @@ function DropdownInput({ column_id, display_name, novel, cell_values}: DropdownI
           {
             Object.keys(cell_values).map((key) => {
               return (
-                <DropdownMenuItem key={key} onClick={() => setValue(cell_values[key])}>
+                <DropdownMenuItem key={key} onClick={() => update_value(cell_values[key])}>
                   {cell_values[key]}
                 </DropdownMenuItem>
               )
