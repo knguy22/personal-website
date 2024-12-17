@@ -5,7 +5,7 @@ export const DateCell = ({ getValue } : CellContext<NovelEntry, string>) => {
   const date = new Date(getValue());
   
   return (
-    <div>
+    <div className="px-4">
       {date.toDateString()}
       <br />
       {date.toLocaleTimeString()}
