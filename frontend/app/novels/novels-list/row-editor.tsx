@@ -66,7 +66,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
           <DialogTitle className="text-center">{row.original.title}</DialogTitle>
           <DialogDescription/>
         </DialogHeader>
-        <div className="grid grid-cols-3 gap-x-4 gap-y-3 pt-2">
+        <div className="grid grid-cols-3 gap-x-4 gap-y-3">
           <div className="col-span-3">
             <EditorInput column_id="title" display_name="Title" novel={row.original} setNovel={setNovel}/>
           </div>
@@ -93,7 +93,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
         <div className="grid grid-cols-3 pt-5">
           <DeleteRowButton row={row} table={table} />
           <div></div>
-          <Button size="sm" onClick={() => update_novel(novel)}>Save</Button>
+          <Button size="sm" variant="secondary" onClick={() => update_novel(novel)}>Save</Button>
         </div>
       </DialogContent>
     </Dialog>
@@ -206,7 +206,7 @@ interface BorderedProps {
 
 export function Bordered({ children }: BorderedProps) {
   return (
-    <div className="flex items-center w-full h-10 overflow-x-auto text-wrap rounded-md border border-input bg-background px-3 text-sm ring-offset-background">
+    <div className="flex items-center w-full h-12 overflow-x-auto text-wrap rounded-md border border-input bg-background px-3 text-md ring-offset-background">
       {children}
     </div>
   )

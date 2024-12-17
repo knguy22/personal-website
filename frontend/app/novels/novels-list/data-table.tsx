@@ -126,7 +126,7 @@ function TableOptionsRow({ table, tableData, setTableData }: TableOptionsRowProp
   const {data: session} = useSession();
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between text-md">
       <FilterList table={table}/>
       <div className="hidden sm:flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-2 py-4">
         <DownloadJsonButton tableData={tableData}/>
