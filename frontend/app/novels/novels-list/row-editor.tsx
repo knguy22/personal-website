@@ -58,36 +58,38 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{row.original.title}</DialogTitle>
-          <DialogDescription>
-            <div className="grid grid-cols-3 gap-x-4 gap-y-3 pt-3">
-              <div className="col-span-3">
-                <EditorInput column_id="title" display_name="Title" novel={row.original} setNovel={setNovel}/>
-              </div>
-              <EditorInput column_id="country" display_name="Country" novel={row.original} setNovel={setNovel} />
-              <RatingEditorInput column_id="rating" display_name="Rating" novel={row.original} setNovel={setNovel} />
-              <EditorInput column_id="chapter" display_name="Chapter" novel={row.original} setNovel={setNovel} />
-              <DropdownCell column_id="status" display_name="Status" novel={row.original} cell_values={Status} />
-              <div className="col-span-2 flex flex-col space-y-1">
-                <div className="text-md">{"Date Modified"}</div>
-                <BorderedCell>
-                  <div className="flex flex-row space-x-1">
-                    <div className="flex items-center">{date.toDateString()}</div>
-                    <div className="flex items-center">{date.toLocaleTimeString()}</div>
-                  </div>
-                </BorderedCell>
-              </div>
-              <div className="col-span-3">
-                <EditorInput column_id="notes" display_name="Notes" novel={row.original} setNovel={setNovel} />
-              </div>
-              <div className="col-span-3">
-                <EditorInput column_id="tags" display_name="Tags" novel={row.original} setNovel={setNovel} />
-              </div>
-            </div>
-          </DialogDescription>
-          <Button onClick={() => update_novel(novel)}>Save</Button>
-          <DeleteRowButton row={row} table={table} />
+          <DialogTitle className="text-center">{row.original.title}</DialogTitle>
+          <DialogDescription/>
         </DialogHeader>
+        <div className="grid grid-cols-3 gap-x-4 gap-y-3 pt-2">
+          <div className="col-span-3">
+            <EditorInput column_id="title" display_name="Title" novel={row.original} setNovel={setNovel}/>
+          </div>
+          <EditorInput column_id="country" display_name="Country" novel={row.original} setNovel={setNovel} />
+          <RatingEditorInput column_id="rating" display_name="Rating" novel={row.original} setNovel={setNovel} />
+          <EditorInput column_id="chapter" display_name="Chapter" novel={row.original} setNovel={setNovel} />
+          <DropdownCell column_id="status" display_name="Status" novel={row.original} cell_values={Status} />
+          <div className="col-span-2 flex flex-col space-y-1">
+            <div className="text-md">{"Date Modified"}</div>
+            <BorderedCell>
+              <div className="flex flex-row space-x-1">
+                <div className="flex items-center">{date.toDateString()}</div>
+                <div className="flex items-center">{date.toLocaleTimeString()}</div>
+              </div>
+            </BorderedCell>
+          </div>
+          <div className="col-span-3">
+            <EditorInput column_id="notes" display_name="Notes" novel={row.original} setNovel={setNovel} />
+          </div>
+          <div className="col-span-3">
+            <EditorInput column_id="tags" display_name="Tags" novel={row.original} setNovel={setNovel} />
+          </div>
+        </div>
+        <div className="grid grid-cols-3 pt-5">
+          <DeleteRowButton row={row} table={table} />
+          <div></div>
+          <Button size="sm" onClick={() => update_novel(novel)}>Save</Button>
+        </div>
       </DialogContent>
     </Dialog>
   )
@@ -164,7 +166,7 @@ function DropdownCell({ column_id, display_name, novel, cell_values}: DropdownCe
     content = 
       <div className="flex flex-row justify-center h-10 rounded-md border border-input bg-background px-3 space-x-2 text-sm ring-offset-background">
         <DropdownMenu>
-          <DropdownMenuTrigger>{value.toString()}</DropdownMenuTrigger>
+          <DropdownMenuTrigger className="w-full text-left">{value.toString()}</DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuSeparator />
             {
