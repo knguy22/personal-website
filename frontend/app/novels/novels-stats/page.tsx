@@ -14,7 +14,6 @@ export default function Page() {
   useEffect(() => {
     const fetchStats = async () => {
       const res = await fetch_backend({path: "/api/novels_stats", method: "GET"});
-      console.log(res);
       if (!res.error) {
         setStats(res.data as Stats);
       }

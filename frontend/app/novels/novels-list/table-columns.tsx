@@ -2,14 +2,13 @@
 
 import { Column, ColumnDef, FilterFn } from "@tanstack/react-table"
 import { ArrowUpDown} from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { NovelEntry } from './novel-types';
-import { InputCell, RatingInputCell } from '@/app/novels/novels-list/input-cell';
-import { DateCell } from "./date-cell";
+import { ReadOnlyCell } from '@/app/novels/novels-list/read-only-cell';
 
-import { DropdownCell } from "./dropdown-cell";
-import { Status, str_to_status, status_to_str } from './novel-types'
-import { CellContext } from "@tanstack/react-table"
+import { DateCell } from "./date-cell";
+import { RowEditor } from "./row-editor";
 
 declare module '@tanstack/table-core' {
   interface TableMeta<TData> {
@@ -26,48 +25,53 @@ export const novel_columns: ColumnDef<NovelEntry, string>[] = [
     accessorKey: "country",
     header: ({ column }) => { return ColumnHeader({ title: "Country", column }) },
     filterFn: 'includesString',
-    cell: InputCell,
+    cell: ReadOnlyCell,
   },
   {
     accessorKey: "title",
     header: ({ column }) => { return ColumnHeader({ title: "Title", column }) },
     filterFn: 'includesString',
-    cell: InputCell,
+    cell: ReadOnlyCell,
   },
   {
     accessorKey: "chapter",
     header: ({ column }) => { return ColumnHeader({ title: "Chapter", column }) },
-    cell: InputCell,
+    cell: ReadOnlyCell,
   },
   {
     accessorKey: "rating",
     header: ({ column }) => { return ColumnHeader({ title: "Rating", column }) },
     filterFn: 'equalsString',
-    cell: RatingInputCell,
+    cell: ReadOnlyCell,
   },
   {
     accessorKey: "status",
     header: ({ column }) => { return ColumnHeader({ title: "Status", column }) },
     filterFn: 'includesString',
-    cell: StatusDropdownCell,
+    cell: ReadOnlyCell,
   },
   {
     accessorKey: "tags",
     header: ({ column }) => { return ColumnHeader({ title: "Tags", column }) },
     filterFn: 'filterTags',
-    cell: InputCell,
+    cell: ReadOnlyCell,
   },
   {
     accessorKey: "notes",
     header: ({ column }) => { return ColumnHeader({ title: "Notes", column }) },
     filterFn: 'includesString',
-    cell: InputCell,
+    cell: ReadOnlyCell,
   },
   {
     accessorKey: "date_modified",
     header: ({ column }) => { return ColumnHeader({ title: "Date Modified", column }) },
     cell: DateCell,
   },
+  {
+    accessorKey: "Edit Row",
+    header: () => { return <></> },
+    cell: RowEditor
+  }
 ];
 
 function ColumnHeader( { title, column }: { title: string, column: Column<NovelEntry, string> } ) {
@@ -79,19 +83,5 @@ function ColumnHeader( { title, column }: { title: string, column: Column<NovelE
       {title}
       <ArrowUpDown className="ml-1" />
     </Button>
-  )
-}
-
-function StatusDropdownCell<TData>({ getValue, row, column, table }: CellContext<TData, string>) {
-  return (
-    <DropdownCell
-      getValue={getValue}
-      row={row}
-      column={column}
-      table={table}
-      cell_values={Status}
-      value_to_str={status_to_str}
-      str_to_value={str_to_status}
-    />
   )
 }
