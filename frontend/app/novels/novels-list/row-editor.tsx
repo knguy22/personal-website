@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
 import { CellContext } from "@tanstack/react-table"
-import { Status, NovelEntry, NovelEntryApi, entry_to_api } from "./novel-types"
+import { Status, NovelEntry, NovelEntryApi, entry_to_api, novel_entries_equal } from "./novel-types"
 import { DeleteRowButton } from "./delete-row-button"
 import { fetch_backend } from "@/utils/fetch_backend"
 
@@ -37,6 +37,10 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
   const date = new Date(row.original.date_modified);
 
   async function update_novel(novel: NovelEntry) {
+    if (novel_entries_equal(novel, row.original)) {
+      return;
+    }
+
     // update locally
     for (const [key, value] of Object.entries(novel)) {
       if (key === "date_modified" || key === "id") {
