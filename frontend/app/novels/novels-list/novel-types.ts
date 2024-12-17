@@ -27,7 +27,19 @@ export type NovelEntry = {
   date_completed: string | null,
 }
 
-export const novel_col_names: (keyof NovelEntry)[] = ["id", "country", "title", "chapter", "rating", "status", "tags", "notes", "date_modified"];
+export const novel_col_names: (keyof NovelEntry)[] = [
+  "id",
+  "country",
+  "title",
+  "chapter",
+  "rating",
+  "status",
+  "tags",
+  "notes",
+  "date_modified",
+  "date_started",
+  "date_completed"
+];
 
 export const Status = {
   Reading: "Reading",
