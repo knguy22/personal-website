@@ -79,7 +79,6 @@ export function DataTable ({
       columnFilters,
       columnVisibility: {
         country: false,
-        status: false,
         tags: false,
         notes: false,
       }

@@ -33,6 +33,7 @@ import { fetch_backend } from "@/utils/fetch_backend"
 
 export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
   const [novel, setNovel] = useState<NovelEntry>(row.original)
+  const {data: session} = useSession();
   const date = new Date(row.original.date_modified);
 
   async function update_novel(novel: NovelEntry) {
@@ -54,7 +55,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
   return (
     <Dialog>
       <DialogTrigger className={cn(buttonVariants({ variant: "outline", size: "sm", className: "" }))}>
-        Open Row Editor
+        {session?.user?.role === "admin" ? "Open Row Editor" : "View Details"}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
