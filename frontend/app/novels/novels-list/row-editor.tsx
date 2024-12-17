@@ -35,7 +35,8 @@ import { fetch_backend } from "@/utils/fetch_backend"
 export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
   const [novel, setNovel] = useState<NovelEntry>(row.original)
   const {data: session} = useSession();
-  const date = new Date(row.original.date_modified);
+
+  const date_modified = new Date(row.original.date_modified);
 
   async function update_novel(novel: NovelEntry) {
     if (novel_entries_equal(novel, row.original)) {
@@ -64,23 +65,23 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
       </DialogTrigger>
       <DialogContent className="max-h-screen overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-center">{row.original.title}</DialogTitle>
+          <DialogTitle className="text-center">{novel.title}</DialogTitle>
           <DialogDescription/>
         </DialogHeader>
         <div className="p-1 grid grid-cols-3 gap-x-4 gap-y-3">
           <div className="col-span-3">
-            <EditorInput column_id="title" display_name="Title" novel={row.original} setNovel={setNovel}/>
+            <EditorInput column_id="title" display_name="Title" novel={novel} setNovel={setNovel}/>
           </div>
-          <EditorInput column_id="country" display_name="Country" novel={row.original} setNovel={setNovel} />
-          <RatingEditorInput column_id="rating" display_name="Rating" novel={row.original} setNovel={setNovel} />
-          <EditorInput column_id="chapter" display_name="Chapter" novel={row.original} setNovel={setNovel} />
-          <DropdownInput column_id="status" display_name="Status" novel={row.original} setNovel={setNovel} cell_values={Status} />
+          <EditorInput column_id="country" display_name="Country" novel={novel} setNovel={setNovel} />
+          <RatingEditorInput column_id="rating" display_name="Rating" novel={novel} setNovel={setNovel} />
+          <EditorInput column_id="chapter" display_name="Chapter" novel={novel} setNovel={setNovel} />
+          <DropdownInput column_id="status" display_name="Status" novel={novel} setNovel={setNovel} cell_values={Status} />
           <div className="col-span-2 flex flex-col space-y-1">
             <div className="text-md">{"Date Modified"}</div>
             <Bordered>
               <div className="flex flex-row space-x-1">
-                <div className="flex items-center">{date.toDateString()}</div>
-                <div className="flex items-center">{date.toLocaleTimeString()}</div>
+                <div className="flex items-center">{date_modified.toDateString()}</div>
+                <div className="flex items-center">{date_modified.toLocaleTimeString()}</div>
               </div>
             </Bordered>
           </div>
