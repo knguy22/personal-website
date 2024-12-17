@@ -44,13 +44,16 @@ export const DeleteRowButton = ({ row, table } : DeleteRowButtonProps) => {
         </VisuallyHidden.Root>
         {novel_to_component(row.original)}
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={() => delete_row({row, table})}
-            className='text-red-500 bg-secondary hover:bg-secondary/80'
-          >
-            Continue
-          </AlertDialogAction>
+          <div className="grid grid-cols-3">
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <div></div>
+            <AlertDialogAction
+              onClick={() => delete_row({row, table})}
+              className='text-red-500 bg-secondary hover:bg-secondary/80'
+            >
+              Continue
+            </AlertDialogAction>
+          </div>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
