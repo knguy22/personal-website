@@ -248,6 +248,7 @@ function DatePicker({column_id, display_name, novel, setNovel}: DatePickerProps)
       <Input
         type="date"
         readOnly={session?.user?.role !== 'admin'}
+        defaultValue={date ? date.toISOString().split('T')[0] : ""}
         value={date ? date.toISOString().split('T')[0] : ""}
         onChange={(e) => {
           if (!e.target.value) {
@@ -260,6 +261,7 @@ function DatePicker({column_id, display_name, novel, setNovel}: DatePickerProps)
           setDate(new_date);
           setNovel({...novel, [column_id]: new_date.toISOString()});
         }}
+        className="sm:w-4/5"
       />
     </div>
   )
