@@ -242,27 +242,34 @@ function DatePicker({column_id, display_name, novel, setNovel}: DatePickerProps)
   const [date, setDate] = useState<Date | null>(novel[column_id] ? new Date(novel[column_id] as string) : null);
   const {data: session} = useSession();
 
-  return (
-    <div className="col-span-3 flex flex-col space-y-1">
-      <div>{display_name}</div>
-      <Input
-        type="date"
-        readOnly={session?.user?.role !== 'admin'}
-        defaultValue=""
-        value={date ? date.toISOString().split('T')[0] : ""}
-        onChange={(e) => {
-          if (!e.target.value) {
-            setDate(null);
-            setNovel({...novel, [column_id]: null});
-            return;
-          }
+  function handleReset() {
+    setDate(null);
+    setNovel({...novel, [column_id]: null});
+  }
 
-          const new_date = new Date(e.target.value);
-          setDate(new_date);
-          setNovel({...novel, [column_id]: new_date.toISOString()});
-        }}
-        className="sm:w-4/5"
-      />
+  return (
+    <div className="col-span-4 flex flex-col">
+      <div>{display_name}</div>
+      <div className="flex flex-row justify-between pt-1 space-x-1">
+        <Input
+          type="date"
+          readOnly={session?.user?.role !== 'admin'}
+          value={date ? date.toISOString().split('T')[0] : ""}
+          onChange={(e) => {
+            if (!e.target.value) {
+              setDate(null);
+              setNovel({...novel, [column_id]: null});
+              return;
+            }
+
+            const new_date = new Date(e.target.value);
+            setDate(new_date);
+            setNovel({...novel, [column_id]: new_date.toISOString()});
+          }}
+          className="w-4/5"
+        />
+        <Button onClick={handleReset} variant="secondary">Reset</Button>
+      </div>
     </div>
   )
 }
