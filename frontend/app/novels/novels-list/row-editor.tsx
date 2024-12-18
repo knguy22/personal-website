@@ -67,7 +67,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
           <DialogTitle className="text-center">{row.original.title}</DialogTitle>
           <DialogDescription/>
         </DialogHeader>
-        <div className="grid grid-cols-3 gap-x-4 gap-y-3 max-h-screen overflow-y-auto">
+        <div className="p-1 grid grid-cols-3 gap-x-4 gap-y-3 max-h-screen overflow-y-auto">
           <div className="col-span-3">
             <EditorInput column_id="title" display_name="Title" novel={row.original} setNovel={setNovel}/>
           </div>
