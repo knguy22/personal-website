@@ -248,7 +248,7 @@ function DatePicker({column_id, display_name, novel, setNovel}: DatePickerProps)
       <Input
         type="date"
         readOnly={session?.user?.role !== 'admin'}
-        defaultValue={date ? date.toISOString().split('T')[0] : ""}
+        defaultValue=""
         value={date ? date.toISOString().split('T')[0] : ""}
         onChange={(e) => {
           if (!e.target.value) {
