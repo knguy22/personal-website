@@ -121,7 +121,7 @@ function EditorInput({ column_id, display_name, novel, setNovel, ...props } : Ed
   if (session?.user?.role !== 'admin') {
     content = <Bordered>{value}</Bordered>
   } else {
-    content = 
+    content =
       <Input
         value={value}
         onChange={e => setValue(e.target.value)}
@@ -175,7 +175,7 @@ function DropdownInput({ column_id, display_name, novel, setNovel, cell_values}:
   if (session?.user?.role !== 'admin') {
     content = value;
   } else{
-    content = 
+    content =
       <DropdownMenu>
         <DropdownMenuTrigger className="w-full text-left">{value.toString()}</DropdownMenuTrigger>
         <DropdownMenuContent>
@@ -221,7 +221,7 @@ function LargeEditorInputProps({ column_id, display_name, novel, setNovel, ...pr
   if (session?.user?.role !== 'admin') {
     content = <Bordered>{value}</Bordered>
   } else {
-    content = 
+    content =
       <Textarea
         value={value}
         onChange={e => setValue(e.target.value)}
