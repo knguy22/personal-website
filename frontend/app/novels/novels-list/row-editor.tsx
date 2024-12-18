@@ -24,7 +24,6 @@ import { Table } from "@tanstack/react-table"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button, buttonVariants } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
 import { cn } from "@/lib/utils"
 
 import { CellContext } from "@tanstack/react-table"
@@ -86,6 +85,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
             </Bordered>
           </div>
           <DatePicker column_id="date_started" display_name="Date Started" novel={novel} setNovel={setNovel} />
+          <DatePicker column_id="date_completed" display_name="Date Completed" novel={novel} setNovel={setNovel} />
           <div className="col-span-3">
             <LargeEditorInputProps column_id="notes" display_name="Notes" novel={row.original} setNovel={setNovel} />
           </div>
@@ -175,7 +175,7 @@ function DropdownInput({ column_id, display_name, novel, setNovel, cell_values}:
   } else{
     content =
       <DropdownMenu>
-        <DropdownMenuTrigger className="w-full text-left">{value.toString()}</DropdownMenuTrigger>
+        <DropdownMenuTrigger className="w-full text-left">{value ? value.toString() : ""}</DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuSeparator />
           {
@@ -238,20 +238,29 @@ interface DatePickerProps {
 }
 
 function DatePicker({column_id, display_name, novel, setNovel}: DatePickerProps) {
-  const [date, setDate] = useState<Date | undefined>(new Date(novel[column_id] as string));
-
-  const content = (
-    <Calendar
-      mode="single"
-      selected={date}
-      onSelect={setDate}
-    />
-  )
+  const [date, setDate] = useState<Date | null>(novel[column_id] ? new Date(novel[column_id] as string) : null);
+  const {data: session} = useSession();
 
   return (
-    <div className="col-span-1 space-y-1">
+    <div className="flex flex-col space-y-1">
       <div>{display_name}</div>
-      {content}
+      <Input
+        type="date"
+        readOnly={session?.user?.role !== 'admin'}
+        value={date ? date.toISOString().split('T')[0] : ""}
+        onChange={(e) => {
+          if (!e.target.value) {
+            setDate(null);
+            setNovel({...novel, [column_id]: null});
+            return;
+          }
+
+          const new_date = new Date(e.target.value);
+          setDate(new_date);
+          setNovel({...novel, [column_id]: new_date.toISOString()});
+        }}
+        className="text-sm"
+      />
     </div>
   )
 }
