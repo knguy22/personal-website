@@ -12,7 +12,7 @@ import { RowEditor } from "./row-editor";
 
 declare module '@tanstack/table-core' {
   interface TableMeta<TData> {
-    updateCell: (rowIndex: number, columnId: string, value: string) => void
+    updateCell: (rowIndex: number, columnId: keyof TData, value: TData[keyof TData]) => void
     updateTableData: (data: TData[]) => void
   }
   interface FilterFns {

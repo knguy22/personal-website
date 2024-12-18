@@ -78,6 +78,8 @@ pub async fn update_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry
             active_model.tags = Set(serde_json::to_value(row.tags.clone()).unwrap());
             active_model.notes = Set(Some(row.notes.clone()));
             active_model.date_modified = Set(Local::now().naive_utc());
+            active_model.date_started = Set(row.date_started.map(|date| date.naive_utc()));
+            active_model.date_completed = Set(row.date_completed.map(|date| date.naive_utc()));
 
             // update the results
             updated_novels.push(model_to_novel_entry(active_model.clone().try_into_model()?));
@@ -145,6 +147,8 @@ pub async fn create_empty_row(db: &DatabaseConnection) -> Result<NovelEntry, Box
         tags: Vec::new(),
         notes: String::new(),
         date_modified: Local::now().to_utc(),
+        date_started: None,
+        date_completed: None,
     };
     let model = novel_entry_to_active_model(&novel);
     let _ = model.insert(db).await?;

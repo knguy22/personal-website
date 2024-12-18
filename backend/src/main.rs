@@ -78,7 +78,7 @@ async fn update_novels_handler(state: State<AppState>, Json(rows): Json<Vec<nove
     println!("Updating novels {}", rows.len());
     let res = db::update_novel_entries(&state.conn, &rows).await;
     match res {
-        Ok(novels) => Ok((StatusCode::CREATED, Json(novels))),
+        Ok(novels) => Ok((StatusCode::OK, Json(novels))),
         Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))),
     }
 }

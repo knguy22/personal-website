@@ -1,4 +1,4 @@
-use crate::novel_entry::{Status, NovelEntry, NovelTagsRecordParsed};
+use crate::novel_entry::{NovelEntry, NovelTagsRecordParsed};
 use crate::db;
 
 use std::error::Error;
@@ -6,7 +6,6 @@ use std::path::PathBuf;
 
 use clap::Parser;
 use csv;
-use chrono::Local;
 use sea_orm::DatabaseConnection;
 
 #[derive(Parser)]
@@ -36,79 +35,12 @@ pub async fn run_cli(conn: &DatabaseConnection) -> Result<(), Box<dyn Error>> {
         db::drop_all_novels(conn).await?;
     }
 
-    if cli.insert_novels_csv.is_some() {
-        let start_id = db::get_next_id(conn).await?;
-        let rows = read_orig_csv(start_id,&cli.insert_novels_csv.unwrap().to_str().unwrap().to_string()).await?;
-        let _ = db::insert_novel_entries(conn, &rows).await?;
-    }
-
-    if cli.update_novels_csv.is_some() {
-        let rows = read_orig_csv(0, &cli.update_novels_csv.unwrap().to_str().unwrap().to_string()).await?;
-        let _ = db::update_novel_entries(conn, &rows).await?;
-    }
-
     if cli.import_novel_tags_csv.is_some() {
         let rows = read_novel_tags_csv(&cli.import_novel_tags_csv.unwrap().to_str().unwrap().to_string()).await?;
         let _ = db::update_novel_tags(conn, &rows).await?;
     }
 
     Ok(())
-}
-
-/*
-This functionality was used when I was porting my google sheets of webnovels to my website for the first time.
-This will likely not be ever used again in the future.
-*/
-
-#[derive(Debug, serde::Deserialize, Eq, PartialEq)]
-struct OrigCsvRecord {
-    country: Option<String>,
-    title: Option<String>,
-    chapter: Option<String>,
-    rating: Option<u32>,
-    status: Option<String>,
-    tags: Option<String>,
-    notes: Option<String>,
-}
-
-async fn read_orig_csv(mut start_id: i32, csv_file: &String) -> Result<Vec<NovelEntry>, Box<dyn Error>> {
-    let mut rdr = csv::Reader::from_path(csv_file).unwrap();
-    let mut data = Vec::new();
-
-    let headers = rdr.headers()?;
-    println!("Headers read: {:?}", headers);
-
-    for res in rdr.deserialize() {
-        let t: OrigCsvRecord;
-        match res {
-            Ok(r) => t = r,
-            Err(err) => {
-                println!("{}", err);
-                continue
-            },
-        }
-        
-        let record = NovelEntry{
-            id: start_id,
-            country: t.country.unwrap_or_default(),
-            title: t.title.unwrap_or_default(),
-            chapter: t.chapter.unwrap_or_default(),
-            rating: t.rating.unwrap_or_default(),
-            status: Status::new(&t.status.unwrap_or_default()),
-            tags: NovelEntry::parse_tags(&t.tags.unwrap_or_default()),
-            notes: t.notes.unwrap_or_default(),
-            date_modified: Local::now().to_utc(),
-        };
-
-        if !record.is_empty() {
-            data.push(record);
-        }
-
-        start_id += 1;
-    }
-
-    println!("Entries read: {}", data.len());
-    Ok(data)
 }
 
 /*

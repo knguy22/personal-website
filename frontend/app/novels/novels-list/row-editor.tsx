@@ -28,14 +28,15 @@ import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
 import { CellContext } from "@tanstack/react-table"
-import { Status, NovelEntry, NovelEntryApi, entry_to_api, novel_entries_equal } from "./novel-types"
+import { Status, NovelEntry, NovelEntryApi, entry_to_api, novel_entries_equal, novel_col_names } from "./novel-types"
 import { DeleteRowButton } from "./delete-row-button"
 import { fetch_backend } from "@/utils/fetch_backend"
 
 export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
   const [novel, setNovel] = useState<NovelEntry>(row.original)
   const {data: session} = useSession();
-  const date = new Date(row.original.date_modified);
+
+  const date_modified = new Date(row.original.date_modified);
 
   async function update_novel(novel: NovelEntry) {
     if (novel_entries_equal(novel, row.original)) {
@@ -43,11 +44,11 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
     }
 
     // update locally
-    for (const [key, value] of Object.entries(novel)) {
+    for (const key of novel_col_names) {
       if (key === "date_modified" || key === "id") {
         continue;
       }
-      table.options.meta?.updateCell(row.index, key, value.toString());
+      table.options.meta?.updateCell(row.index, key, novel[key]);
     }
 
     // update backend
@@ -64,26 +65,28 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
       </DialogTrigger>
       <DialogContent className="max-h-screen overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-center">{row.original.title}</DialogTitle>
+          <DialogTitle className="text-center">{novel.title}</DialogTitle>
           <DialogDescription/>
         </DialogHeader>
         <div className="p-1 grid grid-cols-3 gap-x-4 gap-y-3">
           <div className="col-span-3">
-            <EditorInput column_id="title" display_name="Title" novel={row.original} setNovel={setNovel}/>
+            <EditorInput column_id="title" display_name="Title" novel={novel} setNovel={setNovel}/>
           </div>
-          <EditorInput column_id="country" display_name="Country" novel={row.original} setNovel={setNovel} />
-          <RatingEditorInput column_id="rating" display_name="Rating" novel={row.original} setNovel={setNovel} />
-          <EditorInput column_id="chapter" display_name="Chapter" novel={row.original} setNovel={setNovel} />
-          <DropdownInput column_id="status" display_name="Status" novel={row.original} setNovel={setNovel} cell_values={Status} />
+          <EditorInput column_id="country" display_name="Country" novel={novel} setNovel={setNovel} />
+          <RatingEditorInput column_id="rating" display_name="Rating" novel={novel} setNovel={setNovel} />
+          <EditorInput column_id="chapter" display_name="Chapter" novel={novel} setNovel={setNovel} />
+          <DropdownInput column_id="status" display_name="Status" novel={novel} setNovel={setNovel} cell_values={Status} />
           <div className="col-span-2 flex flex-col space-y-1">
             <div className="text-md">{"Date Modified"}</div>
             <Bordered>
               <div className="flex flex-row space-x-1">
-                <div className="flex items-center">{date.toDateString()}</div>
-                <div className="flex items-center">{date.toLocaleTimeString()}</div>
+                <div className="flex items-center">{date_modified.toDateString()}</div>
+                <div className="flex items-center">{date_modified.toLocaleTimeString()}</div>
               </div>
             </Bordered>
           </div>
+          <DatePicker column_id="date_started" display_name="Date Started" novel={novel} setNovel={setNovel} />
+          <DatePicker column_id="date_completed" display_name="Date Completed" novel={novel} setNovel={setNovel} />
           <div className="col-span-3">
             <LargeEditorInputProps column_id="notes" display_name="Notes" novel={row.original} setNovel={setNovel} />
           </div>
@@ -120,7 +123,7 @@ function EditorInput({ column_id, display_name, novel, setNovel, ...props } : Ed
     <div className="flex flex-col space-y-1">
       <div className="text-md">{display_name}</div>
       <Input
-        value={value}
+        value={value ? value : ""}
         readOnly={session?.user?.role !== 'admin'}
         onChange={e => setValue(e.target.value)}
         onBlur={onBlur}
@@ -157,6 +160,10 @@ function DropdownInput({ column_id, display_name, novel, setNovel, cell_values}:
   const [value, setValue] = useState(novel[column_id]);
   const {data: session} = useSession();
 
+  if (value === null) {
+    return null;
+  }
+
   function update_value(value: string) {
     setValue(value);
     setNovel({...novel, [column_id]: value});
@@ -169,7 +176,7 @@ function DropdownInput({ column_id, display_name, novel, setNovel, cell_values}:
   } else{
     content =
       <DropdownMenu>
-        <DropdownMenuTrigger className="w-full text-left">{value.toString()}</DropdownMenuTrigger>
+        <DropdownMenuTrigger className="w-full text-left">{value ? value.toString() : ""}</DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuSeparator />
           {
@@ -212,13 +219,48 @@ function LargeEditorInputProps({ column_id, display_name, novel, setNovel, ...pr
     <div className="flex flex-col space-y-1">
       <div className="text-md">{display_name}</div>
       <Textarea
-        value={value}
+        value={value ? value : ""}
         readOnly={session?.user?.role !== 'admin'}
         onChange={e => setValue(e.target.value)}
         onBlur={onBlur}
         rows={4}
         className='w-full'
         {...props}
+      />
+    </div>
+  )
+}
+
+interface DatePickerProps {
+  column_id: keyof NovelEntry
+  display_name: string
+  novel: NovelEntry
+  setNovel: (novel: NovelEntry) => void
+}
+
+function DatePicker({column_id, display_name, novel, setNovel}: DatePickerProps) {
+  const [date, setDate] = useState<Date | null>(novel[column_id] ? new Date(novel[column_id] as string) : null);
+  const {data: session} = useSession();
+
+  return (
+    <div className="flex flex-col space-y-1">
+      <div>{display_name}</div>
+      <Input
+        type="date"
+        readOnly={session?.user?.role !== 'admin'}
+        value={date ? date.toISOString().split('T')[0] : ""}
+        onChange={(e) => {
+          if (!e.target.value) {
+            setDate(null);
+            setNovel({...novel, [column_id]: null});
+            return;
+          }
+
+          const new_date = new Date(e.target.value);
+          setDate(new_date);
+          setNovel({...novel, [column_id]: new_date.toISOString()});
+        }}
+        className="text-sm"
       />
     </div>
   )
