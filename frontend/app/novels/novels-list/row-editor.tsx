@@ -23,9 +23,9 @@ import {
 import { Table } from "@tanstack/react-table"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import { cn } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/button"
 
 import { CellContext } from "@tanstack/react-table"
 import { Status, NovelEntry, NovelEntryApi, entry_to_api, novel_entries_equal, novel_col_names } from "./novel-types"
@@ -85,6 +85,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
               </div>
             </Bordered>
           </div>
+          <DatePicker column_id="date_started" display_name="Date Started" novel={novel} setNovel={setNovel} />
           <div className="col-span-3">
             <LargeEditorInputProps column_id="notes" display_name="Notes" novel={row.original} setNovel={setNovel} />
           </div>
@@ -225,6 +226,32 @@ function LargeEditorInputProps({ column_id, display_name, novel, setNovel, ...pr
         className='w-full'
         {...props}
       />
+    </div>
+  )
+}
+
+interface DatePickerProps {
+  column_id: keyof NovelEntry
+  display_name: string
+  novel: NovelEntry
+  setNovel: (novel: NovelEntry) => void
+}
+
+function DatePicker({column_id, display_name, novel, setNovel}: DatePickerProps) {
+  const [date, setDate] = useState<Date | undefined>(new Date(novel[column_id] as string));
+
+  const content = (
+    <Calendar
+      mode="single"
+      selected={date}
+      onSelect={setDate}
+    />
+  )
+
+  return (
+    <div className="col-span-1 space-y-1">
+      <div>{display_name}</div>
+      {content}
     </div>
   )
 }
