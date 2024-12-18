@@ -68,15 +68,15 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
           <DialogTitle className="text-center">{novel.title}</DialogTitle>
           <DialogDescription/>
         </DialogHeader>
-        <div className="p-1 grid grid-cols-3 gap-x-4 gap-y-3">
-          <div className="col-span-3">
+        <div className="p-1 grid grid-cols-6 gap-x-4 gap-y-3">
+          <div className="col-span-6">
             <EditorInput column_id="title" display_name="Title" novel={novel} setNovel={setNovel}/>
           </div>
           <EditorInput column_id="country" display_name="Country" novel={novel} setNovel={setNovel} />
           <RatingEditorInput column_id="rating" display_name="Rating" novel={novel} setNovel={setNovel} />
           <EditorInput column_id="chapter" display_name="Chapter" novel={novel} setNovel={setNovel} />
           <DropdownInput column_id="status" display_name="Status" novel={novel} setNovel={setNovel} cell_values={Status} />
-          <div className="col-span-2 flex flex-col space-y-1">
+          <div className="col-span-4 flex flex-col space-y-1">
             <div className="text-md">{"Date Modified"}</div>
             <Bordered>
               <div className="flex flex-row space-x-1">
@@ -87,10 +87,10 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
           </div>
           <DatePicker column_id="date_started" display_name="Date Started" novel={novel} setNovel={setNovel} />
           <DatePicker column_id="date_completed" display_name="Date Completed" novel={novel} setNovel={setNovel} />
-          <div className="col-span-3">
+          <div className="col-span-6">
             <LargeEditorInputProps column_id="notes" display_name="Notes" novel={row.original} setNovel={setNovel} />
           </div>
-          <div className="col-span-3">
+          <div className="col-span-6">
             <LargeEditorInputProps column_id="tags" display_name="Tags" novel={row.original} setNovel={setNovel} />
           </div>
         </div>
@@ -120,7 +120,7 @@ function EditorInput({ column_id, display_name, novel, setNovel, ...props } : Ed
   }
 
   return (
-    <div className="flex flex-col space-y-1">
+    <div className="col-span-2 flex flex-col space-y-1">
       <div className="text-md">{display_name}</div>
       <Input
         value={value ? value : ""}
@@ -193,7 +193,7 @@ function DropdownInput({ column_id, display_name, novel, setNovel, cell_values}:
   }
 
   return (
-    <div className="col-span-1 space-y-1">
+    <div className="col-span-2 space-y-1">
       <div>{display_name}</div>
       <Bordered>{content}</Bordered>
     </div>
@@ -243,7 +243,7 @@ function DatePicker({column_id, display_name, novel, setNovel}: DatePickerProps)
   const {data: session} = useSession();
 
   return (
-    <div className="flex flex-col space-y-1">
+    <div className="col-span-3 sm:col-span-1 flex flex-col space-y-1">
       <div>{display_name}</div>
       <Input
         type="date"
@@ -260,7 +260,6 @@ function DatePicker({column_id, display_name, novel, setNovel}: DatePickerProps)
           setDate(new_date);
           setNovel({...novel, [column_id]: new_date.toISOString()});
         }}
-        className="text-sm"
       />
     </div>
   )
