@@ -23,8 +23,9 @@ import {
 import { Table } from "@tanstack/react-table"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { buttonVariants } from "@/components/ui/button"
 
 import { CellContext } from "@tanstack/react-table"
 import { Status, NovelEntry, NovelEntryApi, entry_to_api, novel_entries_equal, novel_col_names } from "./novel-types"
