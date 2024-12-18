@@ -116,25 +116,17 @@ function EditorInput({ column_id, display_name, novel, setNovel, ...props } : Ed
     setNovel({...novel, [column_id]: value});
   }
 
-  // only allow editing for admins
-  let content;
-  if (session?.user?.role !== 'admin') {
-    content = <Bordered>{value}</Bordered>
-  } else {
-    content =
+  return (
+    <div className="flex flex-col space-y-1">
+      <div className="text-md">{display_name}</div>
       <Input
         value={value}
+        readOnly={session?.user?.role !== 'admin'}
         onChange={e => setValue(e.target.value)}
         onBlur={onBlur}
         className='w-full'
         {...props}
       />
-  }
-
-  return (
-    <div className="flex flex-col space-y-1">
-      <div className="text-md">{display_name}</div>
-      {content}
     </div>
   )
 }
@@ -216,30 +208,21 @@ function LargeEditorInputProps({ column_id, display_name, novel, setNovel, ...pr
     setNovel({...novel, [column_id]: value});
   }
 
-  // only allow editing for admins
-  let content;
-  if (session?.user?.role !== 'admin') {
-    content = <Bordered>{value}</Bordered>
-  } else {
-    content =
+  return (
+    <div className="flex flex-col space-y-1">
+      <div className="text-md">{display_name}</div>
       <Textarea
         value={value}
+        readOnly={session?.user?.role !== 'admin'}
         onChange={e => setValue(e.target.value)}
         onBlur={onBlur}
         rows={4}
         className='w-full'
         {...props}
       />
-  }
-
-  return (
-    <div className="flex flex-col space-y-1">
-      <div className="text-md">{display_name}</div>
-      {content}
     </div>
   )
 }
-
 
 interface BorderedProps {
   children?: React.ReactNode;
