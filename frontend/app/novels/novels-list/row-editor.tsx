@@ -87,12 +87,8 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
           </div>
           <DatePicker column_id="date_started" display_name="Date Started" novel={novel} setNovel={setNovel} />
           <DatePicker column_id="date_completed" display_name="Date Completed" novel={novel} setNovel={setNovel} />
-          <div className="col-span-6">
-            <LargeEditorInputProps column_id="notes" display_name="Notes" novel={row.original} setNovel={setNovel} />
-          </div>
-          <div className="col-span-6">
-            <LargeEditorInputProps column_id="tags" display_name="Tags" novel={row.original} setNovel={setNovel} />
-          </div>
+          <LargeEditorInputProps column_id="notes" display_name="Notes" novel={row.original} setNovel={setNovel} />
+          <LargeEditorInputProps column_id="tags" display_name="Tags" novel={row.original} setNovel={setNovel} />
         </div>
         <div className="grid grid-cols-3 pt-5">
           <DeleteRowButton row={row} table={table} />
@@ -216,7 +212,7 @@ function LargeEditorInputProps({ column_id, display_name, novel, setNovel, ...pr
   }
 
   return (
-    <div className="flex flex-col space-y-1">
+    <div className="col-span-6 flex flex-col space-y-1">
       <div className="text-md">{display_name}</div>
       <Textarea
         value={value ? value : ""}
@@ -243,7 +239,7 @@ function DatePicker({column_id, display_name, novel, setNovel}: DatePickerProps)
   const {data: session} = useSession();
 
   return (
-    <div className="col-span-3 sm:col-span-1 flex flex-col space-y-1">
+    <div className="col-span-3 flex flex-col space-y-1">
       <div>{display_name}</div>
       <Input
         type="date"
