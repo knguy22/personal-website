@@ -35,7 +35,6 @@ import { fetch_backend } from "@/utils/fetch_backend"
 export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
   const [novel, setNovel] = useState<NovelEntry>(row.original)
   const {data: session} = useSession();
-
   const date_modified = new Date(row.original.date_modified);
 
   async function update_novel(novel: NovelEntry) {
@@ -57,6 +56,15 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
       table.options.meta?.updateCell(row.index, 'date_modified', new_date);
     }
   }
+
+  const dialog_buttons = session?.user?.role === "admin" ?
+    <div className="grid grid-cols-3 pt-5">
+      <DeleteRowButton row={row} table={table} />
+      <div></div>
+      <Button size="sm" variant="secondary" onClick={() => update_novel(novel)}>Save</Button>
+    </div> :
+    null
+  ;
 
   return (
     <Dialog>
@@ -90,11 +98,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
           <LargeEditorInputProps column_id="notes" display_name="Notes" novel={row.original} setNovel={setNovel} />
           <LargeEditorInputProps column_id="tags" display_name="Tags" novel={row.original} setNovel={setNovel} />
         </div>
-        <div className="grid grid-cols-3 pt-5">
-          <DeleteRowButton row={row} table={table} />
-          <div></div>
-          <Button size="sm" variant="secondary" onClick={() => update_novel(novel)}>Save</Button>
-        </div>
+      {dialog_buttons}
       </DialogContent>
     </Dialog>
   )
