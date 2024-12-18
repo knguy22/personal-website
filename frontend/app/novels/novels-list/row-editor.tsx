@@ -22,6 +22,7 @@ import {
 
 import { Table } from "@tanstack/react-table"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
@@ -61,12 +62,12 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
       <DialogTrigger className={cn(buttonVariants({ variant: "outline", size: "sm", className: "" }))}>
         {session?.user?.role === "admin" ? "Open Row Editor" : "View Details"}
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-screen overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-center">{row.original.title}</DialogTitle>
           <DialogDescription/>
         </DialogHeader>
-        <div className="grid grid-cols-3 gap-x-4 gap-y-3">
+        <div className="p-1 grid grid-cols-3 gap-x-4 gap-y-3">
           <div className="col-span-3">
             <EditorInput column_id="title" display_name="Title" novel={row.original} setNovel={setNovel}/>
           </div>
@@ -84,10 +85,10 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
             </Bordered>
           </div>
           <div className="col-span-3">
-            <EditorInput column_id="notes" display_name="Notes" novel={row.original} setNovel={setNovel} />
+            <LargeEditorInputProps column_id="notes" display_name="Notes" novel={row.original} setNovel={setNovel} />
           </div>
           <div className="col-span-3">
-            <EditorInput column_id="tags" display_name="Tags" novel={row.original} setNovel={setNovel} />
+            <LargeEditorInputProps column_id="tags" display_name="Tags" novel={row.original} setNovel={setNovel} />
           </div>
         </div>
         <div className="grid grid-cols-3 pt-5">
@@ -115,25 +116,17 @@ function EditorInput({ column_id, display_name, novel, setNovel, ...props } : Ed
     setNovel({...novel, [column_id]: value});
   }
 
-  // only allow editing for admins
-  let content;
-  if (session?.user?.role !== 'admin') {
-    content = <Bordered>{value}</Bordered>
-  } else {
-    content = 
+  return (
+    <div className="flex flex-col space-y-1">
+      <div className="text-md">{display_name}</div>
       <Input
         value={value}
+        readOnly={session?.user?.role !== 'admin'}
         onChange={e => setValue(e.target.value)}
         onBlur={onBlur}
         className='w-full'
         {...props}
       />
-  }
-
-  return (
-    <div className="flex flex-col space-y-1">
-      <div className="text-md">{display_name}</div>
-      {content}
     </div>
   )
 }
@@ -174,7 +167,7 @@ function DropdownInput({ column_id, display_name, novel, setNovel, cell_values}:
   if (session?.user?.role !== 'admin') {
     content = value;
   } else{
-    content = 
+    content =
       <DropdownMenu>
         <DropdownMenuTrigger className="w-full text-left">{value.toString()}</DropdownMenuTrigger>
         <DropdownMenuContent>
@@ -196,6 +189,37 @@ function DropdownInput({ column_id, display_name, novel, setNovel, cell_values}:
     <div className="col-span-1 space-y-1">
       <div>{display_name}</div>
       <Bordered>{content}</Bordered>
+    </div>
+  )
+}
+
+interface LargeEditorInputProps {
+  column_id: keyof NovelEntry
+  display_name: string
+  novel: NovelEntry
+  setNovel: (novel: NovelEntry) => void
+}
+
+function LargeEditorInputProps({ column_id, display_name, novel, setNovel, ...props } : EditorInputProps) {
+  const [value, setValue] = useState(novel[column_id]);
+  const {data: session} = useSession();
+
+  const onBlur = () => {
+    setNovel({...novel, [column_id]: value});
+  }
+
+  return (
+    <div className="flex flex-col space-y-1">
+      <div className="text-md">{display_name}</div>
+      <Textarea
+        value={value}
+        readOnly={session?.user?.role !== 'admin'}
+        onChange={e => setValue(e.target.value)}
+        onBlur={onBlur}
+        rows={4}
+        className='w-full'
+        {...props}
+      />
     </div>
   )
 }

@@ -79,6 +79,7 @@ function ColumnHeader( { title, column }: { title: string, column: Column<NovelE
     <Button
       variant="link"
       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      size="md_no_padding"
     >
       {title}
       <ArrowUpDown className="ml-1" />
