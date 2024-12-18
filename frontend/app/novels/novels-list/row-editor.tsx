@@ -22,6 +22,7 @@ import {
 
 import { Table } from "@tanstack/react-table"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
@@ -84,10 +85,10 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
             </Bordered>
           </div>
           <div className="col-span-3">
-            <EditorInput column_id="notes" display_name="Notes" novel={row.original} setNovel={setNovel} />
+            <LargeEditorInputProps column_id="notes" display_name="Notes" novel={row.original} setNovel={setNovel} />
           </div>
           <div className="col-span-3">
-            <EditorInput column_id="tags" display_name="Tags" novel={row.original} setNovel={setNovel} />
+            <LargeEditorInputProps column_id="tags" display_name="Tags" novel={row.original} setNovel={setNovel} />
           </div>
         </div>
         <div className="grid grid-cols-3 pt-5">
@@ -199,6 +200,46 @@ function DropdownInput({ column_id, display_name, novel, setNovel, cell_values}:
     </div>
   )
 }
+
+interface LargeEditorInputProps {
+  column_id: keyof NovelEntry
+  display_name: string
+  novel: NovelEntry
+  setNovel: (novel: NovelEntry) => void
+}
+
+function LargeEditorInputProps({ column_id, display_name, novel, setNovel, ...props } : EditorInputProps) {
+  const [value, setValue] = useState(novel[column_id]);
+  const {data: session} = useSession();
+
+  const onBlur = () => {
+    setNovel({...novel, [column_id]: value});
+  }
+
+  // only allow editing for admins
+  let content;
+  if (session?.user?.role !== 'admin') {
+    content = <Bordered>{value}</Bordered>
+  } else {
+    content = 
+      <Textarea
+        value={value}
+        onChange={e => setValue(e.target.value)}
+        onBlur={onBlur}
+        rows={4}
+        className='w-full'
+        {...props}
+      />
+  }
+
+  return (
+    <div className="flex flex-col space-y-1">
+      <div className="text-md">{display_name}</div>
+      {content}
+    </div>
+  )
+}
+
 
 interface BorderedProps {
   children?: React.ReactNode;
