@@ -58,7 +58,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
   }
 
   const dialog_buttons = session?.user?.role === "admin" ?
-    <div className="grid grid-cols-3 pt-5">
+    <div className="grid grid-cols-3 pt-3">
       <DeleteRowButton row={row} table={table} />
       <div></div>
       <Button size="sm" variant="secondary" onClick={() => update_novel(novel)}>Save</Button>
@@ -67,7 +67,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
   ;
 
   return (
-    <Dialog>
+    <Dialog onOpenChange={() => setNovel(row.original)}>
       <DialogTrigger className={cn(buttonVariants({ variant: "outline", size: "sm", className: "" }))}>
         {session?.user?.role === "admin" ? "Open Row Editor" : "View Details"}
       </DialogTrigger>
@@ -98,7 +98,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
           <LargeEditorInputProps column_id="notes" display_name="Notes" novel={row.original} setNovel={setNovel} />
           <LargeEditorInputProps column_id="tags" display_name="Tags" novel={row.original} setNovel={setNovel} />
         </div>
-      {dialog_buttons}
+        {dialog_buttons}
       </DialogContent>
     </Dialog>
   )
