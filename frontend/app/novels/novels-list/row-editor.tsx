@@ -257,7 +257,6 @@ function DatePicker({column_id, display_name, novel, setNovel}: DatePickerProps)
       <>
         <Input
           type="date"
-          readOnly={session?.user?.role !== 'admin'}
           value={reprDate(date)}
           onChange={(e) => {
             if (!e.target.value) {
@@ -270,11 +269,12 @@ function DatePicker({column_id, display_name, novel, setNovel}: DatePickerProps)
             setDate(new_date);
             setNovel({...novel, [column_id]: new_date.toISOString()});
           }}
+          className="w-full"
         />
         <Button 
           onClick={handleReset} 
           variant="secondary"
-          className="col-span-1"
+          className="w-full"
         >
           Reset
         </Button>
