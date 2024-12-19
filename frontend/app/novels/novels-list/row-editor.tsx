@@ -246,31 +246,35 @@ function DatePicker({column_id, display_name, novel, setNovel}: DatePickerProps)
     setDate(null);
     setNovel({...novel, [column_id]: null});
   }
-  
-  const col_span = session?.user?.role !== 'admin' ? 'col-span-3' : 'col-span-4';
 
   return (
-    <div className={"flex flex-col " + col_span}>
+    <div className="col-span-3 flex flex-col space-y-1">
       <div>{display_name}</div>
-      <div className="flex flex-row pt-1 space-x-2">
-        <Input
-          type="date"
-          readOnly={session?.user?.role !== 'admin'}
-          value={date ? date.toISOString().split('T')[0] : ""}
-          onChange={(e) => {
-            if (!e.target.value) {
-              setDate(null);
-              setNovel({...novel, [column_id]: null});
-              return;
-            }
+      <Input
+        type="date"
+        readOnly={session?.user?.role !== 'admin'}
+        value={date ? date.toISOString().split('T')[0] : ""}
+        onChange={(e) => {
+          if (!e.target.value) {
+            setDate(null);
+            setNovel({...novel, [column_id]: null});
+            return;
+          }
 
-            const new_date = new Date(e.target.value);
-            setDate(new_date);
-            setNovel({...novel, [column_id]: new_date.toISOString()});
-          }}
-        />
-        {session?.user?.role !== 'admin' ? null : <Button onClick={handleReset} variant="secondary">Reset</Button>}
-      </div>
+          const new_date = new Date(e.target.value);
+          setDate(new_date);
+          setNovel({...novel, [column_id]: new_date.toISOString()});
+        }}
+      />
+      {session?.user?.role !== 'admin' ? null : 
+        <Button 
+          onClick={handleReset} 
+          variant="secondary"
+          className="col-span-1"
+        >
+          Reset
+        </Button>
+      }
     </div>
   )
 }
