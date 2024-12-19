@@ -242,31 +242,35 @@ function DatePicker({column_id, display_name, novel, setNovel}: DatePickerProps)
   const [date, setDate] = useState<Date | null>(novel[column_id] ? new Date(novel[column_id] as string) : null);
   const {data: session} = useSession();
 
+  function reprDate(date: Date | null) {
+    return date ? date.toISOString().split('T')[0] : "";
+  }
+
   function handleReset() {
     setDate(null);
     setNovel({...novel, [column_id]: null});
   }
 
-  return (
-    <div className="col-span-3 flex flex-col space-y-1">
-      <div>{display_name}</div>
-      <Input
-        type="date"
-        readOnly={session?.user?.role !== 'admin'}
-        value={date ? date.toISOString().split('T')[0] : ""}
-        onChange={(e) => {
-          if (!e.target.value) {
-            setDate(null);
-            setNovel({...novel, [column_id]: null});
-            return;
-          }
+  let content = <Bordered>{reprDate(date)}</Bordered>;
+  if (session?.user?.role === 'admin') {
+    content = (
+      <>
+        <Input
+          type="date"
+          readOnly={session?.user?.role !== 'admin'}
+          value={reprDate(date)}
+          onChange={(e) => {
+            if (!e.target.value) {
+              setDate(null);
+              setNovel({...novel, [column_id]: null});
+              return;
+            }
 
-          const new_date = new Date(e.target.value);
-          setDate(new_date);
-          setNovel({...novel, [column_id]: new_date.toISOString()});
-        }}
-      />
-      {session?.user?.role !== 'admin' ? null : 
+            const new_date = new Date(e.target.value);
+            setDate(new_date);
+            setNovel({...novel, [column_id]: new_date.toISOString()});
+          }}
+        />
         <Button 
           onClick={handleReset} 
           variant="secondary"
@@ -274,7 +278,14 @@ function DatePicker({column_id, display_name, novel, setNovel}: DatePickerProps)
         >
           Reset
         </Button>
-      }
+      </>
+    )
+  }
+
+  return (
+    <div className="col-span-3 flex flex-col space-y-1">
+      <div>{display_name}</div>
+      {content}
     </div>
   )
 }
