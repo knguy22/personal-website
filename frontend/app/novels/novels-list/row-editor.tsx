@@ -81,8 +81,8 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
             <EditorInput column_id="title" display_name="Title" novel={novel} setNovel={setNovel}/>
           </div>
           <EditorInput column_id="country" display_name="Country" novel={novel} setNovel={setNovel} />
-          <RatingEditorInput column_id="rating" display_name="Rating" novel={novel} setNovel={setNovel} />
           <EditorInput column_id="chapter" display_name="Chapter" novel={novel} setNovel={setNovel} />
+          <RatingEditorInput column_id="rating" display_name="Rating" novel={novel} setNovel={setNovel} />
           <DropdownInput column_id="status" display_name="Status" novel={novel} setNovel={setNovel} cell_values={Status} />
           <div className="col-span-4 flex flex-col space-y-1">
             <div className="text-md">{"Date Modified"}</div>
