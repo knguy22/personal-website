@@ -246,11 +246,13 @@ function DatePicker({column_id, display_name, novel, setNovel}: DatePickerProps)
     setDate(null);
     setNovel({...novel, [column_id]: null});
   }
+  
+  const col_span = session?.user?.role !== 'admin' ? 'col-span-3' : 'col-span-4';
 
   return (
-    <div className="col-span-4 flex flex-col">
+    <div className={"flex flex-col " + col_span}>
       <div>{display_name}</div>
-      <div className="flex flex-row justify-between pt-1 space-x-1">
+      <div className="flex flex-row pt-1 space-x-2">
         <Input
           type="date"
           readOnly={session?.user?.role !== 'admin'}
@@ -266,9 +268,8 @@ function DatePicker({column_id, display_name, novel, setNovel}: DatePickerProps)
             setDate(new_date);
             setNovel({...novel, [column_id]: new_date.toISOString()});
           }}
-          className="w-4/5"
         />
-        <Button onClick={handleReset} variant="secondary">Reset</Button>
+        {session?.user?.role !== 'admin' ? null : <Button onClick={handleReset} variant="secondary">Reset</Button>}
       </div>
     </div>
   )
