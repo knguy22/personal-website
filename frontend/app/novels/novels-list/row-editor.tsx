@@ -32,7 +32,7 @@ import { Status, NovelEntry, NovelEntryApi, entry_to_api, novel_entries_equal, n
 import { DeleteRowButton } from "./delete-row-button"
 import { fetch_backend } from "@/utils/fetch_backend"
 
-const modified: string = "bg-secondary text-secondary-foreground hover:bg-secondary/80";
+const modified: string = "bg-secondary text-secondary-foreground";
 
 export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
   const [novel, setNovel] = useState<NovelEntry>(row.original)
@@ -63,7 +63,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
     <div className="grid grid-cols-3 pt-3">
       <DeleteRowButton row={row} table={table} />
       <div></div>
-      <Button size="sm" variant="secondary" onClick={() => update_novel(novel)}>Save</Button>
+      <Button size="sm" variant="default" onClick={() => update_novel(novel)}>Save</Button>
     </div> :
     null
   ;
@@ -283,10 +283,10 @@ function DatePicker({column_id, display_name, orig_novel, novel, setNovel}: Date
         />
         <Button 
           onClick={handleReset} 
-          variant="secondary"
+          variant="secondary_muted"
           className="w-full"
         >
-          Reset
+          Clear Date
         </Button>
       </>
     )

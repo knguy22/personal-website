@@ -14,6 +14,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
+import { cn } from "@/lib/utils.ts";
+import { buttonVariants } from "@/components/ui/button";
 
 import { fetch_backend } from "@/utils/fetch_backend"
 import { NovelEntry } from "./novel-types.ts"
@@ -28,9 +30,8 @@ export const DeleteRowButton = ({ row, table } : DeleteRowButtonProps) => {
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button 
-          variant="secondary"
+          variant="destructive"
           size={"sm"}
-          className='text-red-500'
         >
           Delete Row
         </Button>
@@ -44,12 +45,12 @@ export const DeleteRowButton = ({ row, table } : DeleteRowButtonProps) => {
         </VisuallyHidden.Root>
         {novel_to_component(row.original)}
         <AlertDialogFooter>
-          <div className="grid grid-cols-3">
+          <div className="w-full grid grid-cols-3">
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <div></div>
             <AlertDialogAction
               onClick={() => delete_row({row, table})}
-              className='text-red-500 bg-secondary hover:bg-secondary/80'
+              className={cn(buttonVariants({variant: "destructive"}))}
             >
               Continue
             </AlertDialogAction>
