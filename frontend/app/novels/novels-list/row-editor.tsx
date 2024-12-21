@@ -45,7 +45,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
     }
 
     // try to update backend
-    let result = await update_row(novel, row.index, table);
+    let result = await update_row(novel);
     if (!result) {
       return;
     }
@@ -319,12 +319,12 @@ export function Bordered({ children, classname }: BorderedProps) {
   )
 }
 
-async function update_row(novel: NovelEntry, row_idx: number, table: Table<NovelEntry>): Promise<NovelEntry | null> {
+async function update_row(novel: NovelEntry): Promise<NovelEntry | null> {
   // send the update to the backend
   const to_send: NovelEntryApi[] = [entry_to_api(novel)];
   const response = await fetch_backend(
     {path: "/api/update_novels", method: "POST", body: JSON.stringify(to_send), contentType: "application/json"}
   );
   const novels = response.data as NovelEntryApi[] | null;
-  return novels ? api_to_entry(novels[row_idx]) : null; 
+  return novels ? api_to_entry(novels[0]) : null; 
 }
