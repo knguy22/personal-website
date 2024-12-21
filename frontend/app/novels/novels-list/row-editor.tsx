@@ -250,7 +250,16 @@ interface DatePickerProps {
 function DatePicker({column_id, display_name, orig_novel, novel, setNovel}: DatePickerProps) {
   const [date, setDate] = useState<Date | null>(novel[column_id] ? new Date(novel[column_id] as string) : null);
   const {data: session} = useSession();
-  const modified_css = novel[column_id] === orig_novel[column_id] ? "" : modified;
+
+  // can't compare dates directly; have to only extract units at least a day long
+  const both_null = novel[column_id] === null && orig_novel[column_id] === null;
+  let same_date = false;
+  if (novel[column_id] !== null && orig_novel[column_id] !== null) {
+    const orig_date = new Date(orig_novel[column_id] as string);
+    const new_date = new Date(novel[column_id] as string);
+    same_date = orig_date.toISOString() === new_date.toISOString();
+  }
+  const modified_css = (both_null || same_date) ? "" : modified;
 
   function reprDate(date: Date | null) {
     return date ? date.toISOString().split('T')[0] : "";
