@@ -32,6 +32,8 @@ import { Status, NovelEntry, NovelEntryApi, entry_to_api, novel_entries_equal, n
 import { DeleteRowButton } from "./delete-row-button"
 import { fetch_backend } from "@/utils/fetch_backend"
 
+const modified: string = "bg-secondary text-secondary-foreground";
+
 export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
   const [novel, setNovel] = useState<NovelEntry>(row.original)
   const {data: session} = useSession();
@@ -61,7 +63,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
     <div className="grid grid-cols-3 pt-3">
       <DeleteRowButton row={row} table={table} />
       <div></div>
-      <Button size="sm" variant="secondary" onClick={() => update_novel(novel)}>Save</Button>
+      <Button size="sm" variant="default" onClick={() => update_novel(novel)}>Save</Button>
     </div> :
     null
   ;
@@ -78,12 +80,12 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
         </DialogHeader>
         <div className="p-1 grid grid-cols-6 gap-x-4 gap-y-3">
           <div className="col-span-6">
-            <EditorInput column_id="title" display_name="Title" novel={novel} setNovel={setNovel}/>
+            <EditorInput column_id="title" display_name="Title" orig_novel={row.original} novel={novel} setNovel={setNovel}/>
           </div>
-          <EditorInput column_id="country" display_name="Country" novel={novel} setNovel={setNovel} />
-          <EditorInput column_id="chapter" display_name="Chapter" novel={novel} setNovel={setNovel} />
-          <RatingEditorInput column_id="rating" display_name="Rating" novel={novel} setNovel={setNovel} />
-          <DropdownInput column_id="status" display_name="Status" novel={novel} setNovel={setNovel} cell_values={Status} />
+          <EditorInput column_id="country" display_name="Country" orig_novel={row.original} novel={novel} setNovel={setNovel} />
+          <EditorInput column_id="chapter" display_name="Chapter" orig_novel={row.original} novel={novel} setNovel={setNovel} />
+          <RatingEditorInput column_id="rating" display_name="Rating" orig_novel={row.original} novel={novel} setNovel={setNovel} />
+          <DropdownInput column_id="status" display_name="Status" orig_novel={row.original} novel={novel} setNovel={setNovel} cell_values={Status} />
           <div className="col-span-4 flex flex-col space-y-1">
             <div className="text-md">{"Date Modified"}</div>
             <Bordered>
@@ -93,10 +95,10 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
               </div>
             </Bordered>
           </div>
-          <DatePicker column_id="date_started" display_name="Date Started" novel={novel} setNovel={setNovel} />
-          <DatePicker column_id="date_completed" display_name="Date Completed" novel={novel} setNovel={setNovel} />
-          <LargeEditorInputProps column_id="notes" display_name="Notes" novel={row.original} setNovel={setNovel} />
-          <LargeEditorInputProps column_id="tags" display_name="Tags" novel={row.original} setNovel={setNovel} />
+          <DatePicker column_id="date_started" display_name="Date Started" orig_novel={row.original} novel={novel} setNovel={setNovel} />
+          <DatePicker column_id="date_completed" display_name="Date Completed" orig_novel={row.original} novel={novel} setNovel={setNovel} />
+          <LargeEditorInputProps column_id="notes" display_name="Notes" orig_novel={row.original} novel={novel} setNovel={setNovel} />
+          <LargeEditorInputProps column_id="tags" display_name="Tags" orig_novel={row.original} novel={novel} setNovel={setNovel} />
         </div>
         {dialog_buttons}
       </DialogContent>
@@ -107,13 +109,15 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
 interface EditorInputProps {
   column_id: keyof NovelEntry
   display_name: string
+  orig_novel: NovelEntry
   novel: NovelEntry
   setNovel: (novel: NovelEntry) => void
 }
 
-function EditorInput({ column_id, display_name, novel, setNovel, ...props } : EditorInputProps) {
+function EditorInput({ column_id, display_name, orig_novel, novel, setNovel, ...props } : EditorInputProps) {
   const [value, setValue] = useState(novel[column_id]);
   const {data: session} = useSession();
+  const modified_css = novel[column_id] === orig_novel[column_id] ? "" : modified;
 
   const onBlur = () => {
     setNovel({...novel, [column_id]: value});
@@ -127,7 +131,7 @@ function EditorInput({ column_id, display_name, novel, setNovel, ...props } : Ed
         readOnly={session?.user?.role !== 'admin'}
         onChange={e => setValue(e.target.value)}
         onBlur={onBlur}
-        className='w-full'
+        className={cn('w-full', modified_css)}
         {...props}
       />
     </div>
@@ -151,14 +155,16 @@ function RatingEditorInput(props: EditorInputProps) {
 interface DropdownInputProps {
   column_id: keyof NovelEntry
   display_name: string
+  orig_novel: NovelEntry
   novel: NovelEntry
   setNovel: (novel: NovelEntry) => void
   cell_values: { [key: string]: string };
 }
 
-function DropdownInput({ column_id, display_name, novel, setNovel, cell_values}: DropdownInputProps) {
+function DropdownInput({ column_id, display_name, orig_novel, novel, setNovel, cell_values}: DropdownInputProps) {
   const [value, setValue] = useState(novel[column_id]);
   const {data: session} = useSession();
+  const modified_css = novel[column_id] === orig_novel[column_id] ? "" : modified;
 
   if (value === null) {
     return null;
@@ -173,7 +179,7 @@ function DropdownInput({ column_id, display_name, novel, setNovel, cell_values}:
   let content;
   if (session?.user?.role !== 'admin') {
     content = value;
-  } else{
+  } else {
     content =
       <DropdownMenu>
         <DropdownMenuTrigger className="w-full text-left">{value ? value.toString() : ""}</DropdownMenuTrigger>
@@ -195,7 +201,7 @@ function DropdownInput({ column_id, display_name, novel, setNovel, cell_values}:
   return (
     <div className="col-span-2 space-y-1">
       <div>{display_name}</div>
-      <Bordered>{content}</Bordered>
+      <Bordered classname={modified_css}>{content}</Bordered>
     </div>
   )
 }
@@ -203,13 +209,15 @@ function DropdownInput({ column_id, display_name, novel, setNovel, cell_values}:
 interface LargeEditorInputProps {
   column_id: keyof NovelEntry
   display_name: string
+  orig_novel: NovelEntry
   novel: NovelEntry
   setNovel: (novel: NovelEntry) => void
 }
 
-function LargeEditorInputProps({ column_id, display_name, novel, setNovel, ...props } : EditorInputProps) {
+function LargeEditorInputProps({ column_id, display_name, orig_novel, novel, setNovel, ...props } : EditorInputProps) {
   const [value, setValue] = useState(novel[column_id]);
   const {data: session} = useSession();
+  const modified_css = novel[column_id] === orig_novel[column_id] ? "" : modified;
 
   const onBlur = () => {
     setNovel({...novel, [column_id]: value});
@@ -224,7 +232,7 @@ function LargeEditorInputProps({ column_id, display_name, novel, setNovel, ...pr
         onChange={e => setValue(e.target.value)}
         onBlur={onBlur}
         rows={4}
-        className='w-full'
+        className={cn('w-full', modified_css)}
         {...props}
       />
     </div>
@@ -234,13 +242,24 @@ function LargeEditorInputProps({ column_id, display_name, novel, setNovel, ...pr
 interface DatePickerProps {
   column_id: keyof NovelEntry
   display_name: string
+  orig_novel: NovelEntry
   novel: NovelEntry
   setNovel: (novel: NovelEntry) => void
 }
 
-function DatePicker({column_id, display_name, novel, setNovel}: DatePickerProps) {
+function DatePicker({column_id, display_name, orig_novel, novel, setNovel}: DatePickerProps) {
   const [date, setDate] = useState<Date | null>(novel[column_id] ? new Date(novel[column_id] as string) : null);
   const {data: session} = useSession();
+
+  // can't compare dates directly; have to only extract units at least a day long
+  const both_null = novel[column_id] === null && orig_novel[column_id] === null;
+  let same_date = false;
+  if (novel[column_id] !== null && orig_novel[column_id] !== null) {
+    const orig_date = new Date(orig_novel[column_id] as string);
+    const new_date = new Date(novel[column_id] as string);
+    same_date = orig_date.toISOString() === new_date.toISOString();
+  }
+  const modified_css = (both_null || same_date) ? "" : modified;
 
   function reprDate(date: Date | null) {
     return date ? date.toISOString().split('T')[0] : "";
@@ -269,14 +288,14 @@ function DatePicker({column_id, display_name, novel, setNovel}: DatePickerProps)
             setDate(new_date);
             setNovel({...novel, [column_id]: new_date.toISOString()});
           }}
-          className="w-full"
+          className={cn("w-full", modified_css)}
         />
         <Button 
           onClick={handleReset} 
-          variant="secondary"
+          variant="secondary_muted"
           className="w-full"
         >
-          Reset
+          Clear Date
         </Button>
       </>
     )
@@ -292,11 +311,12 @@ function DatePicker({column_id, display_name, novel, setNovel}: DatePickerProps)
 
 interface BorderedProps {
   children?: React.ReactNode;
+  classname?: string
 }
 
-export function Bordered({ children }: BorderedProps) {
+export function Bordered({ children, classname }: BorderedProps) {
   return (
-    <div className="flex items-center w-full h-12 overflow-x-auto text-wrap rounded-md border border-input bg-background px-3 text-md ring-offset-background">
+    <div className={cn("flex items-center w-full h-12 overflow-x-auto text-wrap rounded-md border border-input bg-background px-3 text-md ring-offset-background", classname)}>
       {children}
     </div>
   )
