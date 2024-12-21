@@ -28,7 +28,7 @@ import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
 import { CellContext } from "@tanstack/react-table"
-import { Status, NovelEntry, NovelEntryApi, entry_to_api, novel_entries_equal, novel_col_names } from "./novel-types"
+import { Status, NovelEntry, NovelEntryApi, api_to_entry, entry_to_api, novel_entries_equal, novel_col_names } from "./novel-types"
 import { DeleteRowButton } from "./delete-row-button"
 import { fetch_backend } from "@/utils/fetch_backend"
 
@@ -44,18 +44,15 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
       return;
     }
 
-    // update locally
-    for (const key of novel_col_names) {
-      if (key === "date_modified" || key === "id") {
-        continue;
-      }
-      table.options.meta?.updateCell(row.index, key, novel[key]);
+    // try to update backend
+    let result = await update_row(novel, row.index, table);
+    if (!result) {
+      return;
     }
 
-    // update backend
-    let new_date = await update_row(novel, row.index, table);
-    if (new_date) {
-      table.options.meta?.updateCell(row.index, 'date_modified', new_date);
+    // if success, update locally
+    for (const key of novel_col_names) {
+      table.options.meta?.updateCell(row.index, key, result[key]);
     }
   }
 
@@ -322,21 +319,12 @@ export function Bordered({ children, classname }: BorderedProps) {
   )
 }
 
-async function update_row(novel: NovelEntry, row_idx: number, table: Table<NovelEntry>): Promise<string | null> {
+async function update_row(novel: NovelEntry, row_idx: number, table: Table<NovelEntry>): Promise<NovelEntry | null> {
   // send the update to the backend
   const to_send: NovelEntryApi[] = [entry_to_api(novel)];
   const response = await fetch_backend(
     {path: "/api/update_novels", method: "POST", body: JSON.stringify(to_send), contentType: "application/json"}
   );
   const novels = response.data as NovelEntryApi[] | null;
-
-  // check if the update was successful
-  if (!novels) {
-    return null;
-  }
-
-  // update the date
-  const new_date = novels[0].date_modified;
-  table.options.meta?.updateCell(row_idx, 'date_modified', new_date);
-  return new_date;
+  return novels ? api_to_entry(novels[row_idx]) : null; 
 }
