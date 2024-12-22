@@ -80,28 +80,24 @@ function StatsTable({stats}: {stats: Stats}) {
         title="Rating Distribution" 
         chartData={rating_dist} 
         chartConfigKey="rating" 
-        XAxisLabel="Rating" 
         XAxisKey="rating" 
         YAxisKey="count"/>
       <NovelBarChart 
         title="Reading Status Distribution" 
         chartData={status_dist} 
         chartConfigKey="status" 
-        XAxisLabel="Status" 
         XAxisKey="status" 
         YAxisKey="count"/>
       <NovelBarChart 
         title="Chapter Distribution" 
         chartData={chapter_dist} 
         chartConfigKey="chapter" 
-        XAxisLabel="Chapters" 
         XAxisKey="chapter" 
         YAxisKey="count"/>
       <NovelBarChart 
         title="Author Origin" 
         chartData={country_dist} 
         chartConfigKey="country" 
-        XAxisLabel="Country of Origin" 
         XAxisKey="country" 
         YAxisKey="count"/>
     </div>
