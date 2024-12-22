@@ -44,31 +44,36 @@ export default function Page() {
 function StatsTable({stats}: {stats: Stats}) {
   // convert distributions into table ready data
   const rating_dist = stats.rating_dist.map((count, index) => ({rating: index + 1, count: count}));
+  const status_dist = Object.entries(stats.status_dist)
+    .map(([status, count]) => ({status: status, count: count}));
   const chapter_dist = Object.entries(stats.chapter_dist)
     .map(([chapter, count]) => ({chapter: chapter, count: count}));
+
   const country_dist = Object.entries(stats.country_dist)
+    .filter((d) => (d[0] in AbbreToCountry))
     .map(([country, count]) => ({country: AbbreToCountry[country], count: count}));
+  const other_country_count = Object.entries(stats.country_dist)
+    .filter((d) => !(d[0] in AbbreToCountry))
+    .reduce((a, b) => a + b[1], 0);
+  country_dist.push({country: "Other", count: other_country_count});
 
   // make sure table ready data is sorted
+  status_dist.sort((a, b) => b.count - a.count);
   chapter_dist.sort((a, b) => {
     const [startA] = a.chapter.split('-').map(Number);
     const [startB] = b.chapter.split('-').map(Number);
     return startA - startB;
   });
   country_dist.sort((a, b) => b.count - a.count);
-  
+
   return (
     <div className="flex flex-col items-center space-y-5 pb-5">
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <NumberDisplay value={stats.novel_count} description="Total Novels" />
         <NumberDisplay value={stats.chapter_count} description="Total Chapters" />
         <NumberDisplay value={stats.average_rating.toPrecision(3)} description="Average Rating" />
-        <NumberDisplay value={stats.volumes_completed} description="Volumes Completed" />
         <NumberDisplay value={stats.status_dist["Completed"]} description="Novels Completed" />
-        <NumberDisplay value={stats.status_dist["Reading"]} description="Novels Reading" />
-        <NumberDisplay value={stats.status_dist["Waiting"]} description="Novels Waiting" />
-        <NumberDisplay value={stats.status_dist["Hiatus"]} description="Novels On Hiatus" />
-        <NumberDisplay value={stats.status_dist["Dropped"]} description="Novels Dropped" />
+        <NumberDisplay value={stats.volumes_completed} description="Volumes Completed" />
         <NumberDisplay value={stats.novels_not_started} description="Novels Unstarted" />
       </div>
       <NovelBarChart 
@@ -77,6 +82,13 @@ function StatsTable({stats}: {stats: Stats}) {
         chartConfigKey="rating" 
         XAxisLabel="Rating" 
         XAxisKey="rating" 
+        YAxisKey="count"/>
+      <NovelBarChart 
+        title="Reading Status Distribution" 
+        chartData={status_dist} 
+        chartConfigKey="status" 
+        XAxisLabel="Status" 
+        XAxisKey="status" 
         YAxisKey="count"/>
       <NovelBarChart 
         title="Chapter Distribution" 

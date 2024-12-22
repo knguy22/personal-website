@@ -6,6 +6,10 @@ const chartConfig = {
     label: "rating",
     color: "#4e3196",
   },
+  status: {
+    label: "status",
+    color: "#4e3196",
+  },
   chapter: {
     label: "chapter",
     color: "#4e3196",
@@ -29,8 +33,8 @@ export function NovelBarChart( {title, chartData, chartConfigKey, XAxisLabel, XA
   return (
     <div className="flex flex-col items-center w-full">
       <div className="text-xl text-center font-bold">{title}</div>
-      <ChartContainer config={chartConfig} className="h-56 w-1/2">
-        <BarChart accessibilityLayer data={chartData} margin={{ top: 20, bottom: 20, left: 0, right: 0 }}>
+      <ChartContainer config={chartConfig} className="h-56 w-full">
+        <BarChart accessibilityLayer data={chartData} margin={{ top: 20, bottom: 20, left: 5, right: 5 }}>
           <CartesianGrid vertical={false} />
           <XAxis dataKey={XAxisKey} tickLine={false}>
             <Label value={XAxisLabel} offset={-10} position="bottom"/>
