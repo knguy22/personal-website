@@ -6,7 +6,7 @@ use sea_orm::{IntoActiveModel, JsonValue};
 use serde::{Deserialize, Serialize};
 use strum;
 
-#[derive(Clone, Debug, PartialEq, strum::EnumString, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq, strum::EnumString, strum::Display, Deserialize, Serialize)]
 pub enum Status {
     Reading,
     Completed,
@@ -49,17 +49,6 @@ impl Status {
             _ => Status::Invalid,
         }
     }
-
-    pub fn to_str(&self) -> String {
-        match self {
-            Status::Reading => "Reading".to_string(),
-            Status::Completed => "Completed".to_string(),
-            Status::Waiting => "Waiting".to_string(),
-            Status::Dropped => "Dropped".to_string(),
-            Status::Hiatus => "Hiatus".to_string(),
-            Status::Invalid => "Invalid".to_string(),
-        }
-    }
 }
 
 impl NovelEntry {
@@ -75,7 +64,7 @@ pub fn novel_entry_to_active_model(novel: &NovelEntry) -> novels::ActiveModel {
         title: Some(novel.title.clone()), 
         chapter: Some(novel.chapter.clone()), 
         rating: Some(novel.rating as i32), 
-        status: Some(novel.status.to_str()), 
+        status: Some(novel.status.to_string()), 
         tags: serde_json::to_value(novel.tags.clone()).unwrap(),
         notes: Some(novel.notes.clone()), 
         date_modified: novel.date_modified.naive_utc(),
@@ -115,5 +104,20 @@ fn json_value_to_vec_str(val: &JsonValue) -> Result<Vec<String>, Box<dyn Error>>
             Ok(vec)
         }
         _ => Err("The JSON value is not an array".into()),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_display_status() {
+        assert_eq!(Status::Reading.to_string(), "Reading");
+        assert_eq!(Status::Completed.to_string(), "Completed");
+        assert_eq!(Status::Waiting.to_string(), "Waiting");
+        assert_eq!(Status::Dropped.to_string(), "Dropped");
+        assert_eq!(Status::Hiatus.to_string(), "Hiatus");
+        assert_eq!(Status::Invalid.to_string(), "Invalid");
     }
 }

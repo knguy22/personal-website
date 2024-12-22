@@ -1,5 +1,5 @@
 use crate::db;
-use crate::novel_entry::{NovelEntry, Status};
+use crate::novel_entry::NovelEntry;
 use std::error::Error;
 use std::collections::HashMap;
 use sea_orm::DatabaseConnection;
@@ -21,11 +21,13 @@ pub struct Stats {
     pub chapter_count: u32,
     pub average_rating: f32,
     pub volumes_completed: u32,
-    pub novels_completed: u32,
     pub novels_not_started: u32,
 
     // each index corresponds to a rating = index + 1
     pub rating_dist: [u32; 10],
+
+    // each entry in the map corresponds to a status
+    pub status_dist: HashMap<String, u32>,
 
     // each entry in the map corresponds to a chapter count bucket
     pub chapter_dist: HashMap<String, u32>,
@@ -39,7 +41,6 @@ pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats, Box<dyn Error>>
     let novel_count = novels.len() as u32;
     let chapter_count = novels.iter().map(|novel| novel.chapter.parse().unwrap_or(0)).sum();
     let volumes_completed: u32 = novels.iter().map(|novel| completed_volume(&novel.chapter)).sum();
-    let novels_completed = novels.iter().filter(|novel| novel.status == Status::Completed).count() as u32;
     let novels_not_started = novels.iter().filter(|novel| novel.chapter.len() == 0).count() as u32;
 
     let rating_sum: u32 = novels.iter().map(|novel| novel.rating).sum();
@@ -61,6 +62,7 @@ pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats, Box<dyn Error>>
         }
     }
 
+    let status_dist = find_status_dist(&novels);
     let (country_dist, chapter_dist) = find_chapter_country_dist(&novels);
 
     Ok(Stats {
@@ -68,9 +70,9 @@ pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats, Box<dyn Error>>
         chapter_count,
         average_rating,
         volumes_completed,
-        novels_completed,
         novels_not_started,
         rating_dist,
+        status_dist,
         chapter_dist,
         country_dist,
     })
@@ -109,6 +111,14 @@ fn completed_volume(chapter: &str) -> u32 {
     volumes - 1
 }
 
+fn find_status_dist(novels: &[NovelEntry]) -> HashMap<String, u32> {
+    let mut status_dist = HashMap::<String, u32>::new();
+    for novel in novels {
+        let status = novel.status.to_string();
+        *status_dist.entry(status).or_insert(0) += 1;
+    }
+    status_dist
+}
 
 fn find_chapter_country_dist(novels: &[NovelEntry]) -> (HashMap<String, u32>, HashMap<String, u32>) {
     let mut chapter_dist = HashMap::<ChapterCountBucket, u32>::new();

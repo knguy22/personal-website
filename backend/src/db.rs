@@ -74,7 +74,7 @@ pub async fn update_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry
             active_model.title = Set(Some(row.title.clone()));
             active_model.chapter = Set(Some(row.chapter.clone()));
             active_model.rating = Set(Some(row.rating as i32));
-            active_model.status = Set(Some(row.status.to_str()));
+            active_model.status = Set(Some(row.status.to_string()));
             active_model.tags = Set(serde_json::to_value(row.tags.clone()).unwrap());
             active_model.notes = Set(Some(row.notes.clone()));
             active_model.date_modified = Set(Local::now().naive_utc());

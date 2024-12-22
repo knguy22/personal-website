@@ -19,7 +19,7 @@ export type NovelEntry = {
   title: string,
   chapter: string,
   rating: string,
-  status: StatusType,
+  status: Status,
   tags: string,
   notes: string,
   date_modified: string,
@@ -50,16 +50,16 @@ export const Status = {
   Invalid: "Invalid",
 } as const;
 
-export type StatusType = typeof Status[keyof typeof Status];
+export type Status = typeof Status[keyof typeof Status];
 
-export function str_to_status(value: string): StatusType {
+export function str_to_status(value: string): Status {
   if (value in Status) {
     return Status[value as keyof typeof Status];
   }
   return Status.Invalid;
 }
 
-export function status_to_str(status: StatusType): string {
+export function status_to_str(status: Status): string {
   return status.toString();
 }
 
