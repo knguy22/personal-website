@@ -59,11 +59,7 @@ function StatsTable({stats}: {stats: Stats}) {
 
   // make sure table ready data is sorted
   status_dist.sort((a, b) => b.count - a.count);
-  chapter_dist.sort((a, b) => {
-    const [startA] = a.chapter.split('-').map(Number);
-    const [startB] = b.chapter.split('-').map(Number);
-    return startA - startB;
-  });
+  chapter_dist.sort((a, b) => parseInt(a.chapter) - parseInt(b.chapter));
   country_dist.sort((a, b) => b.count - a.count);
 
   return (
