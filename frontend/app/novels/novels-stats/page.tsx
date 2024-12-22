@@ -1,6 +1,6 @@
 'use client'
 
-import { Stats, AbbreToCountry } from "./stats.tsx";
+import { Stats, AbbreToCountry } from "./stats";
 import React, {useState, useEffect} from 'react';
 import { fetch_backend } from "@/utils/fetch_backend.ts";
 import Loading from "@/components/derived/Loading.tsx";
@@ -64,7 +64,11 @@ function StatsTable({stats}: {stats: Stats}) {
         <NumberDisplay value={stats.chapter_count} description="Total Chapters" />
         <NumberDisplay value={stats.average_rating.toPrecision(3)} description="Average Rating" />
         <NumberDisplay value={stats.volumes_completed} description="Volumes Completed" />
-        <NumberDisplay value={stats.novels_completed} description="Novels Completed" />
+        <NumberDisplay value={stats.status_dist["Completed"]} description="Novels Completed" />
+        <NumberDisplay value={stats.status_dist["Reading"]} description="Novels Reading" />
+        <NumberDisplay value={stats.status_dist["Waiting"]} description="Novels Waiting" />
+        <NumberDisplay value={stats.status_dist["Hiatus"]} description="Novels On Hiatus" />
+        <NumberDisplay value={stats.status_dist["Dropped"]} description="Novels Dropped" />
         <NumberDisplay value={stats.novels_not_started} description="Novels Unstarted" />
       </div>
       <NovelBarChart 
