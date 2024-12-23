@@ -35,11 +35,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
     let rng = Arc::new(Mutex::new(StdRng::from_entropy()));
     let conn = db::init().await.unwrap();
-    let browser = scraper::init().unwrap();
     scripts::run_cli(&conn).await.unwrap();
 
     // build our application with a route
-    let state = AppState { conn, browser, rng };
+    let state = AppState { conn, browser: scraper::init().unwrap(), rng };
     let domain = env::var("DOMAIN").unwrap();
     let app = Router::new()
         .route("/", get(main_handler))
@@ -169,9 +168,15 @@ async fn get_random_novels(state: State<AppState>, num_novels: Json<usize>) -> i
     Json(random_novels)
 }
 
-async fn get_novel_tags(state: State<AppState>, novel_title: String) -> impl IntoResponse {
-    println!("Getting novel tags for: {}", novel_title);
-    match scraper::scrape_genres_and_tags(&state.browser, &novel_title).await {
+async fn get_novel_tags(state: State<AppState>, novel_title: Json<String>) -> impl IntoResponse {
+    println!("Getting novel tags for: {}", *novel_title);
+    let res = scraper::scrape_genres_and_tags(&state.browser, &novel_title).await;
+    println!("Finished getting novel tags for: {}", *novel_title);
+    if res.is_err() {
+        println!("Error: {:?}", res.as_ref().unwrap_err());
+    }
+
+    match res {
         Ok(tags) => Ok((StatusCode::OK, Json(tags))),
         Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))),
     }

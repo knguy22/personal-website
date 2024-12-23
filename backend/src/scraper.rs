@@ -27,10 +27,11 @@ pub async fn scrape_genres_and_tags(browser: &Browser, title: &str) -> Result<Ve
     thread::sleep(Duration::from_secs(2));
 
     let html = tab.get_content()?;
-    parse_genres_and_tags(&html)
+    tab.close_with_unload()?;
+    parse_genres_and_tags(&html, &url)
 }
 
-fn parse_genres_and_tags(html: &str) -> Result<Vec<String>> {
+fn parse_genres_and_tags(html: &str, url: &str) -> Result<Vec<String>> {
     // first check if cloudflare is blocking
     if html.to_ascii_lowercase().contains("cloudflare") {
         return Err(Error::msg("Error: Blocked by cloudflare"));
@@ -40,7 +41,7 @@ fn parse_genres_and_tags(html: &str) -> Result<Vec<String>> {
     let document = Html::parse_document(html);
     let error_selector = Selector::parse(".page-404").unwrap();
     if let Some(_) = document.select(&error_selector).next() {
-        return Err(Error::msg("Error: url not found"));
+        return Err(Error::msg(format!("Error: url not found: {}", url)));
     }
 
     // otherwise scrape the elements
@@ -141,7 +142,7 @@ mod tests {
         let gimai_path = Path::new("./test_data/Gimai Seikatsu - Novel Updates.html");
         File::open(gimai_path).unwrap().read_to_string(&mut html).unwrap();
 
-        let res = parse_genres_and_tags(&html).unwrap();
+        let res = parse_genres_and_tags(&html, "").unwrap();
         let expected = vec![
             // genres
             "Comedy",

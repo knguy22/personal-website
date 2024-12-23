@@ -55,10 +55,21 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
     }
   }
 
+  async function fetch_novel_updates_tags(novel: NovelEntry) {
+    const to_send: string = novel.title;
+    const response = await fetch_backend(
+      {path: "/api/scrape_novel_tags", method: "POST", body: JSON.stringify(to_send), contentType: "application/json"}
+    );
+    const data = response.data as string[] | null;
+    if (data) {
+      table.options.meta?.updateCell(row.index, "tags", data.join(','));
+    }
+  }
+
   const dialog_buttons = session?.user?.role === "admin" ?
     <div className="grid grid-cols-3 pt-3">
       <DeleteRowButton row={row} table={table} />
-      <div></div>
+      <Button size="sm" variant="default" onClick={() => fetch_novel_updates_tags(novel)}>Fetch Tags</Button>
       <Button size="sm" variant="default" onClick={() => update_novel(novel)}>Save</Button>
     </div> :
     null
