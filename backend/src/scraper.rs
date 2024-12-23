@@ -51,9 +51,68 @@ fn parse_genres_and_tags(html: &str) -> Vec<String> {
 
 mod tests {
     use super::*;
+    use std::{fs::File, io::Read, path::Path, vec};
+
+    #[test]
+    fn test_parse_genres_and_tags() {
+        let mut html: String = String::new();
+        let gimai_path = Path::new("./test_data/Gimai Seikatsu - Novel Updates.html");
+        File::open(gimai_path).unwrap().read_to_string(&mut html).unwrap();
+
+        let res = parse_genres_and_tags(&html);
+
+        let expected = vec![
+            // genres
+            "Comedy",
+            "Drama",
+            "Psychological",
+            "Romance",
+            "School Life",
+            "Slice of Life",
+
+            // tags
+            "Adapted to Anime",
+            "Adapted to Manga",
+            "Average-looking Protagonist",
+            "Award-winning Work",
+            "Beautiful Female Lead",
+            "Books",
+            "Bookworm",
+            "Calm Protagonist",
+            "Caring Protagonist",
+            "Character Growth",
+            "Clever Protagonist",
+            "Cohabitation",
+            "Complex Family Relationships",
+            "Cooking",
+            "Couple Growth",
+            "Female Protagonist",
+            "Hard-Working Protagonist",
+            "Heartwarming",
+            "Love Interest Falls in Love First",
+            "Male Protagonist",
+            "Modern Day",
+            "Multiple POV",
+            "Multiple Protagonists",
+            "Part-Time Job",
+            "Past Trauma",
+            "Philosophical",
+            "Popular Love Interests",
+            "Possessive Characters",
+            "Secret Relationship",
+            "Siblings",
+            "Siblings Not Related by Blood",
+            "Slow Romance",
+            "Smart Couple",
+            "Strong Love Interests",
+            "Younger Sisters",
+        ];
+
+        assert_eq!(res, expected);
+    }
 
     #[tokio::test]
-    async fn test_scrape_tags() {
+    async fn test_scrape_genres_and_tags() {
         let browser = init().unwrap();
         let res = scrape_genres_and_tags(&browser, "https://www.novelupdates.com/series/lord-of-the-mysteries/").await.unwrap();
         assert!(res.len() > 50);
