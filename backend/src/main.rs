@@ -14,6 +14,7 @@ use axum::{
     http::StatusCode, Router,
 };
 use dotenv::dotenv;
+use headless_chrome::Browser;
 use itertools::Itertools;
 use novel_entry::NovelEntry;
 use rand::{rngs::StdRng, seq::SliceRandom, SeedableRng};
@@ -24,18 +25,21 @@ use tokio::sync::Mutex;
 #[derive(Clone)]
 struct AppState {
     conn: DatabaseConnection,
-    rng: Arc<Mutex<StdRng>>
+    browser: Browser,
+    rng: Arc<Mutex<StdRng>>,
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     // initialize everything; run scripts if applicable
+    dotenv().ok();
     let rng = Arc::new(Mutex::new(StdRng::from_entropy()));
-    let conn = init().await.unwrap();
+    let conn = db::init().await.unwrap();
+    let browser = scraper::init().unwrap();
     scripts::run_cli(&conn).await.unwrap();
 
     // build our application with a route
-    let state = AppState { conn , rng };
+    let state = AppState { conn, browser, rng };
     let domain = env::var("DOMAIN").unwrap();
     let app = Router::new()
         .route("/", get(main_handler))
@@ -46,6 +50,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .route("/api/delete_novel", delete(delete_novel_handler))
         .route("/api/novels_stats", get(get_novels_stats))
         .route("/api/random_novels", post(get_random_novels))
+        .route("/api/scrape_novel_tags", post(get_novel_tags))
         .with_state(state);
 
     // run it
@@ -164,9 +169,13 @@ async fn get_random_novels(state: State<AppState>, num_novels: Json<usize>) -> i
     Json(random_novels)
 }
 
-async fn init() -> Result<DatabaseConnection, Box<dyn Error>> {
-    dotenv().ok();
-    let conn = db::init().await?;
+async fn get_novel_tags(state: State<AppState>, novel_title: String) -> impl IntoResponse {
+    println!("Getting novel tags for: {}", novel_title);
 
-    Ok(conn)
+    let res = scraper::scrape_genres_and_tags(&state.browser, &novel_title).await;
+    match res {
+        Ok(tags) => Ok((StatusCode::OK, Json(tags))),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))),
+    }
+
 }
