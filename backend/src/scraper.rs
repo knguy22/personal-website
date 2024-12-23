@@ -31,9 +31,13 @@ pub async fn scrape_genres_and_tags(browser: &Browser, title: &str) -> Result<Ve
 }
 
 fn parse_genres_and_tags(html: &str) -> Result<Vec<String>> {
-    let document = Html::parse_document(html);
+    // first check if cloudflare is blocking
+    if html.to_ascii_lowercase().contains("cloudflare") {
+        return Err(Error::msg("Error: Blocked by cloudflare"));
+    }
 
     // check if html contains a 404
+    let document = Html::parse_document(html);
     let error_selector = Selector::parse(".page-404").unwrap();
     if let Some(_) = document.select(&error_selector).next() {
         return Err(Error::msg("Error: url not found"));
