@@ -20,7 +20,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import { Table } from "@tanstack/react-table"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
@@ -112,22 +111,16 @@ interface EditorInputProps {
 }
 
 function EditorInput({ column_id, display_name, orig_novel, novel, setNovel, ...props } : EditorInputProps) {
-  const [value, setValue] = useState(novel[column_id]);
   const {data: session} = useSession();
   const modified_css = novel[column_id] === orig_novel[column_id] ? "" : modified;
-
-  const onBlur = () => {
-    setNovel({...novel, [column_id]: value});
-  }
 
   return (
     <div className="col-span-2 flex flex-col space-y-1">
       <div className="text-md">{display_name}</div>
       <Input
-        value={value ? value : ""}
+        value={novel[column_id] || ""}
         readOnly={session?.user?.role !== 'admin'}
-        onChange={e => setValue(e.target.value)}
-        onBlur={onBlur}
+        onChange={e => setNovel({...novel, [column_id]: e.target.value})}
         className={cn('w-full', modified_css)}
         {...props}
       />
@@ -159,33 +152,23 @@ interface DropdownInputProps {
 }
 
 function DropdownInput({ column_id, display_name, orig_novel, novel, setNovel, cell_values}: DropdownInputProps) {
-  const [value, setValue] = useState(novel[column_id]);
   const {data: session} = useSession();
   const modified_css = novel[column_id] === orig_novel[column_id] ? "" : modified;
-
-  if (value === null) {
-    return null;
-  }
-
-  function update_value(value: string) {
-    setValue(value);
-    setNovel({...novel, [column_id]: value});
-  }
 
   // only allow editing for admins
   let content;
   if (session?.user?.role !== 'admin') {
-    content = value;
+    content = novel[column_id];
   } else {
     content =
       <DropdownMenu>
-        <DropdownMenuTrigger className="w-full text-left">{value ? value.toString() : ""}</DropdownMenuTrigger>
+        <DropdownMenuTrigger className="w-full text-left">{novel[column_id] || ""}</DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuSeparator />
           {
             Object.keys(cell_values).map((key) => {
               return (
-                <DropdownMenuItem key={key} onClick={() => update_value(cell_values[key])}>
+                <DropdownMenuItem key={key} onClick={() => setNovel({...novel, [column_id]: cell_values[key]})}>
                   {cell_values[key]}
                 </DropdownMenuItem>
               )
@@ -212,22 +195,16 @@ interface LargeEditorInputProps {
 }
 
 function LargeEditorInputProps({ column_id, display_name, orig_novel, novel, setNovel, ...props } : EditorInputProps) {
-  const [value, setValue] = useState(novel[column_id]);
   const {data: session} = useSession();
   const modified_css = novel[column_id] === orig_novel[column_id] ? "" : modified;
-
-  const onBlur = () => {
-    setNovel({...novel, [column_id]: value});
-  }
 
   return (
     <div className="col-span-6 flex flex-col space-y-1">
       <div className="text-md">{display_name}</div>
       <Textarea
-        value={value ? value : ""}
+        value={novel[column_id] || ""}
         readOnly={session?.user?.role !== 'admin'}
-        onChange={e => setValue(e.target.value)}
-        onBlur={onBlur}
+        onChange={e => setNovel({...novel, [column_id]: e.target.value})}
         rows={4}
         className={cn('w-full', modified_css)}
         {...props}
@@ -245,27 +222,21 @@ interface DatePickerProps {
 }
 
 function DatePicker({column_id, display_name, orig_novel, novel, setNovel}: DatePickerProps) {
-  const [date, setDate] = useState<Date | null>(novel[column_id] ? new Date(novel[column_id] as string) : null);
-  const {data: session} = useSession();
-
-  // can't compare dates directly; have to only extract units at least a day long
-  const both_null = novel[column_id] === null && orig_novel[column_id] === null;
-  let same_date = false;
-  if (novel[column_id] !== null && orig_novel[column_id] !== null) {
-    const orig_date = new Date(orig_novel[column_id] as string);
-    const new_date = new Date(novel[column_id] as string);
-    same_date = orig_date.toISOString() === new_date.toISOString();
-  }
-  const modified_css = (both_null || same_date) ? "" : modified;
-
   function reprDate(date: Date | null) {
     return date ? date.toISOString().split('T')[0] : "";
   }
 
-  function handleReset() {
-    setDate(null);
-    setNovel({...novel, [column_id]: null});
+  const date = novel[column_id] ? new Date(novel[column_id] as string) : null;
+  const orig_date = orig_novel[column_id] ? new Date(orig_novel[column_id] as string) : null;
+  const {data: session} = useSession();
+
+  // two null dates are the same
+  // two valid dates are the same if units at least a day long are the same
+  let same_date = !date && !orig_date;
+  if (date && orig_date) {
+    same_date = same_date || (date.toISOString() === orig_date.toISOString());
   }
+  const modified_css = same_date ? "" : modified;
 
   let content = <Bordered>{reprDate(date)}</Bordered>;
   if (session?.user?.role === 'admin') {
@@ -276,19 +247,16 @@ function DatePicker({column_id, display_name, orig_novel, novel, setNovel}: Date
           value={reprDate(date)}
           onChange={(e) => {
             if (!e.target.value) {
-              setDate(null);
               setNovel({...novel, [column_id]: null});
               return;
             }
-
             const new_date = new Date(e.target.value);
-            setDate(new_date);
             setNovel({...novel, [column_id]: new_date.toISOString()});
           }}
           className={cn("w-full", modified_css)}
         />
         <Button 
-          onClick={handleReset} 
+          onClick={() => setNovel({...novel, [column_id]: null})}
           variant="secondary_muted"
           className="w-full"
         >
