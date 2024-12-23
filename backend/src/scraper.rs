@@ -3,11 +3,11 @@ use headless_chrome::{Browser, LaunchOptions};
 use scraper::{Html, Selector};
 use unicode_normalization::{UnicodeNormalization, char::is_combining_mark};
 
-use std::{path::PathBuf, thread, time::Duration};
+use std::{env, path::PathBuf, thread, time::Duration};
 
 pub fn init() -> Result<Browser> {
     let port = Some(1234);
-    let chrome_binary = Some(PathBuf::from("./chrome-linux64/chrome"));
+    let chrome_binary = Some(PathBuf::from(env::var("CHROME_PATH")?));
     let launch_options = LaunchOptions::default_builder()
         .path(chrome_binary)
         .port(port)
@@ -77,6 +77,7 @@ fn construct_url(title: &str) -> Result<String> {
 mod tests {
     use super::*;
     use std::{fs::File, io::Read, path::Path, vec};
+    use dotenv::dotenv;
 
     #[test]
     fn space_url() {
@@ -194,6 +195,7 @@ mod tests {
     #[tokio::test]
     #[ignore]
     async fn browser() {
+        dotenv().ok();
         let browser = init().unwrap();
         let res = scrape_genres_and_tags(&browser, "Lord of the Mysteries").await.unwrap();
         assert!(res.len() > 50);
