@@ -171,11 +171,8 @@ async fn get_random_novels(state: State<AppState>, num_novels: Json<usize>) -> i
 
 async fn get_novel_tags(state: State<AppState>, novel_title: String) -> impl IntoResponse {
     println!("Getting novel tags for: {}", novel_title);
-
-    let res = scraper::scrape_genres_and_tags(&state.browser, &novel_title).await;
-    match res {
+    match scraper::scrape_genres_and_tags(&state.browser, &novel_title).await {
         Ok(tags) => Ok((StatusCode::OK, Json(tags))),
         Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))),
     }
-
 }

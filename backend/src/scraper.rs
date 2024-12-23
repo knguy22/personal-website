@@ -1,7 +1,7 @@
-use anyhow::Result;
-use url::Url;
+use anyhow::{Error, Result};
 use headless_chrome::{Browser, LaunchOptions};
 use scraper::{Html, Selector};
+use unicode_normalization::{UnicodeNormalization, char::is_combining_mark};
 
 use std::{path::PathBuf, thread, time::Duration};
 
@@ -16,23 +16,30 @@ pub fn init() -> Result<Browser> {
 }
 
 pub async fn scrape_genres_and_tags(browser: &Browser, title: &str) -> Result<Vec<String>> {
-    let url = Url::parse(title)?;
+    let url = construct_url(title)?;
     let user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
     let accept_language = Some("en-US,en");
     let platform = Some("Win32");
 
     let tab = browser.new_tab()?;
     tab.set_user_agent(user_agent, accept_language, platform)?;
-    tab.navigate_to(url.as_str())?;
+    tab.navigate_to(&url)?;
     thread::sleep(Duration::from_secs(2));
 
     let html = tab.get_content()?;
-    Ok(parse_genres_and_tags(&html))
+    parse_genres_and_tags(&html)
 }
 
-fn parse_genres_and_tags(html: &str) -> Vec<String> {
+fn parse_genres_and_tags(html: &str) -> Result<Vec<String>> {
     let document = Html::parse_document(html);
 
+    // check if html contains a 404
+    let error_selector = Selector::parse(".page-404").unwrap();
+    if let Some(_) = document.select(&error_selector).next() {
+        return Err(Error::msg("Error: url not found"));
+    }
+
+    // otherwise scrape the elements
     let genres_selector = Selector::parse("#seriesgenre").unwrap();
     let tags_selector = Selector::parse("#showtags").unwrap();
     let link_selector = Selector::parse("a").unwrap();
@@ -46,21 +53,77 @@ fn parse_genres_and_tags(html: &str) -> Vec<String> {
             res.push(link.inner_html());
         }
     }
-    res
+    Ok(res)
 }
 
+fn construct_url(title: &str) -> Result<String> {
+    const FORBIDDEN_CHARS: [char; 3] = ['\'', '~', '’'];
+
+    let title: String = title
+        .nfd().filter(|c| !is_combining_mark(*c))
+        .filter(|c| !FORBIDDEN_CHARS.contains(c))
+        .map(|c| if c == ' ' {'-'} else {c})
+        .map(|c| c.to_ascii_lowercase())
+        .collect();
+
+    Ok(format!("https://www.novelupdates.com/series/{}/", title))
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
     use std::{fs::File, io::Read, path::Path, vec};
 
     #[test]
-    fn test_parse_genres_and_tags() {
+    fn space_url() {
+        let title = "Lord of the Mysteries";
+        let url = construct_url(title).unwrap();
+        assert_eq!(url, "https://www.novelupdates.com/series/lord-of-the-mysteries/");
+    }
+
+    #[test]
+    fn dash_url() {
+        let title = "The Heaven-Slaying Sword";
+        let url = construct_url(title).unwrap();
+        assert_eq!(url, "https://www.novelupdates.com/series/the-heaven-slaying-sword/");
+    }
+
+    #[test]
+    fn apostrophe_url() {
+        let title = "Omniscient Reader's Viewpoint";
+        let url = construct_url(title).unwrap();
+        assert_eq!(url, "https://www.novelupdates.com/series/omniscient-readers-viewpoint/");
+    }
+
+    #[test]
+    fn tilda_url() {
+        let title = "The Villainous Daughter’s Butler ~I Raised Her to be Very Cute~";
+        let url = construct_url(title).unwrap();
+        assert_eq!(url, "https://www.novelupdates.com/series/the-villainous-daughters-butler-i-raised-her-to-be-very-cute/");
+    }
+
+    #[test]
+    fn special_char_url() {
+        let title = "Reincarnated • The Hero Marries the Sage ~After Becoming Engaged to a Former Rival, We Became the Strongest Couple~";
+        let url = construct_url(title).unwrap();
+        assert_eq!(url, "https://www.novelupdates.com/series/reincarnated-•-the-hero-marries-the-sage-after-becoming-engaged-to-a-former-rival,-we-became-the-strongest-couple/");
+    }
+
+    #[test]
+    fn special_char_url_2() {
+        let title = "Kimi no Sei de Kyō Mo Shinenai";
+        let url = construct_url(title).unwrap();
+        assert_eq!(url, "https://www.novelupdates.com/series/kimi-no-sei-de-kyo-mo-shinenai/");
+    }
+
+
+    #[test]
+    fn gimai_html() {
         let mut html: String = String::new();
         let gimai_path = Path::new("./test_data/Gimai Seikatsu - Novel Updates.html");
         File::open(gimai_path).unwrap().read_to_string(&mut html).unwrap();
 
-        let res = parse_genres_and_tags(&html);
-
+        let res = parse_genres_and_tags(&html).unwrap();
         let expected = vec![
             // genres
             "Comedy",
@@ -112,9 +175,13 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_scrape_genres_and_tags() {
+    #[ignore]
+    async fn browser() {
         let browser = init().unwrap();
-        let res = scrape_genres_and_tags(&browser, "https://www.novelupdates.com/series/lord-of-the-mysteries/").await.unwrap();
+        let res = scrape_genres_and_tags(&browser, "Lord of the Mysteries").await.unwrap();
         assert!(res.len() > 50);
+
+        let res = scrape_genres_and_tags(&browser, "laksjdflkajsdglh").await;
+        assert!(res.is_err());
     }
 }

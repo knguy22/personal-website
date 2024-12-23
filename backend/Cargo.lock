@@ -3602,6 +3602,7 @@ dependencies = [
  "serde_json",
  "strum",
  "tokio",
+ "unicode-normalization",
  "url",
 ]
 
