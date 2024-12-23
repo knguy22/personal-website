@@ -61,11 +61,11 @@ fn parse_genres_and_tags(html: &str) -> Result<Vec<String>> {
 }
 
 fn construct_url(title: &str) -> Result<String> {
-    const FORBIDDEN_CHARS: [char; 3] = ['\'', '~', '’'];
+    const FORBIDDEN_CHARS: &str = "~'’()[]";
 
     let title: String = title
-        .nfd().filter(|c| !is_combining_mark(*c))
-        .filter(|c| !FORBIDDEN_CHARS.contains(c))
+        .nfd().filter(|c| !is_combining_mark(*c)) // handle unicode characters
+        .filter(|c| !FORBIDDEN_CHARS.contains(*c))
         .map(|c| if c == ' ' {'-'} else {c})
         .map(|c| c.to_ascii_lowercase())
         .collect();
@@ -107,6 +107,20 @@ mod tests {
     }
 
     #[test]
+    fn paren_url() {
+        let title = "Yumemiru Danshi wa Genjitsushugisha (LN)";
+        let url = construct_url(title).unwrap();
+        assert_eq!(url, "https://www.novelupdates.com/series/yumemiru-danshi-wa-genjitsushugisha-ln/");
+    }
+
+    #[test]
+    fn bracket_url() {
+        let title = "[Koi Bana] Kore wa Tomodachi no Hanashina Nandakedo";
+        let url = construct_url(title).unwrap();
+        assert_eq!(url, "https://www.novelupdates.com/series/koi-bana-kore-wa-tomodachi-no-hanashina-nandakedo/");
+    }
+
+    #[test]
     fn special_char_url() {
         let title = "Reincarnated • The Hero Marries the Sage ~After Becoming Engaged to a Former Rival, We Became the Strongest Couple~";
         let url = construct_url(title).unwrap();
@@ -119,7 +133,6 @@ mod tests {
         let url = construct_url(title).unwrap();
         assert_eq!(url, "https://www.novelupdates.com/series/kimi-no-sei-de-kyo-mo-shinenai/");
     }
-
 
     #[test]
     fn gimai_html() {
