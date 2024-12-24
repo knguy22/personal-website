@@ -65,10 +65,12 @@ fn parse_genres_and_tags(html: &str, url: &str) -> Result<Vec<String>> {
 }
 
 fn construct_url(title: &str) -> Result<String> {
-    const FORBIDDEN_CHARS: &str = "~'’()[]";
+    const FORBIDDEN_CHARS: &str = "’“”";
+    const ALLOWED_PUNCTUATION: &str = "-";
 
     let title: String = title
-        .nfd().filter(|c| !is_combining_mark(*c)) // handle unicode characters
+        .nfd().filter(|c| !is_combining_mark(*c)) // handle unicode alphabetical characters
+        .filter(|c| !c.is_ascii_punctuation() || ALLOWED_PUNCTUATION.contains(*c))
         .filter(|c| !FORBIDDEN_CHARS.contains(*c))
         .map(|c| if c == ' ' {'-'} else {c})
         .map(|c| c.to_ascii_lowercase())
@@ -112,6 +114,13 @@ mod tests {
     }
 
     #[test]
+    fn comma_url() {
+        let title = "As I Know Anything About You, I’ll Be The One To Your Girlfriend, Aren’t I?";
+        let url = construct_url(title).unwrap();
+        assert_eq!(url, "https://www.novelupdates.com/series/as-i-know-anything-about-you-ill-be-the-one-to-your-girlfriend-arent-i/");
+    }
+
+    #[test]
     fn paren_url() {
         let title = "Yumemiru Danshi wa Genjitsushugisha (LN)";
         let url = construct_url(title).unwrap();
@@ -126,10 +135,17 @@ mod tests {
     }
 
     #[test]
+    fn punctuation_url() {
+        let title = "When I Made The Cheeky Childhood Friend Who Provoked Me With “You Can’t Even Kiss, Right?” Know Her Place, She Became More Cutesy Than I Expected";
+        let url = construct_url(title).unwrap();
+        assert_eq!(url, "https://www.novelupdates.com/series/when-i-made-the-cheeky-childhood-friend-who-provoked-me-with-you-cant-even-kiss-right-know-her-place-she-became-more-cutesy-than-i-expected/");
+    }
+
+    #[test]
     fn special_char_url() {
         let title = "Reincarnated • The Hero Marries the Sage ~After Becoming Engaged to a Former Rival, We Became the Strongest Couple~";
         let url = construct_url(title).unwrap();
-        assert_eq!(url, "https://www.novelupdates.com/series/reincarnated-•-the-hero-marries-the-sage-after-becoming-engaged-to-a-former-rival,-we-became-the-strongest-couple/");
+        assert_eq!(url, "https://www.novelupdates.com/series/reincarnated-•-the-hero-marries-the-sage-after-becoming-engaged-to-a-former-rival-we-became-the-strongest-couple/");
     }
 
     #[test]
