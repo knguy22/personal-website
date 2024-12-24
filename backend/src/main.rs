@@ -14,7 +14,6 @@ use axum::{
     http::StatusCode, Router,
 };
 use dotenv::dotenv;
-use headless_chrome::Browser;
 use itertools::Itertools;
 use novel_entry::NovelEntry;
 use rand::{rngs::StdRng, seq::SliceRandom, SeedableRng};
@@ -25,7 +24,6 @@ use tokio::sync::Mutex;
 #[derive(Clone)]
 struct AppState {
     conn: DatabaseConnection,
-    browser: Arc<Mutex<Browser>>,
     rng: Arc<Mutex<StdRng>>,
 }
 
@@ -34,12 +32,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // initialize everything; run scripts if applicable
     dotenv().ok();
     let rng = Arc::new(Mutex::new(StdRng::from_entropy()));
-    let browser = Arc::new(Mutex::new(scraper::init().unwrap()));
     let conn = db::init().await.unwrap();
     scripts::run_cli(&conn).await.unwrap();
 
     // build our application with a route
-    let state = AppState { conn, browser, rng };
+    let state = AppState { conn, rng };
     let domain = env::var("DOMAIN").unwrap();
     let app = Router::new()
         .route("/", get(main_handler))
@@ -169,14 +166,9 @@ async fn get_random_novels(state: State<AppState>, num_novels: Json<usize>) -> i
     Json(random_novels)
 }
 
-async fn get_novel_tags(state: State<AppState>, novel_title: Json<String>) -> impl IntoResponse {
+async fn get_novel_tags(novel_title: Json<String>) -> impl IntoResponse {
     println!("Getting novel tags for: {}", *novel_title);
-    let res = scraper::scrape_genres_and_tags(&mut *state.browser.lock().await, &novel_title).await;
-    println!("Finished getting novel tags for: {}", *novel_title);
-    if res.is_err() {
-        println!("Error: {:?}", res.as_ref().unwrap_err());
-    }
-
+    let res = scraper::scrape_genres_and_tags(&novel_title).await;
     match res {
         Ok(tags) => Ok((StatusCode::OK, Json(tags))),
         Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))),
