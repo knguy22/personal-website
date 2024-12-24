@@ -222,31 +222,39 @@ interface TagsEditorInputProps {
   setNovel: (novel: NovelEntry) => void
 }
 
-function TagsEditorInput({ column_id, display_name, orig_novel, novel, setNovel, ...props } : EditorInputProps) {
+function TagsEditorInput({ column_id, display_name, orig_novel, novel, setNovel, ...props } : TagsEditorInputProps) {
   const {data: session} = useSession();
   const { toast } = useToast();
+  const [disabled, setDisabled] = useState(false);
   const modified_css = novel[column_id] === orig_novel[column_id] ? "" : modified;
 
   async function fetch_novel_updates_tags(novel: NovelEntry) {
+    // give visual cues that fetching is happening
     toast({
       title: "Currently Fetching Tags...",
     })
-
+    setDisabled(true);
+    
+    // perform the fetching
     const to_send: string = novel.title;
     const response = await fetch_backend(
       {path: "/api/scrape_novel_tags", method: "POST", body: JSON.stringify(to_send), contentType: "application/json"}
     );
-    const data = response.data as string[] | null;
-    if (data) {
-      setNovel({...novel, [column_id]: data.join(',')})
 
-    }
+    // handle result and give visual response
     if (response.error) {
       toast({
         title: "Error Fetching Tags:",
-        description: response.error as string,
+        description: JSON.parse(response.error as string),
       })
+    } else {
+      const data = response.data as string[];
+      toast({
+        title: "Tags Fetched Successfully!",
+      })
+      setNovel({...novel, [column_id]: data.join(',')})
     }
+    setDisabled(false);
   }
 
   return (
@@ -254,7 +262,7 @@ function TagsEditorInput({ column_id, display_name, orig_novel, novel, setNovel,
       <div className="text-md">{display_name}</div>
       <Textarea
         value={novel[column_id] || ""}
-        readOnly={session?.user?.role !== 'admin'}
+        readOnly={session?.user?.role !== 'admin' || disabled}
         onChange={e => setNovel({...novel, [column_id]: e.target.value})}
         rows={4}
         className={cn('w-full', modified_css)}
@@ -263,6 +271,7 @@ function TagsEditorInput({ column_id, display_name, orig_novel, novel, setNovel,
       <Button
         onClick={() => fetch_novel_updates_tags(novel)}
         variant="secondary_muted"
+        disabled={disabled}
       >
         Fetch Tags
       </Button>
