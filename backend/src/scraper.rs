@@ -27,7 +27,7 @@ pub async fn scrape_genres_and_tags(title: &str) -> Result<Vec<String>> {
     let tab = browser.new_tab()?;
     tab.set_user_agent(user_agent, accept_language, platform)?;
     tab.navigate_to(&url)?;
-    thread::sleep(Duration::from_secs(2));
+    thread::sleep(Duration::from_secs(5));
 
     let html = tab.get_content()?;
     tab.close_with_unload()?;

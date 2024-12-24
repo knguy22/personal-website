@@ -1,8 +1,11 @@
-use crate::novel_entry::{NovelEntry, NovelTagsRecordParsed};
 use crate::db;
+use crate::novel_entry::{NovelEntry, NovelTagsRecordParsed};
+use crate::scraper::scrape_genres_and_tags;
 
 use std::error::Error;
 use std::path::PathBuf;
+use std::thread;
+use std::time::Duration;
 
 use clap::Parser;
 use csv;
@@ -12,19 +15,15 @@ use sea_orm::DatabaseConnection;
 #[command(version, about, long_about = None)]
 struct Cli {
     /// Drops everything currently in the table; this will not drop any newly imported novel entries
-    #[clap(long, short, action)]
+    #[clap(long, short, action, value_name = "BOOL")]
     drop_all_novels: bool,
 
-    /// Imports and inserts new novel entries from a csv file
-    #[arg(long, value_name = "FILE")]
-    insert_novels_csv: Option<PathBuf>,
-
-    /// Imports and updates novel entries from a csv file
-    #[arg(short, long, value_name = "FILE")]
-    update_novels_csv: Option<PathBuf>,
+    /// Manually fetches the novel tags by webscraping Novelupdates
+    #[arg(short, long, action, value_name = "BOOL")]
+    fetch_novel_tags: bool,
 
     /// Imports novel tags and genres from a csv file (see https://github.com/shaido987/novel-dataset)
-    #[arg(long, value_name = "FILE")]
+    #[arg(short, long, value_name = "FILE")]
     import_novel_tags_csv: Option<PathBuf>,
 }
 
@@ -35,11 +34,43 @@ pub async fn run_cli(conn: &DatabaseConnection) -> Result<(), Box<dyn Error>> {
         db::drop_all_novels(conn).await?;
     }
 
+    if cli.fetch_novel_tags {
+        fetch_novel_tags(conn).await?;
+    }
+
     if cli.import_novel_tags_csv.is_some() {
         let rows = read_novel_tags_csv(&cli.import_novel_tags_csv.unwrap().to_str().unwrap().to_string()).await?;
         let _ = db::update_novel_tags(conn, &rows).await?;
     }
 
+    Ok(())
+}
+
+async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<(), Box<dyn Error>> {
+    let novels = db::fetch_novel_entries(conn).await?;
+    let mut modified_novels = Vec::new();
+    println!("Attempting to fetch tags for {} novels...", novels.len());
+
+    for novel in &novels {
+        let scraped_tags = scrape_genres_and_tags(&novel.title).await;
+        match scraped_tags {
+            Ok(new_tags) => {
+                let new_novel = NovelEntry {
+                    tags: new_tags,
+                    ..novel.clone()
+                };
+                modified_novels.push(new_novel);
+                println!("Success: {}", novel.title);
+            },
+
+            Err(e) => {
+                println!("Error: {}, {}", novel.title, e);
+                thread::sleep(Duration::from_secs(20));
+            },
+        }
+    }
+
+    db::update_novel_entries(conn, &modified_novels).await?;
     Ok(())
 }
 
