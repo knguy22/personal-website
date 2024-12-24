@@ -25,7 +25,6 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { buttonVariants } from "@/components/ui/button"
-import { useToast } from "@/components/hooks/use-toast"
 
 import { CellContext } from "@tanstack/react-table"
 import { Status, NovelEntry, NovelEntryApi, api_to_entry, entry_to_api, novel_entries_equal, novel_col_names } from "./novel-types"
@@ -95,7 +94,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
           <DatePicker column_id="date_started" display_name="Date Started" orig_novel={row.original} novel={novel} setNovel={setNovel} />
           <DatePicker column_id="date_completed" display_name="Date Completed" orig_novel={row.original} novel={novel} setNovel={setNovel} />
           <LargeEditorInputProps column_id="notes" display_name="Notes" orig_novel={row.original} novel={novel} setNovel={setNovel} />
-          <TagsEditorInput column_id="tags" display_name="Tags" orig_novel={row.original} novel={novel} setNovel={setNovel} />
+          <LargeEditorInputProps column_id="tags" display_name="Tags" orig_novel={row.original} novel={novel} setNovel={setNovel} />
         </div>
         {dialog_buttons}
       </DialogContent>
@@ -210,71 +209,6 @@ function LargeEditorInputProps({ column_id, display_name, orig_novel, novel, set
         className={cn('w-full', modified_css)}
         {...props}
       />
-    </div>
-  )
-}
-
-interface TagsEditorInputProps {
-  column_id: keyof NovelEntry
-  display_name: string
-  orig_novel: NovelEntry
-  novel: NovelEntry
-  setNovel: (novel: NovelEntry) => void
-}
-
-function TagsEditorInput({ column_id, display_name, orig_novel, novel, setNovel, ...props } : TagsEditorInputProps) {
-  const {data: session} = useSession();
-  const { toast } = useToast();
-  const [disabled, setDisabled] = useState(false);
-  const modified_css = novel[column_id] === orig_novel[column_id] ? "" : modified;
-
-  async function fetch_novel_updates_tags(novel: NovelEntry) {
-    // give visual cues that fetching is happening
-    toast({
-      title: "Currently Fetching Tags...",
-    })
-    setDisabled(true);
-    
-    // perform the fetching
-    const to_send: string = novel.title;
-    const response = await fetch_backend(
-      {path: "/api/scrape_novel_tags", method: "POST", body: JSON.stringify(to_send), contentType: "application/json"}
-    );
-
-    // handle result and give visual response
-    if (response.error) {
-      toast({
-        title: "Error Fetching Tags:",
-        description: JSON.parse(response.error as string),
-      })
-    } else {
-      const data = response.data as string[];
-      toast({
-        title: "Tags Fetched Successfully!",
-      })
-      setNovel({...novel, [column_id]: data.join(',')})
-    }
-    setDisabled(false);
-  }
-
-  return (
-    <div className="col-span-6 flex flex-col space-y-1">
-      <div className="text-md">{display_name}</div>
-      <Textarea
-        value={novel[column_id] || ""}
-        readOnly={session?.user?.role !== 'admin' || disabled}
-        onChange={e => setNovel({...novel, [column_id]: e.target.value})}
-        rows={4}
-        className={cn('w-full', modified_css)}
-        {...props}
-      />
-      <Button
-        onClick={() => fetch_novel_updates_tags(novel)}
-        variant="secondary_muted"
-        disabled={disabled}
-      >
-        Fetch Tags
-      </Button>
     </div>
   )
 }

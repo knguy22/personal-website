@@ -47,7 +47,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .route("/api/delete_novel", delete(delete_novel_handler))
         .route("/api/novels_stats", get(get_novels_stats))
         .route("/api/random_novels", post(get_random_novels))
-        .route("/api/scrape_novel_tags", post(get_novel_tags))
         .with_state(state);
 
     // run it
@@ -164,13 +163,4 @@ async fn get_random_novels(state: State<AppState>, num_novels: Json<usize>) -> i
         .map(|novel| novel.clone())
         .collect_vec();
     Json(random_novels)
-}
-
-async fn get_novel_tags(novel_title: Json<String>) -> impl IntoResponse {
-    println!("Getting novel tags for: {}", *novel_title);
-    let res = scraper::scrape_genres_and_tags(&novel_title).await;
-    match res {
-        Ok(tags) => Ok((StatusCode::OK, Json(tags))),
-        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))),
-    }
 }

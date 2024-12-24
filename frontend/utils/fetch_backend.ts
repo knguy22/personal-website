@@ -15,7 +15,6 @@ const admin_routes: string[] = [
   "/api/upload_novels_backup",
   "/api/create_novel",
   "/api/delete_novel",
-  "/api/scrape_novel_tags",
 ];
 
 const BackendRequestSchema = z.object({
