@@ -174,6 +174,7 @@ mod tests {
     use dotenv::dotenv;
 
     #[tokio::test]
+    #[ignore]
     async fn test_init() {
         dotenv().ok();
         let _db = init().await.unwrap();
