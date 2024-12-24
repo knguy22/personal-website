@@ -3603,7 +3603,6 @@ dependencies = [
  "strum",
  "tokio",
  "unicode-normalization",
- "url",
 ]
 
 [[package]]
