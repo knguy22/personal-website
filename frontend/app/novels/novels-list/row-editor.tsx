@@ -37,7 +37,6 @@ const modified: string = "bg-secondary text-secondary-foreground";
 export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
   const [novel, setNovel] = useState<NovelEntry>(row.original)
   const {data: session} = useSession();
-  const { toast } = useToast();
   const date_modified = new Date(row.original.date_modified);
 
   async function update_novel(novel: NovelEntry) {
@@ -57,27 +56,10 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
     }
   }
 
-  async function fetch_novel_updates_tags(novel: NovelEntry) {
-    const to_send: string = novel.title;
-    const response = await fetch_backend(
-      {path: "/api/scrape_novel_tags", method: "POST", body: JSON.stringify(to_send), contentType: "application/json"}
-    );
-    const data = response.data as string[] | null;
-    if (data) {
-      table.options.meta?.updateCell(row.index, "tags", data.join(','));
-    }
-    if (response.error) {
-      toast({
-        title: "Error Fetching Tags:",
-        description: response.error as string,
-      })
-    }
-  }
-
   const dialog_buttons = session?.user?.role === "admin" ?
     <div className="grid grid-cols-3 pt-3">
       <DeleteRowButton row={row} table={table} />
-      <Button size="sm" variant="default" onClick={() => fetch_novel_updates_tags(novel)}>Fetch Tags</Button>
+      <div></div>
       <Button size="sm" variant="default" onClick={() => update_novel(novel)}>Save</Button>
     </div> :
     null
@@ -113,7 +95,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
           <DatePicker column_id="date_started" display_name="Date Started" orig_novel={row.original} novel={novel} setNovel={setNovel} />
           <DatePicker column_id="date_completed" display_name="Date Completed" orig_novel={row.original} novel={novel} setNovel={setNovel} />
           <LargeEditorInputProps column_id="notes" display_name="Notes" orig_novel={row.original} novel={novel} setNovel={setNovel} />
-          <LargeEditorInputProps column_id="tags" display_name="Tags" orig_novel={row.original} novel={novel} setNovel={setNovel} />
+          <TagsEditorInput column_id="tags" display_name="Tags" orig_novel={row.original} novel={novel} setNovel={setNovel} />
         </div>
         {dialog_buttons}
       </DialogContent>
@@ -228,6 +210,62 @@ function LargeEditorInputProps({ column_id, display_name, orig_novel, novel, set
         className={cn('w-full', modified_css)}
         {...props}
       />
+    </div>
+  )
+}
+
+interface TagsEditorInputProps {
+  column_id: keyof NovelEntry
+  display_name: string
+  orig_novel: NovelEntry
+  novel: NovelEntry
+  setNovel: (novel: NovelEntry) => void
+}
+
+function TagsEditorInput({ column_id, display_name, orig_novel, novel, setNovel, ...props } : EditorInputProps) {
+  const {data: session} = useSession();
+  const { toast } = useToast();
+  const modified_css = novel[column_id] === orig_novel[column_id] ? "" : modified;
+
+  async function fetch_novel_updates_tags(novel: NovelEntry) {
+    toast({
+      title: "Currently Fetching Tags...",
+    })
+
+    const to_send: string = novel.title;
+    const response = await fetch_backend(
+      {path: "/api/scrape_novel_tags", method: "POST", body: JSON.stringify(to_send), contentType: "application/json"}
+    );
+    const data = response.data as string[] | null;
+    if (data) {
+      setNovel({...novel, [column_id]: data.join(',')})
+
+    }
+    if (response.error) {
+      toast({
+        title: "Error Fetching Tags:",
+        description: response.error as string,
+      })
+    }
+  }
+
+  return (
+    <div className="col-span-6 flex flex-col space-y-1">
+      <div className="text-md">{display_name}</div>
+      <Textarea
+        value={novel[column_id] || ""}
+        readOnly={session?.user?.role !== 'admin'}
+        onChange={e => setNovel({...novel, [column_id]: e.target.value})}
+        rows={4}
+        className={cn('w-full', modified_css)}
+        {...props}
+      />
+      <Button
+        onClick={() => fetch_novel_updates_tags(novel)}
+        variant="secondary_muted"
+      >
+        Fetch Tags
+      </Button>
     </div>
   )
 }
