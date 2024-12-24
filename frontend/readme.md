@@ -1,4 +1,4 @@
-# Setting up the fackend
+# Setting up the frontend
 
 ## Prerequisites:
 * Node
