@@ -11,6 +11,7 @@ pub fn init() -> Result<Browser> {
     let launch_options = LaunchOptions::default_builder()
         .path(chrome_binary)
         .port(port)
+        .sandbox(false)
         .build()?;
     Browser::new(launch_options)
 }
