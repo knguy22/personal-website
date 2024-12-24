@@ -20,11 +20,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
+import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
+import { useToast } from "@/components/hooks/use-toast"
 
 import { CellContext } from "@tanstack/react-table"
 import { Status, NovelEntry, NovelEntryApi, api_to_entry, entry_to_api, novel_entries_equal, novel_col_names } from "./novel-types"
@@ -36,6 +37,7 @@ const modified: string = "bg-secondary text-secondary-foreground";
 export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
   const [novel, setNovel] = useState<NovelEntry>(row.original)
   const {data: session} = useSession();
+  const { toast } = useToast();
   const date_modified = new Date(row.original.date_modified);
 
   async function update_novel(novel: NovelEntry) {
@@ -63,6 +65,12 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
     const data = response.data as string[] | null;
     if (data) {
       table.options.meta?.updateCell(row.index, "tags", data.join(','));
+    }
+    if (response.error) {
+      toast({
+        title: "Error Fetching Tags:",
+        description: response.error as string,
+      })
     }
   }
 

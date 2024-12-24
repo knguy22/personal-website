@@ -47,8 +47,6 @@ export function DataTable ({
   setData,
 }: DataTableProps) {
 
-  const {data: session} = useSession();
-
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 50,
