@@ -4,8 +4,6 @@ This is where I put whatever I want to host on the internet. I plan on installin
 
 # Running the Production Server
 
-For reference, I am using a VPS with Almalinux 8.
-
 ## Requirements
 * Rust (cargo)
 * PostgreSQL
