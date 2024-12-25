@@ -8,7 +8,7 @@ mod stats;
 use std::{env, error::Error, sync::Arc};
 
 use axum::{
-    response::{Html, IntoResponse, Json},
+    response::{IntoResponse, Json},
     extract::{State, multipart::Multipart},
     routing::{get, post, delete},
     http::StatusCode, Router,
@@ -39,7 +39,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let state = AppState { conn, rng };
     let domain = env::var("DOMAIN").unwrap();
     let app = Router::new()
-        .route("/", get(main_handler))
         .route("/api/novels", get(novel_handler))
         .route("/api/update_novels", post(update_novels_handler))
         .route("/api/upload_novels_backup", post(upload_novels_backup))
@@ -57,10 +56,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     axum::serve(listener, app).await.unwrap();
 
     Ok(())
-}
-
-async fn main_handler() -> Html<&'static str> {
-    Html("<h1>Hello, World!</h1>")
 }
 
 /* 
