@@ -43,8 +43,8 @@ fn parse_genres_and_tags(html: &str, url: &str) -> Result<Vec<String>> {
     // check if html contains a 404
     let document = Html::parse_document(html);
     let error_selector = Selector::parse(".page-404").unwrap();
-    if let Some(_) = document.select(&error_selector).next() {
-        return Err(Error::msg(format!("Error: url not found: {}", url)));
+    if document.select(&error_selector).next().is_some() {
+        return Err(Error::msg(format!("Error: url not found: {url}")));
     }
 
     // otherwise scrape the elements
@@ -52,8 +52,8 @@ fn parse_genres_and_tags(html: &str, url: &str) -> Result<Vec<String>> {
     let tags_selector = Selector::parse("#showtags").unwrap();
     let link_selector = Selector::parse("a").unwrap();
 
-    let genres_iter = document.select(&genres_selector).into_iter();
-    let tags_iter = document.select(&tags_selector).into_iter();
+    let genres_iter = document.select(&genres_selector);
+    let tags_iter = document.select(&tags_selector);
     let mut res = Vec::new();
 
     for group in genres_iter.chain(tags_iter)  {
@@ -81,7 +81,7 @@ fn construct_url(title: &str) -> String {
         .collect();
 
     // in case of having multiple dashes in a row, condense them into one
-    let mut filtered_2  = filtered.chars().nth(0).unwrap().to_string();
+    let mut filtered_2  = filtered.chars().next().unwrap().to_string();
     for c in filtered.chars().skip(1) {
         let last_char = filtered_2.chars().nth_back(0).unwrap();
         if c == '-' && last_char == '-' {
@@ -90,7 +90,7 @@ fn construct_url(title: &str) -> String {
         filtered_2.push(c);
     }
 
-    format!("https://www.novelupdates.com/series/{}/", filtered_2)
+    format!("https://www.novelupdates.com/series/{filtered_2}/")
 }
 
 #[cfg(test)]

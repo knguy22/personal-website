@@ -2,13 +2,13 @@ use crate::db;
 use crate::novel_entry::{NovelEntry, NovelTagsRecordParsed};
 use crate::scraper::scrape_genres_and_tags;
 
-use std::error::Error;
 use std::path::{Path, PathBuf};
 use std::thread;
 use std::time::Duration;
 
+use anyhow::Result;
 use clap::Parser;
-use csv;
+use csv::Reader;
 use sea_orm::DatabaseConnection;
 
 #[derive(Parser)]
@@ -30,12 +30,12 @@ struct Cli {
     #[arg(short, long, value_name = "URL")]
     url_single_fetch_novel_tags: Option<String>,
 
-    /// Imports novel tags and genres from a csv file (see https://github.com/shaido987/novel-dataset)
+    /// Imports novel tags and genres from a csv file (see <https://github.com/shaido987/novel-dataset>)
     #[arg(short, long, value_name = "FILE")]
     import_novel_tags_csv: Option<PathBuf>,
 }
 
-pub async fn run_cli(conn: &DatabaseConnection) -> Result<(), Box<dyn Error>> {
+pub async fn run_cli(conn: &DatabaseConnection) -> Result<()> {
     let cli = Cli::parse();
 
     if cli.drop_all_novels {
@@ -51,14 +51,14 @@ pub async fn run_cli(conn: &DatabaseConnection) -> Result<(), Box<dyn Error>> {
     }
 
     if let Some(csv_file) = cli.import_novel_tags_csv {
-        let rows = read_novel_tags_csv(&csv_file).await?;
+        let rows = read_novel_tags_csv(&csv_file)?;
         db::update_novel_tags(conn, &rows).await?;
     }
 
     Ok(())
 }
 
-async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<(), Box<dyn Error>> {
+async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<()> {
     let novels = db::fetch_novel_entries(conn).await?;
     let mut modified_novels = Vec::new();
     println!("Attempting to fetch tags for {} novels...", novels.len());
@@ -86,8 +86,8 @@ async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<(), Box<dyn Error
     Ok(())
 }
 
-async fn single_fetch_novel_tags(conn: &DatabaseConnection, title: &str, url: Option<String>) -> Result<(), Box<dyn Error>> {
-    println!("Attempting to fetch tags for [{}]", title);
+async fn single_fetch_novel_tags(conn: &DatabaseConnection, title: &str, url: Option<String>) -> Result<()> {
+    println!("Attempting to fetch tags for [{title}]");
 
     let novel = db::fetch_single_novel(conn, title).await?;
     let scraped_tags = scrape_genres_and_tags(title, 2, url).await?;
@@ -97,7 +97,7 @@ async fn single_fetch_novel_tags(conn: &DatabaseConnection, title: &str, url: Op
     }];
     db::update_novel_entries(conn, &new_novel).await?;
 
-    println!("Success: [{}]", title);
+    println!("Success: [{title}]");
     Ok(())
 }
 
@@ -135,19 +135,19 @@ struct NovelTagsCsvRecord {
     chapter_latest_translated: Option<String>,
 }
 
-async fn read_novel_tags_csv(csv_file: &Path) -> Result<Vec<NovelTagsRecordParsed>, Box<dyn Error>> {
-    let mut rdr = csv::Reader::from_path(csv_file).unwrap();
+fn read_novel_tags_csv(csv_file: &Path) -> Result<Vec<NovelTagsRecordParsed>> {
+    let mut rdr = Reader::from_path(csv_file).unwrap();
     let mut data = Vec::new();
 
     let headers = rdr.headers()?;
-    println!("Headers read: {:?}", headers);
+    println!("Headers read: {headers:?}");
 
     for res in rdr.deserialize() {
         let t: NovelTagsCsvRecord;
         match res {
             Ok(r) => t = r,
             Err(err) => {
-                println!("{}", err);
+                println!("{err}");
                 continue
             },
         }
@@ -168,14 +168,14 @@ async fn read_novel_tags_csv(csv_file: &Path) -> Result<Vec<NovelTagsRecordParse
 }
 
 // strip extra space on edges, strip quotes, strip #, strip []
-fn strip_novel_tags(tags: &mut Vec<String>) {
-    for i in 0..tags.len() {
-        tags[i] = tags[i].replace("\"", "");
-        tags[i] = tags[i].replace("#", "");
-        tags[i] = tags[i].replace("[", "");
-        tags[i] = tags[i].replace("]", "");
-        tags[i] = tags[i].replace("'", "");
-        tags[i] = tags[i].replace("\"", "");
-        tags[i] = tags[i].trim().to_string();
+fn strip_novel_tags(tags: &mut [String]) {
+    for tag in tags {
+        *tag = tag.replace('\"', "");
+        *tag = tag.replace('#', "");
+        *tag = tag.replace('[', "");
+        *tag = tag.replace(']', "");
+        *tag = tag.replace('\'', "");
+        *tag = tag.replace('\"', "");
+        *tag = tag.trim().to_string();
     }
 }

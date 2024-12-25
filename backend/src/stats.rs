@@ -1,7 +1,9 @@
 use crate::db;
 use crate::novel_entry::NovelEntry;
-use std::error::Error;
+
 use std::collections::HashMap;
+
+use anyhow::Result;
 use sea_orm::DatabaseConnection;
 use serde::{Deserialize, Serialize};
 
@@ -36,17 +38,18 @@ pub struct Stats {
     pub country_dist: HashMap<String, u32>,
 }
 
-pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats, Box<dyn Error>> {
+#[allow(clippy::cast_precision_loss)]
+pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats> {
     let novels = db::fetch_novel_entries(db).await?;
-    let novel_count = novels.len() as u32;
+    let novel_count = u32::try_from(novels.len())?;
     let chapter_count = novels.iter().map(|novel| novel.chapter.parse().unwrap_or(0)).sum();
     let volumes_completed: u32 = novels.iter().map(|novel| completed_volume(&novel.chapter)).sum();
-    let novels_not_started = novels.iter().filter(|novel| novel.chapter.len() == 0).count() as u32;
+    let novels_not_started = u32::try_from(novels.iter().filter(|novel| novel.chapter.is_empty()).count())?;
 
     let rating_sum: u32 = novels.iter().map(|novel| novel.rating).sum();
     let non_zero_ratings = novels.iter().filter(|novel| novel.rating > 0).count();
     let average_rating = if non_zero_ratings > 0 {
-        rating_sum as f32 / non_zero_ratings as f32
+        rating_sum as f32 /  non_zero_ratings as f32
     } else {
         0.0
     };
@@ -85,7 +88,7 @@ pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats, Box<dyn Error>>
 // Ex: V11C3 = 10 volumes completed
 fn completed_volume(chapter: &str) -> u32 {
     // check if the novel contains volumes
-    if !chapter.starts_with("v") && !chapter.starts_with("V") {
+    if !chapter.starts_with('v') && !chapter.starts_with('V') {
         return 0
     }
 
@@ -122,7 +125,7 @@ fn find_status_dist(novels: &[NovelEntry]) -> HashMap<String, u32> {
 
 fn find_chapter_country_dist(novels: &[NovelEntry]) -> (HashMap<String, u32>, HashMap<String, u32>) {
     fn dist_to_string(low: u32, high: u32) -> String {
-        format!("{}-{}", low, high)
+        format!("{low}-{high}")
     }
 
     let mut chapter_dist = HashMap::<ChapterCountBucket, u32>::new();

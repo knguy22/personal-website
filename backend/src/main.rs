@@ -5,16 +5,16 @@ mod scraper;
 mod scripts;
 mod stats;
 
-use std::{env, error::Error, sync::Arc};
+use std::{env, sync::Arc};
 
+use anyhow::Result;
 use axum::{
-    response::{Html, IntoResponse, Json},
+    response::{IntoResponse, Json},
     extract::{State, multipart::Multipart},
     routing::{get, post, delete},
     http::StatusCode, Router,
 };
 use dotenv::dotenv;
-use itertools::Itertools;
 use novel_entry::NovelEntry;
 use rand::{rngs::StdRng, seq::SliceRandom, SeedableRng};
 use sea_orm::DatabaseConnection;
@@ -28,7 +28,7 @@ struct AppState {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> Result<()> {
     // initialize everything; run scripts if applicable
     dotenv().ok();
     let rng = Arc::new(Mutex::new(StdRng::from_entropy()));
@@ -39,7 +39,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let state = AppState { conn, rng };
     let domain = env::var("DOMAIN").unwrap();
     let app = Router::new()
-        .route("/", get(main_handler))
         .route("/api/novels", get(novel_handler))
         .route("/api/update_novels", post(update_novels_handler))
         .route("/api/upload_novels_backup", post(upload_novels_backup))
@@ -53,14 +52,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let listener = tokio::net::TcpListener::bind(domain.clone())
         .await
         .unwrap();
-    println!("Listening on {}", domain);
+    println!("Listening on {domain}");
     axum::serve(listener, app).await.unwrap();
 
     Ok(())
-}
-
-async fn main_handler() -> Html<&'static str> {
-    Html("<h1>Hello, World!</h1>")
 }
 
 /* 
@@ -91,7 +86,7 @@ async fn upload_novels_backup(state: State<AppState>, mut multipart: Multipart) 
     let mut rows = Vec::new();
     while let Some(field) = multipart.next_field().await.map_err(|op| (StatusCode::BAD_REQUEST, Json(op.to_string())))?{
         if let Some(filename) = field.file_name() {
-            if filename.ends_with(".json") {
+            if filename.to_lowercase().ends_with(".json") {
                 // Read the JSON file content
                 let bytes = field.bytes().await.unwrap();
 
@@ -146,8 +141,8 @@ async fn delete_novel_handler(state: State<AppState>, id: Json<i32>) -> DeleteNo
 
 async fn get_novels_stats(state: State<AppState>) -> impl IntoResponse {
     println!("Getting novels stats");
-    let stats = stats::get_stats(&state.conn).await.unwrap();
-    Json(stats)
+    let res = stats::get_stats(&state.conn).await.unwrap();
+    Json(res)
 }
 
 async fn get_random_novels(state: State<AppState>, num_novels: Json<usize>) -> impl IntoResponse {
@@ -158,9 +153,7 @@ async fn get_random_novels(state: State<AppState>, num_novels: Json<usize>) -> i
 
     // access the rng in a thread-safe way
     let mut rng = state.rng.lock().await;
-    let random_novels = novels
-        .choose_multiple(&mut *rng, amount)
-        .map(|novel| novel.clone())
-        .collect_vec();
+    let random_novels: Vec<NovelEntry> = novels
+        .choose_multiple(&mut *rng, amount).cloned().collect();
     Json(random_novels)
 }

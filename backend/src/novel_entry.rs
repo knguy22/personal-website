@@ -1,12 +1,12 @@
 use crate::entity::novels;
-use std::error::Error;
 
+use anyhow::{Result, Error};
 use chrono::{DateTime, Utc};
 use sea_orm::{IntoActiveModel, JsonValue};
 use serde::{Deserialize, Serialize};
-use strum;
+use strum::{Display, EnumString};
 
-#[derive(Clone, Debug, PartialEq, strum::EnumString, strum::Display, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq, Display, EnumString, Deserialize, Serialize)]
 pub enum Status {
     Reading,
     Completed,
@@ -39,7 +39,7 @@ pub struct NovelTagsRecordParsed {
 }
 
 impl Status {
-    pub fn new(s: &String) -> Status {
+    pub fn new(s: &str) -> Status {
         match s.chars().nth(0).unwrap_or_default() {
             'R' => Status::Reading,
             'C' => Status::Completed,
@@ -52,11 +52,12 @@ impl Status {
 }
 
 impl NovelEntry {
-    pub fn parse_tags(s: &String) -> Vec<String> {
+    pub fn parse_tags(s: &str) -> Vec<String> {
         s.split_terminator(',').map(String::from).collect()
     }
 }
 
+#[allow(clippy::cast_possible_wrap)]
 pub fn novel_entry_to_active_model(novel: &NovelEntry) -> novels::ActiveModel {
     novels::Model { 
         id: novel.id,
@@ -73,9 +74,10 @@ pub fn novel_entry_to_active_model(novel: &NovelEntry) -> novels::ActiveModel {
     }.into_active_model()
 }
 
+#[allow(clippy::cast_sign_loss, clippy::cast_possible_wrap)]
 pub fn model_to_novel_entry(model: novels::Model) -> NovelEntry {
     NovelEntry {
-        id: model.id.clone(),
+        id: model.id,
         country: model.country.unwrap_or_default(),
         title: model.title.unwrap_or_default(), 
         chapter: model.chapter.unwrap_or_default(),
@@ -89,7 +91,7 @@ pub fn model_to_novel_entry(model: novels::Model) -> NovelEntry {
     }
 }
 
-fn json_value_to_vec_str(val: &JsonValue) -> Result<Vec<String>, Box<dyn Error>> {
+fn json_value_to_vec_str(val: &JsonValue) -> Result<Vec<String>> {
     match val {
         JsonValue::Array(arr) => {
             let mut vec = Vec::new();
@@ -98,12 +100,12 @@ fn json_value_to_vec_str(val: &JsonValue) -> Result<Vec<String>, Box<dyn Error>>
                     vec.push(s.clone());
                 }
                 else {
-                    return Err("Not all elements in JSON value are strings".into())
+                    return Err(Error::msg("Not all elements in JSON value are strings"))
                 }
             }
             Ok(vec)
         }
-        _ => Err("The JSON value is not an array".into()),
+        _ => Err(Error::msg("The JSON value is not an array"))
     }
 }
 

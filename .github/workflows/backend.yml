@@ -15,7 +15,7 @@ defaults:
     working-directory: backend
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,3 +23,13 @@ jobs:
         with:
           toolchain: nightly
       - run: cargo test
+
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: nightly
+          components: clippy
+      - run: cargo clippy --tests -- -Dclippy::all -Dclippy::pedantic
