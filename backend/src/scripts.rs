@@ -60,7 +60,7 @@ async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<(), Box<dyn Error
     println!("Attempting to fetch tags for {} novels...", novels.len());
 
     for novel in &novels {
-        let scraped_tags = scrape_genres_and_tags(&novel.title).await;
+        let scraped_tags = scrape_genres_and_tags(&novel.title, 5).await;
         match scraped_tags {
             Ok(new_tags) => {
                 let new_novel = NovelEntry {
@@ -86,7 +86,7 @@ async fn single_fetch_novel_tags(conn: &DatabaseConnection, title: &str) -> Resu
     println!("Attempting to fetch tags for {}", title);
 
     let novel = db::fetch_single_novel(conn, title).await?;
-    let scraped_tags = scrape_genres_and_tags(title).await?;
+    let scraped_tags = scrape_genres_and_tags(title, 2).await?;
     let new_novel = vec![NovelEntry {
         tags: scraped_tags,
         ..novel.clone()

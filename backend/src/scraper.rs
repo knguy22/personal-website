@@ -16,7 +16,7 @@ pub fn init() -> Result<Browser> {
     Browser::new(launch_options)
 }
 
-pub async fn scrape_genres_and_tags(title: &str) -> Result<Vec<String>> {
+pub async fn scrape_genres_and_tags(title: &str, sleep_duration: u64) -> Result<Vec<String>> {
     let browser = init()?;
 
     let url = construct_url(title);
@@ -27,7 +27,7 @@ pub async fn scrape_genres_and_tags(title: &str) -> Result<Vec<String>> {
     let tab = browser.new_tab()?;
     tab.set_user_agent(user_agent, accept_language, platform)?;
     tab.navigate_to(&url)?;
-    thread::sleep(Duration::from_secs(5));
+    thread::sleep(Duration::from_secs(sleep_duration));
 
     let html = tab.get_content()?;
     tab.close_with_unload()?;
@@ -65,18 +65,32 @@ fn parse_genres_and_tags(html: &str, url: &str) -> Result<Vec<String>> {
 }
 
 fn construct_url(title: &str) -> String {
-    const FORBIDDEN_CHARS: &str = "’“”";
-    const ALLOWED_PUNCTUATION: &str = "-";
+    const FORBIDDEN_CHARS: &str = "‘’“”–…";
+    const REPLACE_WITH_DASH: &str = ". /";
 
-    let title: String = title
-        .nfd().filter(|c| !is_combining_mark(*c)) // handle unicode alphabetical characters
-        .filter(|c| !c.is_ascii_punctuation() || ALLOWED_PUNCTUATION.contains(*c))
+    // perform character substitutions and filtering
+    let filtered: String = title
+        // handle unicode alphabetical characters
+        .nfd().filter(|c| !is_combining_mark(*c))
+        .map(|c| if REPLACE_WITH_DASH.contains(c) {'-'} else {c})
+
+        // everything else
+        .filter(|c| !c.is_ascii_punctuation() || *c == '-')
         .filter(|c| !FORBIDDEN_CHARS.contains(*c))
-        .map(|c| if c == ' ' {'-'} else {c})
         .map(|c| c.to_ascii_lowercase())
         .collect();
 
-    format!("https://www.novelupdates.com/series/{}/", title)
+    // in case of having multiple dashes in a row, condense them into one
+    let mut filtered_2  = filtered.chars().nth(0).unwrap().to_string();
+    for c in filtered.chars().skip(1) {
+        let last_char = filtered_2.chars().nth_back(0).unwrap();
+        if c == '-' && last_char == '-' {
+            continue;
+        }
+        filtered_2.push(c);
+    }
+
+    format!("https://www.novelupdates.com/series/{}/", filtered_2)
 }
 
 #[cfg(test)]
@@ -93,6 +107,20 @@ mod tests {
     }
 
     #[test]
+    fn period_url() {
+        let title = "D.I.O";
+        let url = construct_url(title);
+        assert_eq!(url, "https://www.novelupdates.com/series/d-i-o/");
+    }
+
+    #[test]
+    fn slash_url() {
+        let title = "11/23";
+        let url = construct_url(title);
+        assert_eq!(url, "https://www.novelupdates.com/series/11-23/");
+    }
+
+    #[test]
     fn dash_url() {
         let title = "The Heaven-Slaying Sword";
         let url = construct_url(title);
@@ -100,10 +128,24 @@ mod tests {
     }
 
     #[test]
+    fn spaced_dash_url() {
+        let title = "Delivery Boy and Masked Girl – A Delivery Boy Discovers the Secret of a Beautiful Gal at His Delivery Destination";
+        let url = construct_url(title);
+        assert_eq!(url, "https://www.novelupdates.com/series/delivery-boy-and-masked-girl-a-delivery-boy-discovers-the-secret-of-a-beautiful-gal-at-his-delivery-destination/");
+    }
+
+    #[test]
     fn apostrophe_url() {
         let title = "Omniscient Reader's Viewpoint";
         let url = construct_url(title);
         assert_eq!(url, "https://www.novelupdates.com/series/omniscient-readers-viewpoint/");
+    }
+
+    #[test]
+    fn special_single_quote_url() {
+        let title = "I Reunited with My Graceful and Lovely Childhood Friend After Transferring Schools, but Her Idea of a ‘Childhood Friend’ Is Clearly Strange and Overbearing";
+        let url = construct_url(title);
+        assert_eq!(url, "https://www.novelupdates.com/series/i-reunited-with-my-graceful-and-lovely-childhood-friend-after-transferring-schools-but-her-idea-of-a-childhood-friend-is-clearly-strange-and-overbearing/");
     }
 
     #[test]
@@ -142,17 +184,24 @@ mod tests {
     }
 
     #[test]
-    fn special_char_url() {
+    fn special_dot_url() {
         let title = "Reincarnated • The Hero Marries the Sage ~After Becoming Engaged to a Former Rival, We Became the Strongest Couple~";
         let url = construct_url(title);
         assert_eq!(url, "https://www.novelupdates.com/series/reincarnated-•-the-hero-marries-the-sage-after-becoming-engaged-to-a-former-rival-we-became-the-strongest-couple/");
     }
 
     #[test]
-    fn special_char_url_2() {
+    fn special_o_url() {
         let title = "Kimi no Sei de Kyō Mo Shinenai";
         let url = construct_url(title);
         assert_eq!(url, "https://www.novelupdates.com/series/kimi-no-sei-de-kyo-mo-shinenai/");
+    }
+
+    #[test]
+    fn special_periods_url() {
+        let title = "Crossing Paths, Traumatized, and Yet…";
+        let url = construct_url(title);
+        assert_eq!(url, "https://www.novelupdates.com/series/crossing-paths-traumatized-and-yet/");
     }
 
     #[test]
@@ -216,10 +265,10 @@ mod tests {
     #[ignore]
     async fn browser() {
         dotenv().ok();
-        let res = scrape_genres_and_tags("Lord of the Mysteries").await.unwrap();
+        let res = scrape_genres_and_tags("Lord of the Mysteries", 5).await.unwrap();
         assert!(res.len() > 50);
 
-        let res = scrape_genres_and_tags("laksjdflkajsdglh").await;
+        let res = scrape_genres_and_tags("laksjdflkajsdglh", 2).await;
         assert!(res.is_err());
     }
 }
