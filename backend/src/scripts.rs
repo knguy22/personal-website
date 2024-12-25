@@ -65,7 +65,7 @@ async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<(), Box<dyn Error
 
             Err(e) => {
                 println!("Error: {}, {}", novel.title, e);
-                thread::sleep(Duration::from_secs(20));
+                thread::sleep(Duration::from_secs(15));
             },
         }
     }

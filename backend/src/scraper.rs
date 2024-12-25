@@ -19,7 +19,7 @@ pub fn init() -> Result<Browser> {
 pub async fn scrape_genres_and_tags(title: &str) -> Result<Vec<String>> {
     let browser = init()?;
 
-    let url = construct_url(title)?;
+    let url = construct_url(title);
     let user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
     let accept_language = Some("en-US,en");
     let platform = Some("Win32");
@@ -64,7 +64,7 @@ fn parse_genres_and_tags(html: &str, url: &str) -> Result<Vec<String>> {
     Ok(res)
 }
 
-fn construct_url(title: &str) -> Result<String> {
+fn construct_url(title: &str) -> String {
     const FORBIDDEN_CHARS: &str = "’“”";
     const ALLOWED_PUNCTUATION: &str = "-";
 
@@ -76,7 +76,7 @@ fn construct_url(title: &str) -> Result<String> {
         .map(|c| c.to_ascii_lowercase())
         .collect();
 
-    Ok(format!("https://www.novelupdates.com/series/{}/", title))
+    format!("https://www.novelupdates.com/series/{}/", title)
 }
 
 #[cfg(test)]
@@ -88,70 +88,70 @@ mod tests {
     #[test]
     fn space_url() {
         let title = "Lord of the Mysteries";
-        let url = construct_url(title).unwrap();
+        let url = construct_url(title);
         assert_eq!(url, "https://www.novelupdates.com/series/lord-of-the-mysteries/");
     }
 
     #[test]
     fn dash_url() {
         let title = "The Heaven-Slaying Sword";
-        let url = construct_url(title).unwrap();
+        let url = construct_url(title);
         assert_eq!(url, "https://www.novelupdates.com/series/the-heaven-slaying-sword/");
     }
 
     #[test]
     fn apostrophe_url() {
         let title = "Omniscient Reader's Viewpoint";
-        let url = construct_url(title).unwrap();
+        let url = construct_url(title);
         assert_eq!(url, "https://www.novelupdates.com/series/omniscient-readers-viewpoint/");
     }
 
     #[test]
     fn tilda_url() {
         let title = "The Villainous Daughter’s Butler ~I Raised Her to be Very Cute~";
-        let url = construct_url(title).unwrap();
+        let url = construct_url(title);
         assert_eq!(url, "https://www.novelupdates.com/series/the-villainous-daughters-butler-i-raised-her-to-be-very-cute/");
     }
 
     #[test]
     fn comma_url() {
         let title = "As I Know Anything About You, I’ll Be The One To Your Girlfriend, Aren’t I?";
-        let url = construct_url(title).unwrap();
+        let url = construct_url(title);
         assert_eq!(url, "https://www.novelupdates.com/series/as-i-know-anything-about-you-ill-be-the-one-to-your-girlfriend-arent-i/");
     }
 
     #[test]
     fn paren_url() {
         let title = "Yumemiru Danshi wa Genjitsushugisha (LN)";
-        let url = construct_url(title).unwrap();
+        let url = construct_url(title);
         assert_eq!(url, "https://www.novelupdates.com/series/yumemiru-danshi-wa-genjitsushugisha-ln/");
     }
 
     #[test]
     fn bracket_url() {
         let title = "[Koi Bana] Kore wa Tomodachi no Hanashina Nandakedo";
-        let url = construct_url(title).unwrap();
+        let url = construct_url(title);
         assert_eq!(url, "https://www.novelupdates.com/series/koi-bana-kore-wa-tomodachi-no-hanashina-nandakedo/");
     }
 
     #[test]
     fn punctuation_url() {
         let title = "When I Made The Cheeky Childhood Friend Who Provoked Me With “You Can’t Even Kiss, Right?” Know Her Place, She Became More Cutesy Than I Expected";
-        let url = construct_url(title).unwrap();
+        let url = construct_url(title);
         assert_eq!(url, "https://www.novelupdates.com/series/when-i-made-the-cheeky-childhood-friend-who-provoked-me-with-you-cant-even-kiss-right-know-her-place-she-became-more-cutesy-than-i-expected/");
     }
 
     #[test]
     fn special_char_url() {
         let title = "Reincarnated • The Hero Marries the Sage ~After Becoming Engaged to a Former Rival, We Became the Strongest Couple~";
-        let url = construct_url(title).unwrap();
+        let url = construct_url(title);
         assert_eq!(url, "https://www.novelupdates.com/series/reincarnated-•-the-hero-marries-the-sage-after-becoming-engaged-to-a-former-rival-we-became-the-strongest-couple/");
     }
 
     #[test]
     fn special_char_url_2() {
         let title = "Kimi no Sei de Kyō Mo Shinenai";
-        let url = construct_url(title).unwrap();
+        let url = construct_url(title);
         assert_eq!(url, "https://www.novelupdates.com/series/kimi-no-sei-de-kyo-mo-shinenai/");
     }
 
