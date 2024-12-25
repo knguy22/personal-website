@@ -2,11 +2,11 @@ use crate::db;
 use crate::novel_entry::{NovelEntry, NovelTagsRecordParsed};
 use crate::scraper::scrape_genres_and_tags;
 
-use std::error::Error;
 use std::path::{Path, PathBuf};
 use std::thread;
 use std::time::Duration;
 
+use anyhow::Result;
 use clap::Parser;
 use csv;
 use sea_orm::DatabaseConnection;
@@ -35,7 +35,7 @@ struct Cli {
     import_novel_tags_csv: Option<PathBuf>,
 }
 
-pub async fn run_cli(conn: &DatabaseConnection) -> Result<(), Box<dyn Error>> {
+pub async fn run_cli(conn: &DatabaseConnection) -> Result<()> {
     let cli = Cli::parse();
 
     if cli.drop_all_novels {
@@ -58,7 +58,7 @@ pub async fn run_cli(conn: &DatabaseConnection) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<(), Box<dyn Error>> {
+async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<()> {
     let novels = db::fetch_novel_entries(conn).await?;
     let mut modified_novels = Vec::new();
     println!("Attempting to fetch tags for {} novels...", novels.len());
@@ -86,7 +86,7 @@ async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<(), Box<dyn Error
     Ok(())
 }
 
-async fn single_fetch_novel_tags(conn: &DatabaseConnection, title: &str, url: Option<String>) -> Result<(), Box<dyn Error>> {
+async fn single_fetch_novel_tags(conn: &DatabaseConnection, title: &str, url: Option<String>) -> Result<()> {
     println!("Attempting to fetch tags for [{}]", title);
 
     let novel = db::fetch_single_novel(conn, title).await?;
@@ -135,7 +135,7 @@ struct NovelTagsCsvRecord {
     chapter_latest_translated: Option<String>,
 }
 
-async fn read_novel_tags_csv(csv_file: &Path) -> Result<Vec<NovelTagsRecordParsed>, Box<dyn Error>> {
+async fn read_novel_tags_csv(csv_file: &Path) -> Result<Vec<NovelTagsRecordParsed>> {
     let mut rdr = csv::Reader::from_path(csv_file).unwrap();
     let mut data = Vec::new();
 

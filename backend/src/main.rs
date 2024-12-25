@@ -5,8 +5,9 @@ mod scraper;
 mod scripts;
 mod stats;
 
-use std::{env, error::Error, sync::Arc};
+use std::{env, sync::Arc};
 
+use anyhow::Result;
 use axum::{
     response::{IntoResponse, Json},
     extract::{State, multipart::Multipart},
@@ -28,7 +29,7 @@ struct AppState {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> Result<()> {
     // initialize everything; run scripts if applicable
     dotenv().ok();
     let rng = Arc::new(Mutex::new(StdRng::from_entropy()));

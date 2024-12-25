@@ -1,7 +1,9 @@
 use crate::db;
 use crate::novel_entry::NovelEntry;
-use std::error::Error;
+
 use std::collections::HashMap;
+
+use anyhow::Result;
 use sea_orm::DatabaseConnection;
 use serde::{Deserialize, Serialize};
 
@@ -36,7 +38,7 @@ pub struct Stats {
     pub country_dist: HashMap<String, u32>,
 }
 
-pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats, Box<dyn Error>> {
+pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats> {
     let novels = db::fetch_novel_entries(db).await?;
     let novel_count = novels.len() as u32;
     let chapter_count = novels.iter().map(|novel| novel.chapter.parse().unwrap_or(0)).sum();
