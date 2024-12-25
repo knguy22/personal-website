@@ -72,11 +72,11 @@ async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<(), Box<dyn Error
                     ..novel.clone()
                 };
                 modified_novels.push(new_novel);
-                println!("Success: {}", novel.title);
+                println!("Success: [{}]", novel.title);
             },
 
             Err(e) => {
-                println!("Failure: {}, {}", novel.title, e);
+                println!("Failure: [{}], {}", novel.title, e);
                 thread::sleep(Duration::from_secs(15));
             },
         }
@@ -87,7 +87,7 @@ async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<(), Box<dyn Error
 }
 
 async fn single_fetch_novel_tags(conn: &DatabaseConnection, title: &str, url: Option<String>) -> Result<(), Box<dyn Error>> {
-    println!("Attempting to fetch tags for {}", title);
+    println!("Attempting to fetch tags for [{}]", title);
 
     let novel = db::fetch_single_novel(conn, title).await?;
     let scraped_tags = scrape_genres_and_tags(title, 2, url).await?;
@@ -97,7 +97,7 @@ async fn single_fetch_novel_tags(conn: &DatabaseConnection, title: &str, url: Op
     }];
     db::update_novel_entries(conn, &new_novel).await?;
 
-    println!("Success: {}", title);
+    println!("Success: [{}]", title);
     Ok(())
 }
 
