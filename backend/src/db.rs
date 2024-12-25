@@ -50,6 +50,17 @@ pub async fn fetch_novel_entries(db: &DatabaseConnection) -> Result<Vec<NovelEnt
     Ok(novel_entries)
 }
 
+pub async fn fetch_single_novel(db: &DatabaseConnection, title: &str) -> Result<NovelEntry, Box<dyn Error>> {
+    let query = Novels::find()
+        .filter(novels::Column::Title.eq(title))
+        .one(db)
+        .await?;
+    match query {
+        Some(model) => Ok(model_to_novel_entry(model)),
+        None => Err("Novel not found".into())
+    }
+}
+
 pub async fn insert_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry>) -> Result<(), Box<dyn Error>>{
     let mut to_insert = Vec::new();
     for row in rows {
