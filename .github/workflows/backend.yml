@@ -31,4 +31,5 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: nightly
+          components: clippy
       - run: cargo clippy --tests -- -Dclippy::all -Dclippy::pedantic
