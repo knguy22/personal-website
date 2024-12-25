@@ -15,7 +15,6 @@ use axum::{
     http::StatusCode, Router,
 };
 use dotenv::dotenv;
-use itertools::Itertools;
 use novel_entry::NovelEntry;
 use rand::{rngs::StdRng, seq::SliceRandom, SeedableRng};
 use sea_orm::DatabaseConnection;
@@ -154,9 +153,7 @@ async fn get_random_novels(state: State<AppState>, num_novels: Json<usize>) -> i
 
     // access the rng in a thread-safe way
     let mut rng = state.rng.lock().await;
-    let random_novels = novels
-        .choose_multiple(&mut *rng, amount)
-        .map(|novel| novel.clone())
-        .collect_vec();
+    let random_novels: Vec<NovelEntry> = novels
+        .choose_multiple(&mut *rng, amount).cloned().collect();
     Json(random_novels)
 }

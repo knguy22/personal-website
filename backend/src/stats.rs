@@ -43,7 +43,7 @@ pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats> {
     let novel_count = novels.len() as u32;
     let chapter_count = novels.iter().map(|novel| novel.chapter.parse().unwrap_or(0)).sum();
     let volumes_completed: u32 = novels.iter().map(|novel| completed_volume(&novel.chapter)).sum();
-    let novels_not_started = novels.iter().filter(|novel| novel.chapter.len() == 0).count() as u32;
+    let novels_not_started = novels.iter().filter(|novel| novel.chapter.is_empty()).count() as u32;
 
     let rating_sum: u32 = novels.iter().map(|novel| novel.rating).sum();
     let non_zero_ratings = novels.iter().filter(|novel| novel.rating > 0).count();

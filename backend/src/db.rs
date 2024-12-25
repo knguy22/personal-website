@@ -72,7 +72,7 @@ pub async fn insert_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry
     Ok(())
 }
 
-pub async fn update_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry>) -> Result<Vec<NovelEntry>> {
+pub async fn update_novel_entries(db: &DatabaseConnection, rows: &[NovelEntry]) -> Result<Vec<NovelEntry>> {
     let mut updated_novels: Vec<NovelEntry> = Vec::new();
     for row in rows.iter() {
         let model = Novels::find()
@@ -108,7 +108,7 @@ pub async fn update_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry
     Ok(updated_novels)
 }
 
-pub async fn update_novel_tags(db: &DatabaseConnection, rows: &Vec<NovelTagsRecordParsed>) -> Result<()> {
+pub async fn update_novel_tags(db: &DatabaseConnection, rows: &[NovelTagsRecordParsed]) -> Result<()> {
     let mut novels_updated = 0;
 
     for row in rows.iter() {

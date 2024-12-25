@@ -8,7 +8,7 @@ use std::time::Duration;
 
 use anyhow::Result;
 use clap::Parser;
-use csv;
+use csv::Reader;
 use sea_orm::DatabaseConnection;
 
 #[derive(Parser)]
@@ -136,7 +136,7 @@ struct NovelTagsCsvRecord {
 }
 
 async fn read_novel_tags_csv(csv_file: &Path) -> Result<Vec<NovelTagsRecordParsed>> {
-    let mut rdr = csv::Reader::from_path(csv_file).unwrap();
+    let mut rdr = Reader::from_path(csv_file).unwrap();
     let mut data = Vec::new();
 
     let headers = rdr.headers()?;
@@ -168,14 +168,14 @@ async fn read_novel_tags_csv(csv_file: &Path) -> Result<Vec<NovelTagsRecordParse
 }
 
 // strip extra space on edges, strip quotes, strip #, strip []
-fn strip_novel_tags(tags: &mut Vec<String>) {
-    for i in 0..tags.len() {
-        tags[i] = tags[i].replace("\"", "");
-        tags[i] = tags[i].replace("#", "");
-        tags[i] = tags[i].replace("[", "");
-        tags[i] = tags[i].replace("]", "");
-        tags[i] = tags[i].replace("'", "");
-        tags[i] = tags[i].replace("\"", "");
-        tags[i] = tags[i].trim().to_string();
+fn strip_novel_tags(tags: &mut [String]) {
+    for tag in tags {
+        *tag = tag.replace("\"", "");
+        *tag = tag.replace("#", "");
+        *tag = tag.replace("[", "");
+        *tag = tag.replace("]", "");
+        *tag = tag.replace("'", "");
+        *tag = tag.replace("\"", "");
+        *tag = tag.trim().to_string();
     }
 }

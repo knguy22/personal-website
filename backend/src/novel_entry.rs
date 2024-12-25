@@ -4,9 +4,9 @@ use anyhow::{Result, Error};
 use chrono::{DateTime, Utc};
 use sea_orm::{IntoActiveModel, JsonValue};
 use serde::{Deserialize, Serialize};
-use strum;
+use strum::{Display, EnumString};
 
-#[derive(Clone, Debug, PartialEq, strum::EnumString, strum::Display, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq, Display, EnumString, Deserialize, Serialize)]
 pub enum Status {
     Reading,
     Completed,
@@ -39,7 +39,7 @@ pub struct NovelTagsRecordParsed {
 }
 
 impl Status {
-    pub fn new(s: &String) -> Status {
+    pub fn new(s: &str) -> Status {
         match s.chars().nth(0).unwrap_or_default() {
             'R' => Status::Reading,
             'C' => Status::Completed,
@@ -52,7 +52,7 @@ impl Status {
 }
 
 impl NovelEntry {
-    pub fn parse_tags(s: &String) -> Vec<String> {
+    pub fn parse_tags(s: &str) -> Vec<String> {
         s.split_terminator(',').map(String::from).collect()
     }
 }
@@ -75,7 +75,7 @@ pub fn novel_entry_to_active_model(novel: &NovelEntry) -> novels::ActiveModel {
 
 pub fn model_to_novel_entry(model: novels::Model) -> NovelEntry {
     NovelEntry {
-        id: model.id.clone(),
+        id: model.id,
         country: model.country.unwrap_or_default(),
         title: model.title.unwrap_or_default(), 
         chapter: model.chapter.unwrap_or_default(),
