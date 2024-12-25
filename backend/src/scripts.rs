@@ -30,7 +30,7 @@ struct Cli {
     #[arg(short, long, value_name = "URL")]
     url_single_fetch_novel_tags: Option<String>,
 
-    /// Imports novel tags and genres from a csv file (see https://github.com/shaido987/novel-dataset)
+    /// Imports novel tags and genres from a csv file (see <https://github.com/shaido987/novel-dataset>)
     #[arg(short, long, value_name = "FILE")]
     import_novel_tags_csv: Option<PathBuf>,
 }
@@ -51,7 +51,7 @@ pub async fn run_cli(conn: &DatabaseConnection) -> Result<()> {
     }
 
     if let Some(csv_file) = cli.import_novel_tags_csv {
-        let rows = read_novel_tags_csv(&csv_file).await?;
+        let rows = read_novel_tags_csv(&csv_file)?;
         db::update_novel_tags(conn, &rows).await?;
     }
 
@@ -87,7 +87,7 @@ async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<()> {
 }
 
 async fn single_fetch_novel_tags(conn: &DatabaseConnection, title: &str, url: Option<String>) -> Result<()> {
-    println!("Attempting to fetch tags for [{}]", title);
+    println!("Attempting to fetch tags for [{title}]");
 
     let novel = db::fetch_single_novel(conn, title).await?;
     let scraped_tags = scrape_genres_and_tags(title, 2, url).await?;
@@ -97,7 +97,7 @@ async fn single_fetch_novel_tags(conn: &DatabaseConnection, title: &str, url: Op
     }];
     db::update_novel_entries(conn, &new_novel).await?;
 
-    println!("Success: [{}]", title);
+    println!("Success: [{title}]");
     Ok(())
 }
 
@@ -135,19 +135,19 @@ struct NovelTagsCsvRecord {
     chapter_latest_translated: Option<String>,
 }
 
-async fn read_novel_tags_csv(csv_file: &Path) -> Result<Vec<NovelTagsRecordParsed>> {
+fn read_novel_tags_csv(csv_file: &Path) -> Result<Vec<NovelTagsRecordParsed>> {
     let mut rdr = Reader::from_path(csv_file).unwrap();
     let mut data = Vec::new();
 
     let headers = rdr.headers()?;
-    println!("Headers read: {:?}", headers);
+    println!("Headers read: {headers:?}");
 
     for res in rdr.deserialize() {
         let t: NovelTagsCsvRecord;
         match res {
             Ok(r) => t = r,
             Err(err) => {
-                println!("{}", err);
+                println!("{err}");
                 continue
             },
         }
@@ -170,12 +170,12 @@ async fn read_novel_tags_csv(csv_file: &Path) -> Result<Vec<NovelTagsRecordParse
 // strip extra space on edges, strip quotes, strip #, strip []
 fn strip_novel_tags(tags: &mut [String]) {
     for tag in tags {
-        *tag = tag.replace("\"", "");
-        *tag = tag.replace("#", "");
-        *tag = tag.replace("[", "");
-        *tag = tag.replace("]", "");
-        *tag = tag.replace("'", "");
-        *tag = tag.replace("\"", "");
+        *tag = tag.replace('\"', "");
+        *tag = tag.replace('#', "");
+        *tag = tag.replace('[', "");
+        *tag = tag.replace(']', "");
+        *tag = tag.replace('\'', "");
+        *tag = tag.replace('\"', "");
         *tag = tag.trim().to_string();
     }
 }

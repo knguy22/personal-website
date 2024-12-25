@@ -44,7 +44,7 @@ fn parse_genres_and_tags(html: &str, url: &str) -> Result<Vec<String>> {
     let document = Html::parse_document(html);
     let error_selector = Selector::parse(".page-404").unwrap();
     if document.select(&error_selector).next().is_some() {
-        return Err(Error::msg(format!("Error: url not found: {}", url)));
+        return Err(Error::msg(format!("Error: url not found: {url}")));
     }
 
     // otherwise scrape the elements
@@ -90,7 +90,7 @@ fn construct_url(title: &str) -> String {
         filtered_2.push(c);
     }
 
-    format!("https://www.novelupdates.com/series/{}/", filtered_2)
+    format!("https://www.novelupdates.com/series/{filtered_2}/")
 }
 
 #[cfg(test)]

@@ -23,7 +23,7 @@ use sea_orm::{
 pub async fn init() -> Result<DatabaseConnection> {
     // init database
     let database_url = env::var("DATABASE_URL")?;
-    println!("Connecting to: {}", database_url);
+    println!("Connecting to: {database_url}");
 
     let mut conn_opt = ConnectOptions::new(database_url);
     conn_opt.max_connections(5)
@@ -58,7 +58,7 @@ pub async fn fetch_single_novel(db: &DatabaseConnection, title: &str) -> Result<
         .await?;
     match query {
         Some(model) => Ok(model_to_novel_entry(model)),
-        None => Err(Error::msg(format!{"Novel not found in db: {}", title}))
+        None => Err(Error::msg(format!{"Novel not found in db: {title}"}))
     }
 }
 
@@ -72,9 +72,10 @@ pub async fn insert_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry
     Ok(())
 }
 
+#[allow(clippy::cast_possible_wrap)]
 pub async fn update_novel_entries(db: &DatabaseConnection, rows: &[NovelEntry]) -> Result<Vec<NovelEntry>> {
     let mut updated_novels: Vec<NovelEntry> = Vec::new();
-    for row in rows.iter() {
+    for row in rows {
         let model = Novels::find()
             .filter(novels::Column::Id.eq(row.id))
             .one(db)
@@ -111,7 +112,7 @@ pub async fn update_novel_entries(db: &DatabaseConnection, rows: &[NovelEntry]) 
 pub async fn update_novel_tags(db: &DatabaseConnection, rows: &[NovelTagsRecordParsed]) -> Result<()> {
     let mut novels_updated = 0;
 
-    for row in rows.iter() {
+    for row in rows {
         let model = Novels::find()
             .filter(novels::Column::Title.eq(&row.title))
             .one(db)
@@ -133,7 +134,7 @@ pub async fn update_novel_tags(db: &DatabaseConnection, rows: &[NovelTagsRecordP
             active_model.update(db).await?;
         }
     }
-    println!("Updated {} novels", novels_updated);
+    println!("Updated {novels_updated} novels");
 
     Ok(())
 }

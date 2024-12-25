@@ -52,7 +52,7 @@ async fn main() -> Result<()> {
     let listener = tokio::net::TcpListener::bind(domain.clone())
         .await
         .unwrap();
-    println!("Listening on {}", domain);
+    println!("Listening on {domain}");
     axum::serve(listener, app).await.unwrap();
 
     Ok(())
@@ -86,7 +86,7 @@ async fn upload_novels_backup(state: State<AppState>, mut multipart: Multipart) 
     let mut rows = Vec::new();
     while let Some(field) = multipart.next_field().await.map_err(|op| (StatusCode::BAD_REQUEST, Json(op.to_string())))?{
         if let Some(filename) = field.file_name() {
-            if filename.ends_with(".json") {
+            if filename.to_lowercase().ends_with(".json") {
                 // Read the JSON file content
                 let bytes = field.bytes().await.unwrap();
 
@@ -141,8 +141,8 @@ async fn delete_novel_handler(state: State<AppState>, id: Json<i32>) -> DeleteNo
 
 async fn get_novels_stats(state: State<AppState>) -> impl IntoResponse {
     println!("Getting novels stats");
-    let stats = stats::get_stats(&state.conn).await.unwrap();
-    Json(stats)
+    let res = stats::get_stats(&state.conn).await.unwrap();
+    Json(res)
 }
 
 async fn get_random_novels(state: State<AppState>, num_novels: Json<usize>) -> impl IntoResponse {

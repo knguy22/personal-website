@@ -57,6 +57,7 @@ impl NovelEntry {
     }
 }
 
+#[allow(clippy::cast_possible_wrap)]
 pub fn novel_entry_to_active_model(novel: &NovelEntry) -> novels::ActiveModel {
     novels::Model { 
         id: novel.id,
@@ -73,6 +74,7 @@ pub fn novel_entry_to_active_model(novel: &NovelEntry) -> novels::ActiveModel {
     }.into_active_model()
 }
 
+#[allow(clippy::cast_sign_loss, clippy::cast_possible_wrap)]
 pub fn model_to_novel_entry(model: novels::Model) -> NovelEntry {
     NovelEntry {
         id: model.id,
