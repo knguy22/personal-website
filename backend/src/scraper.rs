@@ -16,10 +16,10 @@ pub fn init() -> Result<Browser> {
     Browser::new(launch_options)
 }
 
-pub async fn scrape_genres_and_tags(title: &str, sleep_duration: u64) -> Result<Vec<String>> {
+pub async fn scrape_genres_and_tags(title: &str, sleep_duration: u64, from_url: Option<String>) -> Result<Vec<String>> {
     let browser = init()?;
 
-    let url = construct_url(title);
+    let url: String = from_url.unwrap_or(construct_url(title));
     let user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
     let accept_language = Some("en-US,en");
     let platform = Some("Win32");
@@ -265,10 +265,10 @@ mod tests {
     #[ignore]
     async fn browser() {
         dotenv().ok();
-        let res = scrape_genres_and_tags("Lord of the Mysteries", 5).await.unwrap();
+        let res = scrape_genres_and_tags("Lord of the Mysteries", 5, None).await.unwrap();
         assert!(res.len() > 50);
 
-        let res = scrape_genres_and_tags("laksjdflkajsdglh", 2).await;
+        let res = scrape_genres_and_tags("laksjdflkajsdglh", 2, None).await;
         assert!(res.is_err());
     }
 }

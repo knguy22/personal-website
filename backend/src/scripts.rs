@@ -15,16 +15,20 @@ use sea_orm::DatabaseConnection;
 #[command(version, about, long_about = None)]
 struct Cli {
     /// Drops everything currently in the table; this will not drop any newly imported novel entries
-    #[clap(long, short, action, value_name = "BOOL")]
+    #[clap(short, long, action, value_name = "BOOL")]
     drop_all_novels: bool,
 
     /// Manually fetches the novel tags by webscraping Novelupdates
     #[arg(short, long, action, value_name = "BOOL")]
     fetch_novel_tags: bool,
 
-    /// Manually a single novel by webscraping Novelupdates
-    #[arg(short, long, action)]
+    /// Manually fetch a single novel by webscraping Novelupdates
+    #[arg(short, long, value_name = "STRING")]
     single_fetch_novel_tags: Option<String>,
+
+    /// Specify a url to fetch tags from if automatic parsing isn't working; a novel must also be specified
+    #[arg(short, long, value_name = "URL")]
+    url_single_fetch_novel_tags: Option<String>,
 
     /// Imports novel tags and genres from a csv file (see https://github.com/shaido987/novel-dataset)
     #[arg(short, long, value_name = "FILE")]
@@ -43,7 +47,7 @@ pub async fn run_cli(conn: &DatabaseConnection) -> Result<(), Box<dyn Error>> {
     }
 
     if let Some(title) = cli.single_fetch_novel_tags {
-        single_fetch_novel_tags(conn, &title).await?;
+        single_fetch_novel_tags(conn, &title, cli.url_single_fetch_novel_tags).await?;
     }
 
     if let Some(csv_file) = cli.import_novel_tags_csv {
@@ -60,7 +64,7 @@ async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<(), Box<dyn Error
     println!("Attempting to fetch tags for {} novels...", novels.len());
 
     for novel in &novels {
-        let scraped_tags = scrape_genres_and_tags(&novel.title, 5).await;
+        let scraped_tags = scrape_genres_and_tags(&novel.title, 5, None).await;
         match scraped_tags {
             Ok(new_tags) => {
                 let new_novel = NovelEntry {
@@ -82,11 +86,11 @@ async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<(), Box<dyn Error
     Ok(())
 }
 
-async fn single_fetch_novel_tags(conn: &DatabaseConnection, title: &str) -> Result<(), Box<dyn Error>> {
+async fn single_fetch_novel_tags(conn: &DatabaseConnection, title: &str, url: Option<String>) -> Result<(), Box<dyn Error>> {
     println!("Attempting to fetch tags for {}", title);
 
     let novel = db::fetch_single_novel(conn, title).await?;
-    let scraped_tags = scrape_genres_and_tags(title, 2).await?;
+    let scraped_tags = scrape_genres_and_tags(title, 2, url).await?;
     let new_novel = vec![NovelEntry {
         tags: scraped_tags,
         ..novel.clone()
