@@ -1,8 +1,11 @@
-use crate::novel_entry::{NovelEntry, NovelTagsRecordParsed};
 use crate::db;
+use crate::novel_entry::{NovelEntry, NovelTagsRecordParsed};
+use crate::scraper::scrape_genres_and_tags;
 
 use std::error::Error;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+use std::thread;
+use std::time::Duration;
 
 use clap::Parser;
 use csv;
@@ -12,19 +15,23 @@ use sea_orm::DatabaseConnection;
 #[command(version, about, long_about = None)]
 struct Cli {
     /// Drops everything currently in the table; this will not drop any newly imported novel entries
-    #[clap(long, short, action)]
+    #[clap(short, long, action, value_name = "BOOL")]
     drop_all_novels: bool,
 
-    /// Imports and inserts new novel entries from a csv file
-    #[arg(long, value_name = "FILE")]
-    insert_novels_csv: Option<PathBuf>,
+    /// Manually fetches the novel tags by webscraping Novelupdates
+    #[arg(short, long, action, value_name = "BOOL")]
+    fetch_novel_tags: bool,
 
-    /// Imports and updates novel entries from a csv file
-    #[arg(short, long, value_name = "FILE")]
-    update_novels_csv: Option<PathBuf>,
+    /// Manually fetch a single novel by webscraping Novelupdates
+    #[arg(short, long, value_name = "STRING")]
+    single_fetch_novel_tags: Option<String>,
+
+    /// Specify a url to fetch tags from if automatic parsing isn't working; a novel must also be specified
+    #[arg(short, long, value_name = "URL")]
+    url_single_fetch_novel_tags: Option<String>,
 
     /// Imports novel tags and genres from a csv file (see https://github.com/shaido987/novel-dataset)
-    #[arg(long, value_name = "FILE")]
+    #[arg(short, long, value_name = "FILE")]
     import_novel_tags_csv: Option<PathBuf>,
 }
 
@@ -35,11 +42,62 @@ pub async fn run_cli(conn: &DatabaseConnection) -> Result<(), Box<dyn Error>> {
         db::drop_all_novels(conn).await?;
     }
 
-    if cli.import_novel_tags_csv.is_some() {
-        let rows = read_novel_tags_csv(&cli.import_novel_tags_csv.unwrap().to_str().unwrap().to_string()).await?;
-        let _ = db::update_novel_tags(conn, &rows).await?;
+    if cli.fetch_novel_tags {
+        fetch_novel_tags(conn).await?;
     }
 
+    if let Some(title) = cli.single_fetch_novel_tags {
+        single_fetch_novel_tags(conn, &title, cli.url_single_fetch_novel_tags).await?;
+    }
+
+    if let Some(csv_file) = cli.import_novel_tags_csv {
+        let rows = read_novel_tags_csv(&csv_file).await?;
+        db::update_novel_tags(conn, &rows).await?;
+    }
+
+    Ok(())
+}
+
+async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<(), Box<dyn Error>> {
+    let novels = db::fetch_novel_entries(conn).await?;
+    let mut modified_novels = Vec::new();
+    println!("Attempting to fetch tags for {} novels...", novels.len());
+
+    for novel in &novels {
+        let scraped_tags = scrape_genres_and_tags(&novel.title, 5, None).await;
+        match scraped_tags {
+            Ok(new_tags) => {
+                let new_novel = NovelEntry {
+                    tags: new_tags,
+                    ..novel.clone()
+                };
+                modified_novels.push(new_novel);
+                println!("Success: [{}]", novel.title);
+            },
+
+            Err(e) => {
+                println!("Failure: [{}], {}", novel.title, e);
+                thread::sleep(Duration::from_secs(15));
+            },
+        }
+    }
+
+    db::update_novel_entries(conn, &modified_novels).await?;
+    Ok(())
+}
+
+async fn single_fetch_novel_tags(conn: &DatabaseConnection, title: &str, url: Option<String>) -> Result<(), Box<dyn Error>> {
+    println!("Attempting to fetch tags for [{}]", title);
+
+    let novel = db::fetch_single_novel(conn, title).await?;
+    let scraped_tags = scrape_genres_and_tags(title, 2, url).await?;
+    let new_novel = vec![NovelEntry {
+        tags: scraped_tags,
+        ..novel.clone()
+    }];
+    db::update_novel_entries(conn, &new_novel).await?;
+
+    println!("Success: [{}]", title);
     Ok(())
 }
 
@@ -77,7 +135,7 @@ struct NovelTagsCsvRecord {
     chapter_latest_translated: Option<String>,
 }
 
-async fn read_novel_tags_csv(csv_file: &String) -> Result<Vec<NovelTagsRecordParsed>, Box<dyn Error>> {
+async fn read_novel_tags_csv(csv_file: &Path) -> Result<Vec<NovelTagsRecordParsed>, Box<dyn Error>> {
     let mut rdr = csv::Reader::from_path(csv_file).unwrap();
     let mut data = Vec::new();
 

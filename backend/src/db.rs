@@ -21,7 +21,7 @@ use sea_orm::{
 
 pub async fn init() -> Result<DatabaseConnection, Box<dyn Error>> {
     // init database
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL not set");
+    let database_url = env::var("DATABASE_URL")?;
     println!("Connecting to: {}", database_url);
 
     let mut conn_opt = ConnectOptions::new(database_url);
@@ -48,6 +48,17 @@ pub async fn fetch_novel_entries(db: &DatabaseConnection) -> Result<Vec<NovelEnt
         novel_entries.push(model_to_novel_entry(model));
     }
     Ok(novel_entries)
+}
+
+pub async fn fetch_single_novel(db: &DatabaseConnection, title: &str) -> Result<NovelEntry, Box<dyn Error>> {
+    let query = Novels::find()
+        .filter(novels::Column::Title.eq(title))
+        .one(db)
+        .await?;
+    match query {
+        Some(model) => Ok(model_to_novel_entry(model)),
+        None => Err("Novel not found".into())
+    }
 }
 
 pub async fn insert_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry>) -> Result<(), Box<dyn Error>>{
@@ -165,5 +176,18 @@ pub async fn get_next_id(db: &DatabaseConnection) -> Result<i32, Box<dyn Error>>
     match model {
         Some(model) => Ok(model.id + 1),
         None => Ok(1),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use dotenv::dotenv;
+
+    #[tokio::test]
+    #[ignore]
+    async fn test_init() {
+        dotenv().ok();
+        let _db = init().await.unwrap();
     }
 }

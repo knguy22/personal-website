@@ -1,6 +1,7 @@
 mod db;
 mod entity;
 mod novel_entry;
+mod scraper;
 mod scripts;
 mod stats;
 
@@ -23,18 +24,19 @@ use tokio::sync::Mutex;
 #[derive(Clone)]
 struct AppState {
     conn: DatabaseConnection,
-    rng: Arc<Mutex<StdRng>>
+    rng: Arc<Mutex<StdRng>>,
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     // initialize everything; run scripts if applicable
+    dotenv().ok();
     let rng = Arc::new(Mutex::new(StdRng::from_entropy()));
-    let conn = init().await.unwrap();
+    let conn = db::init().await.unwrap();
     scripts::run_cli(&conn).await.unwrap();
 
     // build our application with a route
-    let state = AppState { conn , rng };
+    let state = AppState { conn, rng };
     let domain = env::var("DOMAIN").unwrap();
     let app = Router::new()
         .route("/", get(main_handler))
@@ -161,11 +163,4 @@ async fn get_random_novels(state: State<AppState>, num_novels: Json<usize>) -> i
         .map(|novel| novel.clone())
         .collect_vec();
     Json(random_novels)
-}
-
-async fn init() -> Result<DatabaseConnection, Box<dyn Error>> {
-    dotenv().ok();
-    let conn = db::init().await?;
-
-    Ok(conn)
 }

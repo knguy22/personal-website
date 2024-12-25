@@ -122,7 +122,7 @@ fn find_status_dist(novels: &[NovelEntry]) -> HashMap<String, u32> {
 
 fn find_chapter_country_dist(novels: &[NovelEntry]) -> (HashMap<String, u32>, HashMap<String, u32>) {
     fn dist_to_string(low: u32, high: u32) -> String {
-        low.to_string() + "-" + &high.to_string()
+        format!("{}-{}", low, high)
     }
 
     let mut chapter_dist = HashMap::<ChapterCountBucket, u32>::new();
@@ -154,7 +154,7 @@ fn find_chapter_country_dist(novels: &[NovelEntry]) -> (HashMap<String, u32>, Ha
     let last_bucket = CHAPTER_COUNT_BUCKETS[CHAPTER_COUNT_BUCKETS.len() - 1];
     let last_key = dist_to_string(last_bucket.0, last_bucket.1);
     let last_value = chapter_dist.remove(&last_key).unwrap();
-    chapter_dist.insert(last_bucket.0.to_string() + "+", last_value);
+    chapter_dist.insert(format!("{}+", last_bucket.0), last_value);
 
     (country_dist, chapter_dist)
 }
