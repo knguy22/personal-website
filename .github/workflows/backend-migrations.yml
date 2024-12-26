@@ -1,19 +1,18 @@
-name: backend
+name: backend-migrations
 
 on:
   push:
     branches: [main]
     paths:
-      - 'backend/**'
+      - 'backend/src/migration/**'
   pull_request:
     branches: [main]
     paths:
-      - 'backend/**'
-      - '!backend/src/migration/**'
+      - 'backend/src/migration/**'
 
 defaults:
   run:
-    working-directory: backend
+    working-directory: backend/src/migration
 
 jobs:
   test:

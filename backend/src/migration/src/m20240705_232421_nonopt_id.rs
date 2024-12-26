@@ -15,9 +15,12 @@ impl MigrationTrait for Migration {
         manager.alter_table(table).await
         }
 
-    async fn down(&self, _manager: &SchemaManager) -> Result<(), DbErr> {
-        // Replace the sample below with your own migration scripts
-        todo!();
+    async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        let table = Table::alter()
+            .table(Novels::Table)
+            .modify_column(ColumnDef::new(Novels::Id).integer())
+            .to_owned();
+        manager.alter_table(table).await
     }
 }
 
