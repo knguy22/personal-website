@@ -4,11 +4,11 @@ on:
   push:
     branches: [main]
     paths:
-      - 'backend/src/migration/**'
+      - 'backend/migration/**'
   pull_request:
     branches: [main]
     paths:
-      - 'backend/src/migration/**'
+      - 'backend/migration/**'
 
 defaults:
   run:
