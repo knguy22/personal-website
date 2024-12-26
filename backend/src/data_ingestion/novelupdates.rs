@@ -5,7 +5,7 @@ use unicode_normalization::{UnicodeNormalization, char::is_combining_mark};
 
 use std::{env, path::PathBuf, thread, time::Duration};
 
-pub fn init() -> Result<Browser> {
+fn init() -> Result<Browser> {
     let port = Some(1234);
     let chrome_binary = Some(PathBuf::from(env::var("CHROME_PATH")?));
     let launch_options = LaunchOptions::default_builder()

@@ -1,6 +1,6 @@
 use crate::db;
 use crate::novel_entry::{NovelEntry, NovelTagsRecordParsed};
-use crate::scraper::scrape_genres_and_tags;
+use crate::data_ingestion::novelupdates;
 
 use std::path::{Path, PathBuf};
 use std::thread;
@@ -64,7 +64,7 @@ async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<()> {
     println!("Attempting to fetch tags for {} novels...", novels.len());
 
     for novel in &novels {
-        let scraped_tags = scrape_genres_and_tags(&novel.title, 5, None).await;
+        let scraped_tags = novelupdates::scrape_genres_and_tags(&novel.title, 5, None).await;
         match scraped_tags {
             Ok(new_tags) => {
                 let new_novel = NovelEntry {
@@ -90,7 +90,7 @@ async fn single_fetch_novel_tags(conn: &DatabaseConnection, title: &str, url: Op
     println!("Attempting to fetch tags for [{title}]");
 
     let novel = db::fetch_single_novel(conn, title).await?;
-    let scraped_tags = scrape_genres_and_tags(title, 2, url).await?;
+    let scraped_tags = novelupdates::scrape_genres_and_tags(title, 2, url).await?;
     let new_novel = vec![NovelEntry {
         tags: scraped_tags,
         ..novel.clone()

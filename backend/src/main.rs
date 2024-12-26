@@ -1,7 +1,7 @@
+mod data_ingestion;
 mod db;
 mod entity;
 mod novel_entry;
-mod scraper;
 mod scripts;
 mod stats;
 
