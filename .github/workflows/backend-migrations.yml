@@ -12,7 +12,7 @@ on:
 
 defaults:
   run:
-    working-directory: backend/src
+    working-directory: backend/src/migration
 
 jobs:
   test:
