@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use crate::entity::novels;
 
 use anyhow::{Result, Error};
@@ -5,6 +7,12 @@ use chrono::{DateTime, Utc};
 use sea_orm::{IntoActiveModel, JsonValue};
 use serde::{Deserialize, Serialize};
 use strum::{Display, EnumString};
+
+#[derive(Clone, Debug, PartialEq, Display, EnumString, Deserialize, Serialize)]
+pub enum Provider {
+    Novelupdates,
+    Royalroad,
+}
 
 #[derive(Clone, Debug, PartialEq, Display, EnumString, Deserialize, Serialize)]
 pub enum Status {
@@ -26,6 +34,7 @@ pub struct NovelEntry {
     pub status: Status,
     pub tags: Vec<String>,
     pub notes: String,
+    pub provider: Option<Provider>,
     pub date_modified: DateTime<Utc>,
     pub date_started: Option<DateTime<Utc>>,
     pub date_completed: Option<DateTime<Utc>>,
@@ -68,6 +77,7 @@ pub fn novel_entry_to_active_model(novel: &NovelEntry) -> novels::ActiveModel {
         status: Some(novel.status.to_string()), 
         tags: serde_json::to_value(novel.tags.clone()).unwrap(),
         notes: Some(novel.notes.clone()), 
+        provider: novel.provider.as_ref().map(|provider| provider.to_string()),
         date_modified: novel.date_modified.naive_utc(),
         date_started: novel.date_started.map(|date| date.naive_utc()),
         date_completed: novel.date_completed.map(|date| date.naive_utc()),
@@ -85,6 +95,7 @@ pub fn model_to_novel_entry(model: novels::Model) -> NovelEntry {
         status: Status::new(&model.status.unwrap_or_default()),
         tags: json_value_to_vec_str(&model.tags).unwrap_or_default(),
         notes: model.notes.unwrap_or_default(), 
+        provider: model.provider.as_ref().map(|s| Provider::from_str(s).unwrap()),
         date_modified: model.date_modified.and_utc(),
         date_started: model.date_started.map(|date| date.and_utc()),
         date_completed: model.date_completed.map(|date| date.and_utc()),

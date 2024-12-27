@@ -16,4 +16,5 @@ pub enum Novels {
     DateModified,
     DateStarted,
     DateCompleted,
+    Provider,
 }

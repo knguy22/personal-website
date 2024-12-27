@@ -1,4 +1,4 @@
-use crate::novel_entry::{model_to_novel_entry, novel_entry_to_active_model, NovelEntry, Status, NovelTagsRecordParsed};
+use crate::novel_entry::{model_to_novel_entry, novel_entry_to_active_model, NovelEntry, NovelTagsRecordParsed, Status};
 use crate::entity::{prelude::Novels, novels};
 use std::{env, time::Duration};
 
@@ -159,6 +159,7 @@ pub async fn create_empty_row(db: &DatabaseConnection) -> Result<NovelEntry> {
         status: Status::Invalid,
         tags: Vec::new(),
         notes: String::new(),
+        provider: None,
         date_modified: Local::now().to_utc(),
         date_started: None,
         date_completed: None,
