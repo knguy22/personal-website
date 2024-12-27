@@ -24,8 +24,8 @@ pub async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<()> {
     for novel in novels_to_fetch {
         // scrape as required
         let scraped_tags = match novel.provider.as_ref().unwrap() {
-            Provider::Novelupdates => novelupdates::scrape_genres_and_tags(&novel.title, 5, None).await,
-            Provider::Royalroad => royalroad::scrape_tags(&novel.title, 3).await,
+            Provider::NovelUpdates => novelupdates::scrape_genres_and_tags(&novel.title, 5, None).await,
+            Provider::RoyalRoad => royalroad::scrape_tags(&novel.title, 3).await,
         };
 
         match scraped_tags {
@@ -56,8 +56,8 @@ pub async fn single_fetch_novel_tags(conn: &DatabaseConnection, title: &str, url
 
     let novel = db::fetch_single_novel(conn, title).await?;
     let scraped_tags = match novel.provider {
-        Some(Provider::Novelupdates) => novelupdates::scrape_genres_and_tags(title, 2, url).await?,
-        Some(Provider::Royalroad) => royalroad::scrape_tags(title, 3).await?,
+        Some(Provider::NovelUpdates) => novelupdates::scrape_genres_and_tags(title, 2, url).await?,
+        Some(Provider::RoyalRoad) => royalroad::scrape_tags(title, 3).await?,
         None => Err(Error::msg(format!("Novel doesn't contain a provider: {}", novel.title)))?
     };
     let new_novel = vec![NovelEntry {

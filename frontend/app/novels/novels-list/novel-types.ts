@@ -45,8 +45,8 @@ export const novel_col_names: (keyof NovelEntry)[] = [
 ];
 
 export const Provider = {
-  Novelupdates: "Novelupdates",
-  Royalroad: "Royalroad"
+  NovelUpdates: "NovelUpdates",
+  RoyalRoad: "RoyalRoad"
 } as const;
 export type Provider = typeof Status[keyof typeof Status];
 

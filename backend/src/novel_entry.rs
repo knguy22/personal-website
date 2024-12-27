@@ -10,8 +10,8 @@ use strum::{Display, EnumString};
 
 #[derive(Clone, Debug, PartialEq, Display, EnumString, Deserialize, Serialize)]
 pub enum Provider {
-    Novelupdates,
-    Royalroad,
+    NovelUpdates,
+    RoyalRoad,
 }
 
 #[derive(Clone, Debug, PartialEq, Display, EnumString, Deserialize, Serialize)]
