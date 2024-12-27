@@ -39,7 +39,7 @@ pub async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<()> {
             },
 
             Err(e) => {
-                println!("Failure:\n  Novel: {}\n  Provider: {:?}\n  Error: {}", 
+                println!("Failure:\n  Novel: {}\n  Provider: {:?}\n  Error: {}",
                 novel.title, novel.provider, e);
                 thread::sleep(Duration::from_secs(15));
             },

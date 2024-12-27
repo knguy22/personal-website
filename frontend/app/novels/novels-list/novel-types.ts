@@ -103,14 +103,7 @@ export function novel_entries_equal(a: NovelEntry, b: NovelEntry) {
       continue;
     }
 
-    if (key == "tags") {
-      for (let i = 0; i < a[key].length; i++) {
-        if (b[key][i] !== a[key][i]) {
-          return false;
-        }
-      }
-    }
-    else if (a[key] !== b[key]) {
+    if (a[key] !== b[key]) {
       return false;
     }
   }

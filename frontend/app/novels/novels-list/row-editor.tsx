@@ -39,7 +39,6 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
   const date_modified = new Date(row.original.date_modified);
 
   async function update_novel(novel: NovelEntry) {
-    console.log(novel);
     if (novel_entries_equal(novel, row.original)) {
       return;
     }
@@ -295,11 +294,9 @@ export function Bordered({ children, classname }: BorderedProps) {
 async function update_row(novel: NovelEntry): Promise<NovelEntry | null> {
   // send the update to the backend
   const to_send: NovelEntryApi[] = [entry_to_api(novel)];
-  console.log(to_send);
   const response = await fetch_backend(
     {path: "/api/update_novels", method: "POST", body: JSON.stringify(to_send), contentType: "application/json"}
   );
   const novels = response.data as NovelEntryApi[] | null;
-  console.log(novels);
   return novels ? api_to_entry(novels[0]) : null; 
 }
