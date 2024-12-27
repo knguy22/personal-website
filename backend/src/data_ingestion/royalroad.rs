@@ -5,15 +5,16 @@ use headless_chrome::Tab;
 use html_escape::decode_html_entities;
 use itertools::Itertools;
 use scraper::{Html, Selector};
+use tokio::time::sleep;
 
-use std::{io::Write, thread, time::Duration};
+use std::{io::Write, time::Duration};
 
-pub fn scrape_tags(title: &str, sleep_duration: u64) -> Result<Vec<String>> {
+pub async fn scrape_tags(title: &str, sleep_duration: u64) -> Result<Vec<String>> {
     let browser = browser::init()?;
     let tab = browser.new_tab()?;
     browser::configure_tab(&tab)?;
 
-    if let Err(e) = navigate_tab(title, &tab, sleep_duration) {
+    if let Err(e) = navigate_tab(title, &tab, sleep_duration).await {
         browser::screenshot("src/data_ingestion/final_error.png", &tab)?;
         Err(e)?;
     };
@@ -30,24 +31,24 @@ pub fn scrape_tags(title: &str, sleep_duration: u64) -> Result<Vec<String>> {
     }
 }
 
-fn navigate_tab(title: &str, tab: &Tab, sleep_duration: u64) -> Result<()> {
+async fn navigate_tab(title: &str, tab: &Tab, sleep_duration: u64) -> Result<()> {
     // use the main page to search for the novel
     let main_page_url = "https://www.royalroad.com/home";
     let menu_toggle_selector = "body > div.page-header > div.page-header-top > div > a";
     let search_bar_selector = "body > div.page-header > div.page-header-menu > div > form > div > input";
 
     tab.navigate_to(main_page_url)?;
-    thread::sleep(Duration::from_secs(sleep_duration));
+    sleep(Duration::from_secs(sleep_duration)).await;
     tab.wait_for_element(menu_toggle_selector)?.click()?;
 
-    thread::sleep(Duration::from_secs(sleep_duration));
+    sleep(Duration::from_secs(sleep_duration)).await;
     tab.wait_for_element(search_bar_selector)?.click()?;
     tab.type_str(title)?.press_key("Enter")?;
 
     // select the first novel from the search results
     let first_search_result_selector = "body > div.page-container > div > div > div > div > div > div > div > div.col-md-8 > div > div.fiction-list > div:nth-child(1) > figure > a";
     tab.wait_for_element(first_search_result_selector)?.click()?;
-    thread::sleep(Duration::from_secs(sleep_duration));
+    sleep(Duration::from_secs(sleep_duration)).await;
     Ok(())
 }
 
@@ -88,7 +89,7 @@ mod tests {
     #[ignore]
     async fn scrape_orellen() {
         dotenv().ok();
-        let res = scrape_tags("The Last Orellen", 3).unwrap();
+        let res = scrape_tags("The Last Orellen", 3).await.unwrap();
         assert_eq!(res.len(), 10);
     }
 
@@ -96,7 +97,7 @@ mod tests {
     #[ignore]
     async fn scrape_carousel() {
         dotenv().ok();
-        let res = scrape_tags("The Game at Carousel: A Horror Movie LitRPG", 3).unwrap();
+        let res = scrape_tags("The Game at Carousel: A Horror Movie LitRPG", 3).await.unwrap();
         assert_eq!(res.len(), 13);
     }
 
@@ -104,7 +105,7 @@ mod tests {
     #[ignore]
     async fn scrape_blood_and_fur() {
         dotenv().ok();
-        let res = scrape_tags("Blood & Fur", 3).unwrap();
+        let res = scrape_tags("Blood & Fur", 3).await.unwrap();
         assert_eq!(res.len(), 13);
     }
 
@@ -112,7 +113,7 @@ mod tests {
     #[ignore]
     async fn scrape_invalid() {
         dotenv().ok();
-        let res = scrape_tags("lkasjdfklasjdflajklsdf", 3);
+        let res = scrape_tags("lkasjdfklasjdflajklsdf", 3).await;
         assert!(res.is_err());
     }
 }
