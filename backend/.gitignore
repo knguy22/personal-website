@@ -2,5 +2,7 @@ target
 *.csv
 .env
 *.sh
+*.png
+*.html
 chrome*
 gecko*
