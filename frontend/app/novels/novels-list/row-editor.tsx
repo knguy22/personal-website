@@ -27,7 +27,7 @@ import { Button } from "@/components/ui/button"
 import { buttonVariants } from "@/components/ui/button"
 
 import { CellContext } from "@tanstack/react-table"
-import { Status, NovelEntry, NovelEntryApi, api_to_entry, entry_to_api, novel_entries_equal, novel_col_names } from "./novel-types"
+import { Provider, Status, NovelEntry, NovelEntryApi, api_to_entry, entry_to_api, novel_entries_equal, novel_col_names } from "./novel-types"
 import { DeleteRowButton } from "./delete-row-button"
 import { fetch_backend } from "@/utils/fetch_backend"
 
@@ -39,6 +39,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
   const date_modified = new Date(row.original.date_modified);
 
   async function update_novel(novel: NovelEntry) {
+    console.log(novel);
     if (novel_entries_equal(novel, row.original)) {
       return;
     }
@@ -82,6 +83,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
           <EditorInput column_id="chapter" display_name="Chapter" orig_novel={row.original} novel={novel} setNovel={setNovel} />
           <RatingEditorInput column_id="rating" display_name="Rating" orig_novel={row.original} novel={novel} setNovel={setNovel} />
           <DropdownInput column_id="status" display_name="Status" orig_novel={row.original} novel={novel} setNovel={setNovel} cell_values={Status} />
+          <DropdownInput column_id="provider" display_name="Provider" orig_novel={row.original} novel={novel} setNovel={setNovel} cell_values={Provider} />
           <div className="col-span-4 flex flex-col space-y-1">
             <div className="text-md">{"Date Modified"}</div>
             <Bordered>
@@ -162,7 +164,7 @@ function DropdownInput({ column_id, display_name, orig_novel, novel, setNovel, c
   } else {
     content =
       <DropdownMenu>
-        <DropdownMenuTrigger className="w-full text-left">{novel[column_id] || ""}</DropdownMenuTrigger>
+        <DropdownMenuTrigger className="w-full text-left">{novel[column_id] || "Unselected"}</DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuSeparator />
           {
@@ -174,6 +176,9 @@ function DropdownInput({ column_id, display_name, orig_novel, novel, setNovel, c
               )
             })
           }
+          <DropdownMenuItem key={null} onClick={() => setNovel({...novel, [column_id]: null})}>
+            Unselected
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
   }
@@ -290,9 +295,11 @@ export function Bordered({ children, classname }: BorderedProps) {
 async function update_row(novel: NovelEntry): Promise<NovelEntry | null> {
   // send the update to the backend
   const to_send: NovelEntryApi[] = [entry_to_api(novel)];
+  console.log(to_send);
   const response = await fetch_backend(
     {path: "/api/update_novels", method: "POST", body: JSON.stringify(to_send), contentType: "application/json"}
   );
   const novels = response.data as NovelEntryApi[] | null;
+  console.log(novels);
   return novels ? api_to_entry(novels[0]) : null; 
 }
