@@ -6,7 +6,7 @@ use unicode_normalization::{UnicodeNormalization, char::is_combining_mark};
 
 use std::{thread, time::Duration};
 
-pub async fn scrape_genres_and_tags(title: &str, sleep_duration: u64, from_url: Option<String>) -> Result<Vec<String>> {
+pub fn scrape_genres_and_tags(title: &str, sleep_duration: u64, from_url: Option<String>) -> Result<Vec<String>> {
     let browser = browser::init()?;
     let novel_info_url: String = from_url.unwrap_or(construct_url(title));
     let tab = browser.new_tab()?;
@@ -193,7 +193,7 @@ mod tests {
     #[ignore]
     async fn scrape_lotm() {
         dotenv().ok();
-        let res = scrape_genres_and_tags("Lord of the Mysteries", 5, None).await.unwrap();
+        let res = scrape_genres_and_tags("Lord of the Mysteries", 5, None).unwrap();
         assert!(res.len() > 50);
     }
 
@@ -201,7 +201,7 @@ mod tests {
     #[ignore]
     async fn scrape_invalid() {
         dotenv().ok();
-        let res = scrape_genres_and_tags("laksjdflkajsdglh", 2, None).await;
+        let res = scrape_genres_and_tags("laksjdflkajsdglh", 2, None);
         assert!(res.is_err());
     }
 }

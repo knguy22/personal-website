@@ -11,7 +11,7 @@ impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         let table_name = Novels::Table.to_string();
         let status_column = Novels::Status.to_string();
-        let query = format!("UPDATE {table_name} SET {0} = NULL WHERE {0} = 'Invalid';", status_column);
+        let query = format!("UPDATE {table_name} SET {status_column} = NULL WHERE {status_column} = 'Invalid';");
         let db = manager.get_connection();
         db.execute(Statement::from_string(
                 sea_orm::DatabaseBackend::Postgres,
@@ -24,7 +24,7 @@ impl MigrationTrait for Migration {
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         let table_name = Novels::Table.to_string();
         let status_column = Novels::Status.to_string();
-        let query = format!("UPDATE {table_name} SET {0} = 'Invalid' WHERE {0} = NULL;", status_column);
+        let query = format!("UPDATE {table_name} SET {status_column} = 'Invalid' WHERE {status_column} = NULL;");
         let db = manager.get_connection();
         db.execute(Statement::from_string(
                 sea_orm::DatabaseBackend::Postgres,

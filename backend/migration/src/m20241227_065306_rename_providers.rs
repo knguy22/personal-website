@@ -12,7 +12,7 @@ impl MigrationTrait for Migration {
         let table_name = Novels::Table.to_string();
         let column = Novels::Provider.to_string();
 
-        let query = format!("UPDATE {table_name} SET {0} = 'NovelUpdates' WHERE {0} = 'Novelupdates';", column);
+        let query = format!("UPDATE {table_name} SET {column} = 'NovelUpdates' WHERE {column} = 'Novelupdates';");
         let db = manager.get_connection();
         db.execute(Statement::from_string(
                 sea_orm::DatabaseBackend::Postgres,
@@ -20,7 +20,7 @@ impl MigrationTrait for Migration {
             ))
             .await?;
 
-        let query = format!("UPDATE {table_name} SET {0} = 'RoyalRoad' WHERE {0} = 'Royalroad';", column);
+        let query = format!("UPDATE {table_name} SET {column} = 'RoyalRoad' WHERE {column} = 'Royalroad';");
         let db = manager.get_connection();
         db.execute(Statement::from_string(
                 sea_orm::DatabaseBackend::Postgres,
@@ -34,7 +34,7 @@ impl MigrationTrait for Migration {
         let table_name = Novels::Table.to_string();
         let column = Novels::Provider.to_string();
 
-        let query = format!("UPDATE {table_name} SET {0} = 'Novelupdates' WHERE {0} = 'NovelUpdates';", column);
+        let query = format!("UPDATE {table_name} SET {column} = 'Novelupdates' WHERE {column} = 'NovelUpdates';");
         let db = manager.get_connection();
         db.execute(Statement::from_string(
                 sea_orm::DatabaseBackend::Postgres,
@@ -42,7 +42,7 @@ impl MigrationTrait for Migration {
             ))
             .await?;
 
-        let query = format!("UPDATE {table_name} SET {0} = 'Royalroad' WHERE {0} = 'RoyalRoad';", column);
+        let query = format!("UPDATE {table_name} SET {column} = 'Royalroad' WHERE {column} = 'RoyalRoad';");
         let db = manager.get_connection();
         db.execute(Statement::from_string(
                 sea_orm::DatabaseBackend::Postgres,
