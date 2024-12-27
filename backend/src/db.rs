@@ -83,13 +83,13 @@ pub async fn update_novel_entries(db: &DatabaseConnection, rows: &[NovelEntry]) 
 
         if let Some(model) = model {
             let mut active_model = model.into_active_model();
-            active_model.country = Set(Some(row.country.clone()));
-            active_model.title = Set(Some(row.title.clone()));
-            active_model.chapter = Set(Some(row.chapter.clone()));
+            active_model.country = Set(row.country.clone());
+            active_model.title = Set(row.title.clone());
+            active_model.chapter = Set(row.chapter.clone());
             active_model.rating = Set(Some(row.rating as i32));
             active_model.status = Set(row.status.as_ref().map(ToString::to_string));
             active_model.tags = Set(serde_json::to_value(row.tags.clone()).unwrap());
-            active_model.notes = Set(Some(row.notes.clone()));
+            active_model.notes = Set(row.notes.clone());
             active_model.provider = Set(row.provider.as_ref().map(ToString::to_string));
             active_model.date_modified = Set(Local::now().naive_utc());
             active_model.date_started = Set(row.date_started.map(|date| date.naive_utc()));
