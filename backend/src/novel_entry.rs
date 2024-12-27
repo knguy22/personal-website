@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use crate::entity::novels;
 
 use anyhow::{Result, Error};
@@ -7,13 +9,18 @@ use serde::{Deserialize, Serialize};
 use strum::{Display, EnumString};
 
 #[derive(Clone, Debug, PartialEq, Display, EnumString, Deserialize, Serialize)]
+pub enum Provider {
+    NovelUpdates,
+    RoyalRoad,
+}
+
+#[derive(Clone, Debug, PartialEq, Display, EnumString, Deserialize, Serialize)]
 pub enum Status {
     Reading,
     Completed,
     Waiting,
     Dropped,
     Hiatus,
-    Invalid,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -23,9 +30,10 @@ pub struct NovelEntry {
     pub title: String,
     pub chapter: String,
     pub rating: u32,
-    pub status: Status,
+    pub status: Option<Status>,
     pub tags: Vec<String>,
     pub notes: String,
+    pub provider: Option<Provider>,
     pub date_modified: DateTime<Utc>,
     pub date_started: Option<DateTime<Utc>>,
     pub date_completed: Option<DateTime<Utc>>,
@@ -36,19 +44,6 @@ pub struct NovelEntry {
 pub struct NovelTagsRecordParsed {
     pub title: String,
     pub tags: Vec<String>,
-}
-
-impl Status {
-    pub fn new(s: &str) -> Status {
-        match s.chars().nth(0).unwrap_or_default() {
-            'R' => Status::Reading,
-            'C' => Status::Completed,
-            'W' => Status::Waiting,
-            'D' => Status::Dropped,
-            'H' => Status::Hiatus,
-            _ => Status::Invalid,
-        }
-    }
 }
 
 impl NovelEntry {
@@ -65,9 +60,10 @@ pub fn novel_entry_to_active_model(novel: &NovelEntry) -> novels::ActiveModel {
         title: Some(novel.title.clone()), 
         chapter: Some(novel.chapter.clone()), 
         rating: Some(novel.rating as i32), 
-        status: Some(novel.status.to_string()), 
+        status: novel.status.as_ref().map(ToString::to_string),
         tags: serde_json::to_value(novel.tags.clone()).unwrap(),
         notes: Some(novel.notes.clone()), 
+        provider: novel.provider.as_ref().map(ToString::to_string),
         date_modified: novel.date_modified.naive_utc(),
         date_started: novel.date_started.map(|date| date.naive_utc()),
         date_completed: novel.date_completed.map(|date| date.naive_utc()),
@@ -82,9 +78,10 @@ pub fn model_to_novel_entry(model: novels::Model) -> NovelEntry {
         title: model.title.unwrap_or_default(), 
         chapter: model.chapter.unwrap_or_default(),
         rating: model.rating.unwrap_or_default() as u32,
-        status: Status::new(&model.status.unwrap_or_default()),
+        status: model.status.as_ref().map(|status| Status::from_str(status).unwrap()),
         tags: json_value_to_vec_str(&model.tags).unwrap_or_default(),
         notes: model.notes.unwrap_or_default(), 
+        provider: model.provider.as_ref().map(|provider| Provider::from_str(provider).unwrap()),
         date_modified: model.date_modified.and_utc(),
         date_started: model.date_started.map(|date| date.and_utc()),
         date_completed: model.date_completed.map(|date| date.and_utc()),
@@ -120,6 +117,14 @@ mod tests {
         assert_eq!(Status::Waiting.to_string(), "Waiting");
         assert_eq!(Status::Dropped.to_string(), "Dropped");
         assert_eq!(Status::Hiatus.to_string(), "Hiatus");
-        assert_eq!(Status::Invalid.to_string(), "Invalid");
+    }
+
+    #[test]
+    fn test_convert_status() {
+        assert_eq!(Status::from_str("Reading").unwrap(), Status::Reading);
+        assert_eq!(Status::from_str("Completed").unwrap(), Status::Completed);
+        assert_eq!(Status::from_str("Waiting").unwrap(), Status::Waiting);
+        assert_eq!(Status::from_str("Dropped").unwrap(), Status::Dropped);
+        assert_eq!(Status::from_str("Hiatus").unwrap(), Status::Hiatus);
     }
 }

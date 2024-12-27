@@ -1,37 +1,23 @@
+use super::browser;
+
 use anyhow::{Error, Result};
-use headless_chrome::{Browser, LaunchOptions};
 use scraper::{Html, Selector};
 use unicode_normalization::{UnicodeNormalization, char::is_combining_mark};
 
-use std::{env, path::PathBuf, thread, time::Duration};
+use std::{thread, time::Duration};
 
-pub fn init() -> Result<Browser> {
-    let port = Some(1234);
-    let chrome_binary = Some(PathBuf::from(env::var("CHROME_PATH")?));
-    let launch_options = LaunchOptions::default_builder()
-        .path(chrome_binary)
-        .port(port)
-        .sandbox(false)
-        .build()?;
-    Browser::new(launch_options)
-}
-
-pub async fn scrape_genres_and_tags(title: &str, sleep_duration: u64, from_url: Option<String>) -> Result<Vec<String>> {
-    let browser = init()?;
-
-    let url: String = from_url.unwrap_or(construct_url(title));
-    let user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
-    let accept_language = Some("en-US,en");
-    let platform = Some("Win32");
-
+pub fn scrape_genres_and_tags(title: &str, sleep_duration: u64, from_url: Option<String>) -> Result<Vec<String>> {
+    let browser = browser::init()?;
+    let novel_info_url: String = from_url.unwrap_or(construct_url(title));
     let tab = browser.new_tab()?;
-    tab.set_user_agent(user_agent, accept_language, platform)?;
-    tab.navigate_to(&url)?;
+    browser::configure_tab(&tab)?;
+
+    tab.navigate_to(&novel_info_url)?;
     thread::sleep(Duration::from_secs(sleep_duration));
 
     let html = tab.get_content()?;
     tab.close_with_unload()?;
-    parse_genres_and_tags(&html, &url)
+    parse_genres_and_tags(&html, &novel_info_url)
 }
 
 fn parse_genres_and_tags(html: &str, url: &str) -> Result<Vec<String>> {
@@ -205,12 +191,17 @@ mod tests {
 
     #[tokio::test]
     #[ignore]
-    async fn browser() {
+    async fn scrape_lotm() {
         dotenv().ok();
-        let res = scrape_genres_and_tags("Lord of the Mysteries", 5, None).await.unwrap();
+        let res = scrape_genres_and_tags("Lord of the Mysteries", 5, None).unwrap();
         assert!(res.len() > 50);
+    }
 
-        let res = scrape_genres_and_tags("laksjdflkajsdglh", 2, None).await;
+    #[tokio::test]
+    #[ignore]
+    async fn scrape_invalid() {
+        dotenv().ok();
+        let res = scrape_genres_and_tags("laksjdflkajsdglh", 2, None);
         assert!(res.is_err());
     }
 }

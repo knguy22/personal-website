@@ -5,9 +5,10 @@ export type NovelEntryApi = {
   title: string,
   chapter: string,
   rating: number,
-  status: string,
+  status: Status,
   tags: string[],
   notes: string,
+  provider: Provider | null,
   date_modified: string,
   date_started: string | null,
   date_completed: string | null,
@@ -22,6 +23,7 @@ export type NovelEntry = {
   status: Status,
   tags: string,
   notes: string,
+  provider: Provider | null,
   date_modified: string,
   date_started: string | null,
   date_completed: string | null,
@@ -36,10 +38,17 @@ export const novel_col_names: (keyof NovelEntry)[] = [
   "status",
   "tags",
   "notes",
+  "provider",
   "date_modified",
   "date_started",
   "date_completed"
 ];
+
+export const Provider = {
+  NovelUpdates: "NovelUpdates",
+  RoyalRoad: "RoyalRoad"
+} as const;
+export type Provider = typeof Status[keyof typeof Status];
 
 export const Status = {
   Reading: "Reading",
@@ -47,17 +56,8 @@ export const Status = {
   Waiting: "Waiting",
   Dropped: "Dropped",
   Hiatus: "Hiatus",
-  Invalid: "Invalid",
 } as const;
-
 export type Status = typeof Status[keyof typeof Status];
-
-export function str_to_status(value: string): Status {
-  if (value in Status) {
-    return Status[value as keyof typeof Status];
-  }
-  return Status.Invalid;
-}
 
 export function status_to_str(status: Status): string {
   return status.toString();
@@ -70,9 +70,10 @@ export function api_to_entry(novel: NovelEntryApi): NovelEntry {
     title: novel.title,
     chapter: novel.chapter,
     rating: novel.rating !== 0 ? String(novel.rating) : "",
-    status: str_to_status(novel.status),
+    status: novel.status,
     tags: novel.tags.join(","),
     notes: novel.notes,
+    provider: novel.provider,
     date_modified: novel.date_modified,
     date_started: novel.date_started,
     date_completed: novel.date_completed
@@ -86,9 +87,10 @@ export function entry_to_api(novel: NovelEntry): NovelEntryApi {
     title: novel.title,
     chapter: novel.chapter,
     rating: novel.rating === "" ? 0 : parseInt(novel.rating, 10),
-    status: novel.status.toString(),
+    status: novel.status,
     tags: process_tags(novel.tags),
     notes: novel.notes,
+    provider: novel.provider,
     date_modified: novel.date_modified,
     date_started: novel.date_started,
     date_completed: novel.date_completed
@@ -101,14 +103,7 @@ export function novel_entries_equal(a: NovelEntry, b: NovelEntry) {
       continue;
     }
 
-    if (key == "tags") {
-      for (let i = 0; i < a[key].length; i++) {
-        if (b[key][i] !== a[key][i]) {
-          return false;
-        }
-      }
-    }
-    else if (a[key] !== b[key]) {
+    if (a[key] !== b[key]) {
       return false;
     }
   }

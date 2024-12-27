@@ -4,15 +4,15 @@ on:
   push:
     branches: [main]
     paths:
-      - 'backend/src/migration/**'
+      - 'backend/migration/**'
   pull_request:
     branches: [main]
     paths:
-      - 'backend/src/migration/**'
+      - 'backend/migration/**'
 
 defaults:
   run:
-    working-directory: backend/src/migration
+    working-directory: backend/migration
 
 jobs:
   test:

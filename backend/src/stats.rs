@@ -117,7 +117,10 @@ fn completed_volume(chapter: &str) -> u32 {
 fn find_status_dist(novels: &[NovelEntry]) -> HashMap<String, u32> {
     let mut status_dist = HashMap::<String, u32>::new();
     for novel in novels {
-        let status = novel.status.to_string();
+        let status = match &novel.status {
+            Some(s) => s.to_string(),
+            None => "Unselected".to_string(),
+        };
         *status_dist.entry(status).or_insert(0) += 1;
     }
     status_dist

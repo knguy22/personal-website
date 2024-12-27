@@ -17,6 +17,7 @@ pub struct Model {
     pub title: Option<String>,
     pub date_started: Option<DateTime>,
     pub date_completed: Option<DateTime>,
+    pub provider: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

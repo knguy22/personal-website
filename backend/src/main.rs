@@ -1,8 +1,8 @@
+mod data_ingestion;
 mod db;
 mod entity;
 mod novel_entry;
-mod scraper;
-mod scripts;
+mod cli;
 mod stats;
 
 use std::{env, sync::Arc};
@@ -33,7 +33,7 @@ async fn main() -> Result<()> {
     dotenv().ok();
     let rng = Arc::new(Mutex::new(StdRng::from_entropy()));
     let conn = db::init().await.unwrap();
-    scripts::run_cli(&conn).await.unwrap();
+    cli::run_cli(&conn).await.unwrap();
 
     // build our application with a route
     let state = AppState { conn, rng };

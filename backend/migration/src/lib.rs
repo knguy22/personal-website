@@ -7,6 +7,9 @@ mod m20240620_074048_make_fields_non_opt;
 mod m20240705_224756_add_id;
 mod m20240705_232421_nonopt_id;
 mod m20241216_050534_create_start_stop_date_cols;
+mod m20241227_014425_provider;
+mod m20241227_054323_fix_status;
+mod m20241227_065306_rename_providers;
 mod novels;
 
 pub struct Migrator;
@@ -22,6 +25,9 @@ impl MigratorTrait for Migrator {
             Box::new(m20240705_224756_add_id::Migration),
             Box::new(m20240705_232421_nonopt_id::Migration),
             Box::new(m20241216_050534_create_start_stop_date_cols::Migration),
+            Box::new(m20241227_014425_provider::Migration),
+            Box::new(m20241227_054323_fix_status::Migration),
+            Box::new(m20241227_065306_rename_providers::Migration),
         ]
     }
 }
