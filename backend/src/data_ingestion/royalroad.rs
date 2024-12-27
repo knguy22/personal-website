@@ -62,7 +62,7 @@ fn parse_tags(title: &str, html: &str) -> Result<Vec<String>> {
         Some(title_element) => {
             let curr_title = title_element.inner_html();
             if curr_title != title {
-                Err(Error::msg("Wrong title in page: [{curr_title}]"))?;
+                Err(Error::msg(format!("Wrong title in page: [{curr_title}]")))?;
             }
         },
     }

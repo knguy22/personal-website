@@ -52,7 +52,7 @@ pub async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<()> {
 }
 
 pub async fn single_fetch_novel_tags(conn: &DatabaseConnection, title: &str, url: Option<String>) -> Result<()> {
-    println!("Attempting to fetch tags for {title}");
+    println!("Attempting to fetch tags for [{title}]");
 
     let novel = db::fetch_single_novel(conn, title).await?;
     let scraped_tags = match novel.provider {
