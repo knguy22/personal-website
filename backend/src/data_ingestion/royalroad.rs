@@ -2,6 +2,7 @@ use super::browser;
 
 use anyhow::{Error, Result};
 use headless_chrome::Tab;
+use html_escape::decode_html_entities;
 use itertools::Itertools;
 use scraper::{Html, Selector};
 
@@ -61,6 +62,7 @@ fn parse_tags(title: &str, html: &str) -> Result<Vec<String>> {
         None => Err(Error::msg("Title element not found in page"))?,
         Some(title_element) => {
             let curr_title = title_element.inner_html();
+            let curr_title = decode_html_entities(&curr_title);
             if curr_title != title {
                 Err(Error::msg(format!("Wrong title in page: [{curr_title}]")))?;
             }
@@ -95,6 +97,14 @@ mod tests {
     async fn scrape_carousel() {
         dotenv().ok();
         let res = scrape_tags("The Game at Carousel: A Horror Movie LitRPG", 3).unwrap();
+        assert_eq!(res.len(), 13);
+    }
+
+    #[tokio::test]
+    #[ignore]
+    async fn scrape_blood_and_fur() {
+        dotenv().ok();
+        let res = scrape_tags("Blood & Fur", 3).unwrap();
         assert_eq!(res.len(), 13);
     }
 

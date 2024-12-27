@@ -2,6 +2,7 @@ use super::browser;
 
 use anyhow::{Error, Result};
 use scraper::{Html, Selector};
+use html_escape::decode_html_entities;
 use unicode_normalization::{UnicodeNormalization, char::is_combining_mark};
 
 use std::{thread, time::Duration};
@@ -44,7 +45,7 @@ fn parse_genres_and_tags(html: &str, url: &str) -> Result<Vec<String>> {
 
     for group in genres_iter.chain(tags_iter)  {
         for link in group.select(&link_selector) {
-            res.push(link.inner_html());
+            res.push(decode_html_entities(&link.inner_html()).to_string());
         }
     }
     Ok(res)
