@@ -1,6 +1,7 @@
 use sea_orm_migration::prelude::*;
 
 // based on novel_entry::NovelEntry
+#[allow(unused)]
 #[derive(DeriveIden)]
 pub enum Novels {
     Id,
