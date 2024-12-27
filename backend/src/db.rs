@@ -1,4 +1,4 @@
-use crate::novel_entry::{model_to_novel_entry, novel_entry_to_active_model, NovelEntry, NovelTagsRecordParsed, Status};
+use crate::novel_entry::{model_to_novel_entry, novel_entry_to_active_model, NovelEntry, NovelTagsRecordParsed};
 use crate::entity::{prelude::Novels, novels};
 use std::{env, time::Duration};
 
@@ -87,7 +87,7 @@ pub async fn update_novel_entries(db: &DatabaseConnection, rows: &[NovelEntry]) 
             active_model.title = Set(Some(row.title.clone()));
             active_model.chapter = Set(Some(row.chapter.clone()));
             active_model.rating = Set(Some(row.rating as i32));
-            active_model.status = Set(Some(row.status.to_string()));
+            active_model.status = Set(row.status.as_ref().map(|status| status.to_string()));
             active_model.tags = Set(serde_json::to_value(row.tags.clone()).unwrap());
             active_model.notes = Set(Some(row.notes.clone()));
             active_model.provider = Set(row.provider.as_ref().map(|p| p.to_string()));
@@ -157,7 +157,7 @@ pub async fn create_empty_row(db: &DatabaseConnection) -> Result<NovelEntry> {
         title: String::new(),
         chapter: String::new(),
         rating: 0,
-        status: Status::Invalid,
+        status: None,
         tags: Vec::new(),
         notes: String::new(),
         provider: None,

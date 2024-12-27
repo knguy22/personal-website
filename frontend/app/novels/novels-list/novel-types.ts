@@ -56,16 +56,8 @@ export const Status = {
   Waiting: "Waiting",
   Dropped: "Dropped",
   Hiatus: "Hiatus",
-  Invalid: "Invalid",
 } as const;
 export type Status = typeof Status[keyof typeof Status];
-
-export function str_to_status(value: string): Status {
-  if (value in Status) {
-    return Status[value as keyof typeof Status];
-  }
-  return Status.Invalid;
-}
 
 export function status_to_str(status: Status): string {
   return status.toString();
@@ -78,7 +70,7 @@ export function api_to_entry(novel: NovelEntryApi): NovelEntry {
     title: novel.title,
     chapter: novel.chapter,
     rating: novel.rating !== 0 ? String(novel.rating) : "",
-    status: str_to_status(novel.status),
+    status: novel.status,
     tags: novel.tags.join(","),
     notes: novel.notes,
     provider: novel.provider,
