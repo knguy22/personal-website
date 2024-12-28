@@ -23,6 +23,3 @@ impl MigrationTrait for Migration {
         manager.alter_table(table).await
     }
 }
-
-
-

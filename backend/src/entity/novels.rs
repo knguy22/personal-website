@@ -5,16 +5,16 @@ use sea_orm::entity::prelude::*;
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
 #[sea_orm(table_name = "novels")]
 pub struct Model {
-    pub country: Option<String>,
+    pub country: String,
     pub rating: Option<i32>,
     pub status: Option<String>,
-    pub notes: Option<String>,
+    pub notes: String,
     pub date_modified: DateTime,
-    pub chapter: Option<String>,
+    pub chapter: String,
     pub tags: Json,
     #[sea_orm(primary_key, auto_increment = false, unique)]
     pub id: i32,
-    pub title: Option<String>,
+    pub title: String,
     pub date_started: Option<DateTime>,
     pub date_completed: Option<DateTime>,
     pub provider: Option<String>,

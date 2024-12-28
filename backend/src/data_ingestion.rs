@@ -9,8 +9,9 @@ use crate::novel_entry::NovelEntry;
 use anyhow::{Error, Result};
 use itertools::Itertools;
 use sea_orm::DatabaseConnection;
+use tokio::time::sleep;
 
-use std::{thread, time::Duration};
+use std::time::Duration;
 
 pub async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<()> {
     let novels = db::fetch_novel_entries(conn).await?;
@@ -24,8 +25,8 @@ pub async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<()> {
     for novel in novels_to_fetch {
         // scrape as required
         let scraped_tags = match novel.provider.as_ref().unwrap() {
-            Provider::NovelUpdates => novelupdates::scrape_genres_and_tags(&novel.title, 5, None),
-            Provider::RoyalRoad => royalroad::scrape_tags(&novel.title, 3),
+            Provider::NovelUpdates => novelupdates::scrape_genres_and_tags(&novel.title, 5, None).await,
+            Provider::RoyalRoad => royalroad::scrape_tags(&novel.title, 3).await,
         };
 
         match scraped_tags {
@@ -41,7 +42,7 @@ pub async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<()> {
             Err(e) => {
                 println!("Failure:\n  Novel: {}\n  Provider: {:?}\n  Error: {}",
                 novel.title, novel.provider, e);
-                thread::sleep(Duration::from_secs(15));
+                sleep(Duration::from_secs(15)).await;
             },
         }
     }
@@ -56,8 +57,8 @@ pub async fn single_fetch_novel_tags(conn: &DatabaseConnection, title: &str, url
 
     let novel = db::fetch_single_novel(conn, title).await?;
     let scraped_tags = match novel.provider {
-        Some(Provider::NovelUpdates) => novelupdates::scrape_genres_and_tags(title, 2, url)?,
-        Some(Provider::RoyalRoad) => royalroad::scrape_tags(title, 3)?,
+        Some(Provider::NovelUpdates) => novelupdates::scrape_genres_and_tags(title, 2, url).await?,
+        Some(Provider::RoyalRoad) => royalroad::scrape_tags(title, 3).await?,
         None => Err(Error::msg(format!("Novel doesn't contain a provider: {}", novel.title)))?
     };
     let new_novel = vec![NovelEntry {

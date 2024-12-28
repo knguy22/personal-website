@@ -9,9 +9,10 @@ impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         let table = Table::alter()
             .table(Novels::Table)
-            .drop_column(Novels::Title) // need to drop and then add again since it's a primary key
-            .add_column(ColumnDef::new(Novels::Id).integer())
-            .add_column(ColumnDef::new(Novels::Title).string())
+            .modify_column(ColumnDef::new(Novels::Country).string().not_null())
+            .modify_column(ColumnDef::new(Novels::Title).string().not_null())
+            .modify_column(ColumnDef::new(Novels::Chapter).string().not_null())
+            .modify_column(ColumnDef::new(Novels::Notes).string().not_null())
             .to_owned();
         manager.alter_table(table).await
         }
@@ -19,8 +20,10 @@ impl MigrationTrait for Migration {
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         let table = Table::alter()
             .table(Novels::Table)
-            .drop_column(Novels::Id)
-            .modify_column(ColumnDef::new(Novels::Title).string().not_null().primary_key().unique_key())
+            .modify_column(ColumnDef::new(Novels::Country).string())
+            .modify_column(ColumnDef::new(Novels::Title).string())
+            .modify_column(ColumnDef::new(Novels::Chapter).string())
+            .modify_column(ColumnDef::new(Novels::Notes).string())
             .to_owned();
         manager.alter_table(table).await
     }
