@@ -5,7 +5,7 @@ use std::{env, time::Duration};
 use anyhow::{Result, Error};
 use chrono::Local;
 use itertools::Itertools;
-use sea_orm::TryIntoModel;
+use sea_orm::{TryIntoModel, Unchanged};
 use serde_json::from_value;
 use sea_orm::{
     ActiveModelTrait,
@@ -81,19 +81,12 @@ pub async fn update_novel_entries(db: &DatabaseConnection, rows: &[NovelEntry]) 
             .one(db)
             .await?;
 
-        if let Some(model) = model {
-            let mut active_model = model.into_active_model();
-            active_model.country = Set(row.country.clone());
-            active_model.title = Set(row.title.clone());
-            active_model.chapter = Set(row.chapter.clone());
-            active_model.rating = Set(Some(row.rating as i32));
-            active_model.status = Set(row.status.as_ref().map(ToString::to_string));
-            active_model.tags = Set(serde_json::to_value(row.tags.clone()).unwrap());
-            active_model.notes = Set(row.notes.clone());
-            active_model.provider = Set(row.provider.as_ref().map(ToString::to_string));
+        if model.is_some() {
+            // create the active model; everything should be updated already except for date_modified
+            // date_modified is handeled by the backend to ensure time consistency
+            let mut active_model = novel_entry_to_active_model(row).reset_all();
             active_model.date_modified = Set(Local::now().naive_utc());
-            active_model.date_started = Set(row.date_started.map(|date| date.naive_utc()));
-            active_model.date_completed = Set(row.date_completed.map(|date| date.naive_utc()));
+            active_model.id = Unchanged(row.id);
 
             // update the results
             updated_novels.push(model_to_novel_entry(active_model.clone().try_into_model()?));
