@@ -11,8 +11,6 @@
     * Where you want to host this backend server. For example: 127.0.0.1:5000
 * DATABASE_URL
     * See postgres' documentation for how to connect using a database url
-* TABLE_NAME
-    * The table responsible for hosting novels. Make sure this table has been created in the correct relation.
 * CHROME_PATH
     * The relative path of the chrome binary
 
