@@ -1,5 +1,5 @@
 use crate::entity::{novels, prelude::Novels};
-use crate::novel_entry::{model_to_novel_entry, novel_entry_to_active_model, NovelEntry, NovelTagsRecordParsed};
+use crate::novel_entry::{NovelEntry, NovelTagsRecordParsed};
 use std::{env, time::Duration};
 
 use anyhow::{Result, Error};
@@ -46,7 +46,7 @@ pub async fn fetch_novel_entries(db: &DatabaseConnection) -> Result<Vec<NovelEnt
 
     let mut novel_entries = Vec::new();
     for model in models {
-        novel_entries.push(model_to_novel_entry(model));
+        novel_entries.push(NovelEntry::from_model(model));
     }
     Ok(novel_entries)
 }
@@ -57,7 +57,7 @@ pub async fn fetch_single_novel(db: &DatabaseConnection, title: &str) -> Result<
         .one(db)
         .await?;
     match query {
-        Some(model) => Ok(model_to_novel_entry(model)),
+        Some(model) => Ok(NovelEntry::from_model(model)),
         None => Err(Error::msg(format!{"Novel not found in db: {title}"}))
     }
 }
@@ -65,7 +65,7 @@ pub async fn fetch_single_novel(db: &DatabaseConnection, title: &str) -> Result<
 pub async fn insert_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry>) -> Result<()>{
     let mut to_insert = Vec::new();
     for row in rows {
-        to_insert.push(novel_entry_to_active_model(row));
+        to_insert.push(row.to_active_model());
     }
 
     let _ = Novels::insert_many(to_insert).exec(db).await?;
@@ -84,19 +84,19 @@ pub async fn update_novel_entries(db: &DatabaseConnection, rows: &[NovelEntry]) 
         if model.is_some() {
             // create the active model; everything should be updated already except for date_modified
             // date_modified is handeled by the backend to ensure time consistency
-            let mut active_model = novel_entry_to_active_model(row).reset_all();
+            let mut active_model = row.to_active_model().reset_all();
             active_model.date_modified = Set(Local::now().naive_utc());
             active_model.id = Unchanged(row.id);
 
             // update the results
-            updated_novels.push(model_to_novel_entry(active_model.clone().try_into_model()?));
+            updated_novels.push(NovelEntry::from_model(active_model.clone().try_into_model()?));
 
             // update the database 
             active_model.update(db).await?;
         }
         else {
             updated_novels.push(row.clone());
-            Novels::insert(novel_entry_to_active_model(row)).exec(db).await?;
+            Novels::insert(row.to_active_model()).exec(db).await?;
         }
     }
 
@@ -145,7 +145,7 @@ pub async fn delete_novel_entry(db: &DatabaseConnection, id: i32) -> Result<()> 
 
 pub async fn create_empty_row(db: &DatabaseConnection) -> Result<NovelEntry> {
     let novel = NovelEntry::empty(get_next_id(db).await?);
-    let model = novel_entry_to_active_model(&novel);
+    let model = novel.to_active_model();
     let _ = model.insert(db).await?;
 
     Ok(novel)

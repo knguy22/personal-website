@@ -67,41 +67,41 @@ impl NovelEntry {
     pub fn parse_tags(s: &str) -> Vec<String> {
         s.split_terminator(',').map(String::from).collect()
     }
-}
 
-#[allow(clippy::cast_possible_wrap)]
-pub fn novel_entry_to_active_model(novel: &NovelEntry) -> novels::ActiveModel {
-    novels::Model { 
-        id: novel.id,
-        country: novel.country.clone(), 
-        title: novel.title.clone(), 
-        chapter: novel.chapter.clone(), 
-        rating: Some(novel.rating as i32), 
-        status: novel.status.as_ref().map(ToString::to_string),
-        tags: serde_json::to_value(novel.tags.clone()).unwrap(),
-        notes: novel.notes.clone(), 
-        provider: novel.provider.as_ref().map(ToString::to_string),
-        date_modified: novel.date_modified.naive_utc(),
-        date_started: novel.date_started.map(|date| date.naive_utc()),
-        date_completed: novel.date_completed.map(|date| date.naive_utc()),
-    }.into_active_model()
-}
+    #[allow(clippy::cast_possible_wrap)]
+    pub fn to_active_model(&self) -> novels::ActiveModel {
+        novels::Model {
+            id: self.id,
+            country: self.country.clone(),
+            title: self.title.clone(),
+            chapter: self.chapter.clone(),
+            rating: Some(self.rating as i32),
+            status: self.status.as_ref().map(ToString::to_string),
+            tags: serde_json::to_value(self.tags.clone()).unwrap(),
+            notes: self.notes.clone(),
+            provider: self.provider.as_ref().map(ToString::to_string),
+            date_modified: self.date_modified.naive_utc(),
+            date_started: self.date_started.map(|date| date.naive_utc()),
+            date_completed: self.date_completed.map(|date| date.naive_utc()),
+        }.into_active_model()
+    }
 
-#[allow(clippy::cast_sign_loss, clippy::cast_possible_wrap)]
-pub fn model_to_novel_entry(model: novels::Model) -> NovelEntry {
-    NovelEntry {
-        id: model.id,
-        country: model.country,
-        title: model.title, 
-        chapter: model.chapter,
-        rating: model.rating.unwrap_or_default() as u32,
-        status: model.status.as_ref().map(|status| Status::from_str(status).unwrap()),
-        tags: json_value_to_vec_str(&model.tags).unwrap_or_default(),
-        notes: model.notes, 
-        provider: model.provider.as_ref().map(|provider| Provider::from_str(provider).unwrap()),
-        date_modified: model.date_modified.and_utc(),
-        date_started: model.date_started.map(|date| date.and_utc()),
-        date_completed: model.date_completed.map(|date| date.and_utc()),
+    #[allow(clippy::cast_sign_loss, clippy::cast_possible_wrap)]
+    pub fn from_model(model: novels::Model) -> Self {
+        Self {
+            id: model.id,
+            country: model.country,
+            title: model.title,
+            chapter: model.chapter,
+            rating: model.rating.unwrap_or_default() as u32,
+            status: model.status.as_ref().map(|status| Status::from_str(status).unwrap()),
+            tags: json_value_to_vec_str(&model.tags).unwrap_or_default(),
+            notes: model.notes,
+            provider: model.provider.as_ref().map(|provider| Provider::from_str(provider).unwrap()),
+            date_modified: model.date_modified.and_utc(),
+            date_started: model.date_started.map(|date| date.and_utc()),
+            date_completed: model.date_completed.map(|date| date.and_utc()),
+        }
     }
 }
 
