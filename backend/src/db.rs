@@ -1,5 +1,5 @@
+use crate::entity::{novels, prelude::Novels};
 use crate::novel_entry::{model_to_novel_entry, novel_entry_to_active_model, NovelEntry, NovelTagsRecordParsed};
-use crate::entity::{prelude::Novels, novels};
 use std::{env, time::Duration};
 
 use anyhow::{Result, Error};
@@ -151,20 +151,7 @@ pub async fn delete_novel_entry(db: &DatabaseConnection, id: i32) -> Result<()> 
 }
 
 pub async fn create_empty_row(db: &DatabaseConnection) -> Result<NovelEntry> {
-    let novel = NovelEntry {
-        id: get_next_id(db).await?,
-        country: String::new(),
-        title: String::new(),
-        chapter: String::new(),
-        rating: 0,
-        status: None,
-        tags: Vec::new(),
-        notes: String::new(),
-        provider: None,
-        date_modified: Local::now().to_utc(),
-        date_started: None,
-        date_completed: None,
-    };
+    let novel = NovelEntry::empty(get_next_id(db).await?);
     let model = novel_entry_to_active_model(&novel);
     let _ = model.insert(db).await?;
 

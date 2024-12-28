@@ -3,7 +3,7 @@ use std::str::FromStr;
 use crate::entity::novels;
 
 use anyhow::{Result, Error};
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Local, Utc};
 use sea_orm::{IntoActiveModel, JsonValue};
 use serde::{Deserialize, Serialize};
 use strum::{Display, EnumString};
@@ -47,6 +47,23 @@ pub struct NovelTagsRecordParsed {
 }
 
 impl NovelEntry {
+    pub fn empty(id: i32) -> Self {
+        Self {
+            id,
+            country: String::new(),
+            title: String::new(),
+            chapter: String::new(),
+            rating: 0,
+            status: None,
+            tags: Vec::new(),
+            notes: String::new(),
+            provider: None,
+            date_modified: Local::now().to_utc(),
+            date_started: None,
+            date_completed: None,
+        }
+    }
+
     pub fn parse_tags(s: &str) -> Vec<String> {
         s.split_terminator(',').map(String::from).collect()
     }
