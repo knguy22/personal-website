@@ -89,21 +89,23 @@ function UploadImage() {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="w-1/2 text-center">
-        {`Upload an image to approximate it using Tetris blocks!`}<br/>
-        {`Uploaded images are deleted from the server.`}<br/>
+      <div className="w-3/4 sm:w-1/3 text-left px-3">
+        {`Upload an image to approximate it using Tetris blocks! Uploaded images are deleted from the server.`}
       </div>
       <form onSubmit={onSubmit} className="py-2 space-y-3">
         <Input
           type="file"
           id="file"
           onChange={handleFileChange}
+          accept="image/*"
+          className="w-full"
         />
-        <div className="w-full flex justify-between">
-          <Button type="reset" variant="secondary" size='lg' disabled={not_sendable} onClick={handleFileClear}>
+        <div className="grid grid-cols-3">
+          <Button type="reset" variant="secondary" disabled={not_sendable} onClick={handleFileClear}>
             {`Clear`}
           </Button>
-          <Button type="submit" variant="default" size='lg' disabled={not_sendable}>
+          <div></div>
+          <Button type="submit" variant="default" disabled={not_sendable}>
             {`Submit`}
           </Button>
         </div>
@@ -117,11 +119,14 @@ function UploadImage() {
         <div className="w-1/3 flex flex-col items-center transition-colors space-y-2">
           <div className="text-xl">Tetris Image</div>
           <DynamicImage url={result_url} alt="Tetris Image"></DynamicImage>
-          <a href={result_url || undefined} download={!!result_url}>
-            <Button variant="default" size="lg" disabled={!result_url}>
-              Download Image
-            </Button>
-          </a>
+          {result_url ? 
+              (<a href={result_url || undefined}>
+                <Button variant="default" size="lg">
+                  Download Image
+                </Button>
+              </a>)
+            : null
+          }
         </div>
       </div>
     </div>
@@ -147,7 +152,7 @@ function TetrisOptionsDashboard( {options, setOptions}: TetrisOptionsDashboardPr
   }
 
   return (
-    <div className="w-1/2 flex flex-row text-lg justify-between py-8">
+    <div className="w-3/5 sm:w-1/3 grid grid-cols-2 py-8 gap-2">
       <div className="flex flex-col">
         <div>{"Board Width (minos)"}:</div>
         <Input
