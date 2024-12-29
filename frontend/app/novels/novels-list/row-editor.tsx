@@ -29,7 +29,7 @@ import { buttonVariants } from "@/components/ui/button"
 import { CellContext } from "@tanstack/react-table"
 import { Provider, Status, NovelEntry, NovelEntryApi, api_to_entry, entry_to_api, novel_entries_equal, novel_col_names } from "./novel-types"
 import { DeleteRowButton } from "./delete-row-button"
-import { fetch_backend } from "@/utils/fetch_backend"
+import { fetch_backend } from "@/lib/fetch_backend"
 
 const modified: string = "bg-secondary text-secondary-foreground";
 

@@ -4,7 +4,7 @@ import { Table as TanstackTable } from "@tanstack/react-table"
  
 import { Button } from "../../../components/ui/button"
 import { api_to_entry, NovelEntry, NovelEntryApi } from "./novel-types"
-import { fetch_backend } from "@/utils/fetch_backend"
+import { fetch_backend } from "@/lib/fetch_backend"
 
 interface CreateNovelButtonProps {
   table: TanstackTable<NovelEntry>,

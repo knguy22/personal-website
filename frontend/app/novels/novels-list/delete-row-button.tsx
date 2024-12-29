@@ -17,7 +17,7 @@ import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { cn } from "@/lib/utils.ts";
 import { buttonVariants } from "@/components/ui/button";
 
-import { fetch_backend } from "@/utils/fetch_backend"
+import { fetch_backend } from "@/lib/fetch_backend.ts"
 import { NovelEntry } from "./novel-types.ts"
 
 interface DeleteRowButtonProps {

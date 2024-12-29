@@ -2,7 +2,7 @@
 
 import { Stats, AbbreToCountry } from "./stats";
 import React, {useState, useEffect} from 'react';
-import { fetch_backend } from "@/utils/fetch_backend.ts";
+import { fetch_backend } from "@/lib/fetch_backend.ts";
 import Loading from "@/components/derived/Loading.tsx";
 import { NovelBarChart } from "./charts.tsx";
 import PageHeader from "@/components/derived/PageHeader.tsx";

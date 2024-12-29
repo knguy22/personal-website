@@ -17,7 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { fetch_backend } from "@/utils/fetch_backend"
+import { fetch_backend } from "@/lib/fetch_backend"
 import { NovelEntry, NovelEntryApi, api_to_entry } from "./novel-types"
 import PageHeader from "@/components/derived/PageHeader"
 
