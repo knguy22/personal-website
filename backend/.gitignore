@@ -6,3 +6,7 @@ target
 *.html
 chrome*
 gecko*
+image-to-tetris
+assets
+*.png
+*.jpg

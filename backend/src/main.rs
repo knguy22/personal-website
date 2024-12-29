@@ -1,24 +1,22 @@
+mod cli;
 mod data_ingestion;
 mod db;
 mod entity;
+mod image_to_tetris;
 mod novel_entry;
-mod cli;
 mod stats;
 
-use std::{env, sync::Arc};
+use std::{env, sync::Arc, path::Path};
 
 use anyhow::Result;
 use axum::{
-    response::{IntoResponse, Json},
-    extract::{State, multipart::Multipart},
-    routing::{get, post, delete},
-    http::StatusCode, Router,
+    body::Bytes, extract::{multipart::Multipart, State}, http::{header, StatusCode}, response::{IntoResponse, Json}, routing::{delete, get, post}, Router
 };
 use dotenv::dotenv;
 use novel_entry::NovelEntry;
 use rand::{rngs::StdRng, seq::SliceRandom, SeedableRng};
 use sea_orm::DatabaseConnection;
-use tokio::sync::Mutex;
+use tokio::{fs, sync::Mutex};
 
 // global state for routing
 #[derive(Clone)]
@@ -46,6 +44,7 @@ async fn main() -> Result<()> {
         .route("/api/delete_novel", delete(delete_novel_handler))
         .route("/api/novels_stats", get(get_novels_stats))
         .route("/api/random_novels", post(get_random_novels))
+        .route("/api/image_to_tetris", get(image_to_tetris))
         .with_state(state);
 
     // run it
@@ -161,4 +160,19 @@ async fn get_random_novels(state: State<AppState>, num_novels: Json<usize>) -> i
     let random_novels: Vec<NovelEntry> = novels
         .choose_multiple(&mut *rng, amount).cloned().collect();
     Json(random_novels)
+}
+
+async fn image_to_tetris(data: Bytes) -> impl IntoResponse {
+    let source_path = Path::new("tmp_source.jpg");
+    fs::write(source_path, data).await.unwrap();
+
+    let headers = [
+        (header::CONTENT_TYPE, "image/png; charset=utf-8"),
+        (
+            header::CONTENT_DISPOSITION,
+            "attachment; filename=example.png",
+        ),
+    ];
+    let body = image_to_tetris::run(50, 50, source_path).await.unwrap();
+    (headers, body)
 }
