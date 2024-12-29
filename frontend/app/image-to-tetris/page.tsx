@@ -18,10 +18,12 @@ export default function Page() {
 
 function UploadImage() {
   const [file, setFile] = useState<File | null>(null);
+  const [result, setResult] = useState<Blob | null>(null);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files ? event.target.files[0] : null;
     setFile(selectedFile);
+    setResult(null);
   }
 
   function intToBlob(i: number) : Blob {
@@ -67,19 +69,14 @@ function UploadImage() {
       return;
     }
 
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `tetris-(${board_width}x${board_height})-${file.name}`;
-    a.click();
-    URL.revokeObjectURL(url);
+    setResult(await res.blob());
   }
 
   return (
     <div className="flex flex-col items-center">
       <div className="w-1/2 text-center">
         {`Upload an image to approximate it using Tetris blocks!`}<br/>
+        {`Uploaded images are deleted from the server.`}<br/>
       </div>
       <form onSubmit={onSubmit} className="py-2 space-y-3">
         <Input
@@ -88,14 +85,50 @@ function UploadImage() {
           onChange={handleFileChange}
         />
         <div className="w-full flex justify-between">
-          <Button type="reset" variant="outline" size='lg' disabled={!file} className="bg-secondary hover:bg-secondary/80">
+          <Button type="reset" variant="secondary" size='lg' disabled={!file}>
             {`Clear`}
           </Button>
-          <Button type="submit" variant="outline" size='lg' disabled={!file}  className="bg-destructive hover:bg-destructive/80">
+          <Button type="submit" variant="default" size='lg' disabled={!file}>
             {`Submit`}
           </Button>
         </div>
       </form>
+      <div className="w-4/5 flex flex-row justify-between">
+        <DynamicImage title={"Input Image"} blob={file} alt={"input image"}></DynamicImage>
+        <DynamicImage title={"Tetris Version"} blob={result} alt={"output image"}></DynamicImage>
+      </div>
+    </div>
+  )
+}
+
+interface DynamicImageProps {
+  title: string;
+  blob: Blob | null;
+  alt: string;
+}
+
+function DynamicImage( {title, blob, alt}: DynamicImageProps ) {
+  let content = null;
+  if (blob) {
+    const url = URL.createObjectURL(blob);
+    content = (
+      <div className="flex flex-col items-center space-y-2">
+        <picture>
+          <img src={url} alt={alt}></img>
+        </picture>
+        <a href={url} download>
+          <Button variant="default" size="lg">
+            Download Image
+          </Button>
+        </a>
+      </div>
+    )
+  }
+
+  return (
+    <div className="w-1/3 flex flex-col items-center transition-colors space-y-2">
+      <div className="text-xl">{title}</div>
+      {content}
     </div>
   )
 }
