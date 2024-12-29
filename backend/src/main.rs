@@ -6,11 +6,15 @@ mod image_to_tetris;
 mod novel_entry;
 mod stats;
 
-use std::{env, sync::Arc, path::Path};
+use std::{env, path::{Path, PathBuf}, sync::Arc};
 
 use anyhow::Result;
 use axum::{
-    body::Bytes, extract::{multipart::Multipart, State}, http::{header, StatusCode}, response::{IntoResponse, Json}, routing::{delete, get, post}, Router
+    extract::{multipart::Multipart, DefaultBodyLimit, State},
+    http::{header, StatusCode},
+    response::{IntoResponse, Json},
+    routing::{delete, get, post},
+    Router,
 };
 use dotenv::dotenv;
 use novel_entry::NovelEntry;
@@ -34,6 +38,7 @@ async fn main() -> Result<()> {
     cli::run_cli(&conn).await?;
 
     // build our application with a route
+    let payload_limit = 5000000; // 5 megabytes
     let state = AppState { conn, rng };
     let domain = env::var("DOMAIN")?;
     let app = Router::new()
@@ -44,8 +49,9 @@ async fn main() -> Result<()> {
         .route("/api/delete_novel", delete(delete_novel_handler))
         .route("/api/novels_stats", get(get_novels_stats))
         .route("/api/random_novels", post(get_random_novels))
-        .route("/api/image_to_tetris", get(image_to_tetris))
-        .with_state(state);
+        .route("/api/image_to_tetris", post(image_to_tetris))
+        .with_state(state)
+        .layer(DefaultBodyLimit::max(payload_limit));
 
     // run it
     let listener = tokio::net::TcpListener::bind(domain.clone())
@@ -81,27 +87,21 @@ async fn update_novels_handler(state: State<AppState>, Json(rows): Json<Vec<nove
 async fn upload_novels_backup(state: State<AppState>, mut multipart: Multipart) -> impl IntoResponse {
     println!("Uploading novels backup");
 
+    // parse the multipart form into novel entries
     let mut rows = Vec::new();
-    while let Some(field) = multipart.next_field().await.map_err(|op| (StatusCode::BAD_REQUEST, Json(op.to_string())))?{
+    while let Some(field) = multipart.next_field()
+        .await.map_err(|e| (e.status(), Json(e.to_string())))?
+    {
         if let Some(filename) = field.file_name() {
             if filename.to_lowercase().ends_with(".json") {
-                // Read the JSON file content
                 let bytes = match field.bytes().await {
                     Ok(bytes) => bytes,
                     Err(e) => return Err((StatusCode::UNPROCESSABLE_ENTITY, Json(e.to_string()))),
                 };
 
-                // Deserialize JSON into MyData struct
                 match serde_json::from_slice::<Vec<NovelEntry>>(&bytes) {
-                    Ok(data) => {
-                        rows.extend(data);
-                    }
-                    Err(err) => {
-                        return Err((
-                            StatusCode::UNPROCESSABLE_ENTITY,
-                            Json(err.to_string()),
-                        ))
-                    }
+                    Ok(data) => rows.extend(data),
+                    Err(err) => return Err((StatusCode::UNPROCESSABLE_ENTITY, Json(err.to_string()))),
                 }
             }
         }
@@ -162,9 +162,59 @@ async fn get_random_novels(state: State<AppState>, num_novels: Json<usize>) -> i
     Json(random_novels)
 }
 
-async fn image_to_tetris(data: Bytes) -> impl IntoResponse {
-    let source_path = Path::new("tmp_source.jpg");
-    fs::write(source_path, data).await.unwrap();
+async fn image_to_tetris(mut multipart: Multipart) -> impl IntoResponse {
+    println!("Performing image to tetris");
+
+    // parse the multipart into the arguments
+    let mut image: Option<Vec<u8>> = None;
+    let mut image_format: Option<String> = None;
+    let mut board_width: Option<u32> = None;
+    let mut board_height: Option<u32> = None;
+    while let Some(field) = multipart.next_field().await
+        .map_err(|e| (e.status(), Json(e.to_string())))? 
+    {
+        match field.name() {
+            Some("image") => {
+                image_format = PathBuf::try_from(&field.file_name().unwrap()).unwrap()
+                    .extension()
+                    .and_then(|ext| ext.to_str())
+                    .map(|s| s.to_owned());
+                image = Some(field.bytes().await.unwrap().to_vec());
+            },
+            Some("board_width") => {
+                let data = field.bytes().await.unwrap();
+                board_width = Some(u32::from_le_bytes(data[0..4].try_into().unwrap()))
+            },
+            Some("board_height") => {
+                let data = field.bytes().await.unwrap();
+                board_height = Some(u32::from_le_bytes(data[0..4].try_into().unwrap()))
+            },
+            _ => return Err((StatusCode::BAD_REQUEST, Json(format!("Invalid field"))))
+        }
+    }
+
+    let image = match image {
+        Some(image) => image,
+        None => return Err((StatusCode::BAD_REQUEST, Json(format!("No image field found")))),
+    };
+    let image_format = match image_format {
+        Some(extension) => extension,
+        None => return Err((StatusCode::BAD_REQUEST, Json(format!("No image format found (ex: png, jpg)")))),
+    };
+    let board_width = match board_width {
+        Some(board_width) => board_width,
+        None => return Err((StatusCode::BAD_REQUEST, Json(format!("No board width field found")))),
+    };
+    let board_height = match board_height {
+        Some(board_height) => board_height,
+        None => return Err((StatusCode::BAD_REQUEST, Json(format!("No board height field found")))),
+    };
+
+    // then process the image
+    let source_path = Path::new("tmp_source").with_extension(image_format);
+    fs::write(&source_path, image).await.unwrap();
+    let body = image_to_tetris::run(board_width, board_height, &source_path).await.unwrap();
+    fs::remove_file(source_path).await.unwrap();
 
     let headers = [
         (header::CONTENT_TYPE, "image/png; charset=utf-8"),
@@ -173,6 +223,7 @@ async fn image_to_tetris(data: Bytes) -> impl IntoResponse {
             "attachment; filename=example.png",
         ),
     ];
-    let body = image_to_tetris::run(50, 50, source_path).await.unwrap();
-    (headers, body)
+
+
+    Ok((StatusCode::OK, (headers, body)))
 }
