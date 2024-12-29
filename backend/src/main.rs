@@ -32,12 +32,12 @@ async fn main() -> Result<()> {
     // initialize everything; run scripts if applicable
     dotenv().ok();
     let rng = Arc::new(Mutex::new(StdRng::from_entropy()));
-    let conn = db::init().await.unwrap();
-    cli::run_cli(&conn).await.unwrap();
+    let conn = db::init().await?;
+    cli::run_cli(&conn).await?;
 
     // build our application with a route
     let state = AppState { conn, rng };
-    let domain = env::var("DOMAIN").unwrap();
+    let domain = env::var("DOMAIN")?;
     let app = Router::new()
         .route("/api/novels", get(novel_handler))
         .route("/api/update_novels", post(update_novels_handler))
@@ -50,10 +50,9 @@ async fn main() -> Result<()> {
 
     // run it
     let listener = tokio::net::TcpListener::bind(domain.clone())
-        .await
-        .unwrap();
+        .await?;
     println!("Listening on {domain}");
-    axum::serve(listener, app).await.unwrap();
+    axum::serve(listener, app).await?;
 
     Ok(())
 }
@@ -88,7 +87,10 @@ async fn upload_novels_backup(state: State<AppState>, mut multipart: Multipart) 
         if let Some(filename) = field.file_name() {
             if filename.to_lowercase().ends_with(".json") {
                 // Read the JSON file content
-                let bytes = field.bytes().await.unwrap();
+                let bytes = match field.bytes().await {
+                    Ok(bytes) => bytes,
+                    Err(e) => return Err((StatusCode::UNPROCESSABLE_ENTITY, Json(e.to_string()))),
+                };
 
                 // Deserialize JSON into MyData struct
                 match serde_json::from_slice::<Vec<NovelEntry>>(&bytes) {
@@ -125,15 +127,16 @@ async fn upload_novels_backup(state: State<AppState>, mut multipart: Multipart) 
 
 async fn create_novel_row_handler(state: State<AppState>) -> impl IntoResponse {
     println!("Creating novel row");
-    let novel = db::create_empty_row(&state.conn).await.unwrap();
-    Json(novel)
+    match db::create_empty_row(&state.conn).await {
+        Ok(novel) => Ok((StatusCode::CREATED, Json(novel))),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string())))
+    }
 }
 
 type DeleteNovelResponse = Result<(StatusCode, Json<i32>), (StatusCode, Json<String>)>;
 async fn delete_novel_handler(state: State<AppState>, id: Json<i32>) -> DeleteNovelResponse{
     println!("Deleting novels");
-    let res = db::delete_novel_entry(&state.conn, *id).await;
-    match res {
+    match db::delete_novel_entry(&state.conn, *id).await {
         Ok(()) => Ok((StatusCode::OK, Json(*id))),
         Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))),
     }
@@ -141,8 +144,10 @@ async fn delete_novel_handler(state: State<AppState>, id: Json<i32>) -> DeleteNo
 
 async fn get_novels_stats(state: State<AppState>) -> impl IntoResponse {
     println!("Getting novels stats");
-    let res = stats::get_stats(&state.conn).await.unwrap();
-    Json(res)
+    match stats::get_stats(&state.conn).await {
+        Ok(res) => Ok((StatusCode::OK, Json(res))),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))),
+    }
 }
 
 async fn get_random_novels(state: State<AppState>, num_novels: Json<usize>) -> impl IntoResponse {

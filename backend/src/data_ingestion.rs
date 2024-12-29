@@ -24,7 +24,7 @@ pub async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<()> {
     let mut modified_novels = Vec::new();
     for novel in novels_to_fetch {
         // scrape as required
-        let scraped_tags = match novel.provider.as_ref().unwrap() {
+        let scraped_tags = match novel.provider.as_ref().expect("novels without providers should not be here") {
             Provider::NovelUpdates => novelupdates::scrape_genres_and_tags(&novel.title, 5, None).await,
             Provider::RoyalRoad => royalroad::scrape_tags(&novel.title, 3).await,
         };

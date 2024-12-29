@@ -124,7 +124,7 @@ pub async fn update_novel_tags(db: &DatabaseConnection, rows: &[NovelTagsRecordP
 
             // update the model
             let mut active_model = model.into_active_model();
-            active_model.tags = Set(serde_json::to_value(new_tags).unwrap());
+            active_model.tags = Set(serde_json::to_value(new_tags)?);
             active_model.update(db).await?;
         }
     }
@@ -172,6 +172,6 @@ mod tests {
     #[ignore]
     async fn test_init() {
         dotenv().ok();
-        let _db = init().await.unwrap();
+        init().await.unwrap();
     }
 }

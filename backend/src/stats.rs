@@ -103,11 +103,12 @@ fn completed_volume(chapter: &str) -> u32 {
     // the last novel isn't completed
     let mut volumes = 0;
     for c in chapter[1..].chars() {
-        if c.is_numeric() {
-            volumes *= 10;
-            volumes += c.to_digit(10).unwrap();
-        } else {
-            break;
+        match c.to_digit(10) {
+            Some(digit) => {
+                volumes *= 10;
+                volumes += digit;
+            },
+            None => break,
         }
     }
 
@@ -159,7 +160,7 @@ fn find_chapter_country_dist(novels: &[NovelEntry]) -> (HashMap<String, u32>, Ha
     // change the largest key to not include the higher bound
     let last_bucket = CHAPTER_COUNT_BUCKETS[CHAPTER_COUNT_BUCKETS.len() - 1];
     let last_key = dist_to_string(last_bucket.0, last_bucket.1);
-    let last_value = chapter_dist.remove(&last_key).unwrap();
+    let last_value = chapter_dist.remove(&last_key).expect("chapter_dist should contain the last key");
     chapter_dist.insert(format!("{}+", last_bucket.0), last_value);
 
     (country_dist, chapter_dist)

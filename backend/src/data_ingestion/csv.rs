@@ -40,7 +40,7 @@ struct NovelTagsCsvRecord {
 }
 
 pub fn read_novel_tags_csv(csv_file: &Path) -> Result<Vec<NovelTagsRecordParsed>> {
-    let mut rdr = Reader::from_path(csv_file).unwrap();
+    let mut rdr = Reader::from_path(csv_file)?;
     let mut data = Vec::new();
 
     let headers = rdr.headers()?;
