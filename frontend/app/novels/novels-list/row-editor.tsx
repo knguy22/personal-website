@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { buttonVariants } from "@/components/ui/button"
+import { Bordered } from "@/components/derived/Bordered"
 
 import { CellContext } from "@tanstack/react-table"
 import { Provider, Status, NovelEntry, NovelEntryApi, api_to_entry, entry_to_api, novel_entries_equal, novel_col_names } from "./novel-types"
@@ -274,19 +275,6 @@ function DatePicker({column_id, display_name, orig_novel, novel, setNovel}: Date
     <div className="col-span-3 flex flex-col space-y-1">
       <div>{display_name}</div>
       {content}
-    </div>
-  )
-}
-
-interface BorderedProps {
-  children?: React.ReactNode;
-  classname?: string
-}
-
-export function Bordered({ children, classname }: BorderedProps) {
-  return (
-    <div className={cn("flex items-center w-full h-12 overflow-x-auto text-wrap rounded-md border border-input bg-background px-3 text-md ring-offset-background", classname)}>
-      {children}
     </div>
   )
 }

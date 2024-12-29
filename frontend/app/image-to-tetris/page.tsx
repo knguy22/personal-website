@@ -1,10 +1,11 @@
 "use client"
 
 import PageHeader from "@/components/derived/PageHeader";
+import { Bordered } from "@/components/derived/Bordered";
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ChangeEvent, FormEvent, useState } from "react"
+import { ChangeEvent, FormEvent, MouseEventHandler, useState } from "react"
 
 export default function Page() {
   return (
@@ -19,6 +20,23 @@ export default function Page() {
 function UploadImage() {
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<Blob | null>(null);
+  const [options, setOptions] = useState<TetrisOptions>({
+    board_height: 100,
+    board_width: 100,
+  });
+
+  const file_url = file ? URL.createObjectURL(file) : null;
+  const result_url = result ? URL.createObjectURL(result) : null;
+  const not_sendable = !file || !options.board_width || !options.board_height;
+
+  const handleFileClear = () => {
+    setFile(null);
+    setResult(null);
+    const fileInput = document.getElementById("file") as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+  }
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files ? event.target.files[0] : null;
@@ -40,14 +58,11 @@ function UploadImage() {
       return
     }
 
-    const board_width = 100;
-    const board_height = 100;
-
     // send the image
     const formData = new FormData();
     formData.append('image', file);
-    formData.append('board_width', intToBlob(board_width));
-    formData.append('board_height', intToBlob(board_height));
+    formData.append('board_width', intToBlob(options.board_width));
+    formData.append('board_height', intToBlob(options.board_height));
 
     const init = {
       method: "POST",
@@ -85,50 +100,93 @@ function UploadImage() {
           onChange={handleFileChange}
         />
         <div className="w-full flex justify-between">
-          <Button type="reset" variant="secondary" size='lg' disabled={!file}>
+          <Button type="reset" variant="secondary" size='lg' disabled={not_sendable} onClick={handleFileClear}>
             {`Clear`}
           </Button>
-          <Button type="submit" variant="default" size='lg' disabled={!file}>
+          <Button type="submit" variant="default" size='lg' disabled={not_sendable}>
             {`Submit`}
           </Button>
         </div>
       </form>
+      <TetrisOptionsDashboard options={options} setOptions={setOptions}></TetrisOptionsDashboard>
       <div className="w-4/5 flex flex-row justify-between">
-        <DynamicImage title={"Input Image"} blob={file} alt={"input image"}></DynamicImage>
-        <DynamicImage title={"Tetris Version"} blob={result} alt={"output image"}></DynamicImage>
+        <div className="w-1/3 flex flex-col items-center transition-colors space-y-2">
+          <div className="text-xl">Input Image</div>
+          <DynamicImage url={file_url} alt="Input Image"></DynamicImage>
+        </div>
+        <div className="w-1/3 flex flex-col items-center transition-colors space-y-2">
+          <div className="text-xl">Tetris Image</div>
+          <DynamicImage url={result_url} alt="Tetris Image"></DynamicImage>
+          <a href={result_url || undefined} download={!!result_url}>
+            <Button variant="default" size="lg" disabled={!result_url}>
+              Download Image
+            </Button>
+          </a>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+type TetrisOptions = {
+  board_width: number,
+  board_height: number,
+};
+
+interface TetrisOptionsDashboardProps {
+  options: TetrisOptions;
+  setOptions: (options: TetrisOptions) => void;
+}
+
+function TetrisOptionsDashboard( {options, setOptions}: TetrisOptionsDashboardProps) {
+  function setOption<K extends keyof TetrisOptions>(option: K, value: TetrisOptions[K]) {
+    setOptions({
+      ...options,
+      [option]: value
+    })
+  }
+
+  return (
+    <div className="w-1/2 flex flex-row text-lg justify-between py-8">
+      <div className="flex flex-col">
+        <div>{"Board Width (minos)"}:</div>
+        <Input
+          value={options.board_width || ""}
+          type="number"
+          onChange={e => setOption("board_width", +e.target.value)}
+          placeholder="Board Width"
+          className="h-12 w-full"
+        />
+      </div>
+      <div className="flex flex-col">
+        <div>{"Board Height (minos)"}:</div>
+        <Input
+          value={options.board_height || ""}
+          type="number"
+          onChange={e => setOption("board_height", +e.target.value)}
+          placeholder="Board Height"
+          className="h-12 w-full"
+        />
       </div>
     </div>
   )
 }
 
 interface DynamicImageProps {
-  title: string;
-  blob: Blob | null;
+  url: string | null;
   alt: string;
 }
 
-function DynamicImage( {title, blob, alt}: DynamicImageProps ) {
-  let content = null;
-  if (blob) {
-    const url = URL.createObjectURL(blob);
-    content = (
-      <div className="flex flex-col items-center space-y-2">
-        <picture>
-          <img src={url} alt={alt}></img>
-        </picture>
-        <a href={url} download>
-          <Button variant="default" size="lg">
-            Download Image
-          </Button>
-        </a>
-      </div>
-    )
+function DynamicImage( {url, alt}: DynamicImageProps ) {
+  if (!url) {
+    return null;
   }
 
   return (
-    <div className="w-1/3 flex flex-col items-center transition-colors space-y-2">
-      <div className="text-xl">{title}</div>
-      {content}
+    <div className="flex flex-col items-center space-y-2">
+      <picture>
+        <img src={url} alt={alt}></img>
+      </picture>
     </div>
   )
 }
