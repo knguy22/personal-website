@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { fetch_backend } from "@/utils/fetch_backend"
 import { NovelEntry, NovelEntryApi, api_to_entry } from "./novel-types"
+import PageHeader from "@/components/derived/PageHeader"
 
 type DropdownConfig = {
   label: string;
@@ -61,7 +62,7 @@ export function TableDropdown({ setNovels, setLoading } : TableDropdownProps) {
   }, [setLoading, setNovels, setValue]);
 
   return (
-    <h1 className="text-4xl text-center pb-2 font-medium">
+    <PageHeader>
       <DropdownMenu>
         <DropdownMenuTrigger 
           className="border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md p-4">
@@ -81,7 +82,7 @@ export function TableDropdown({ setNovels, setLoading } : TableDropdownProps) {
           }
         </DropdownMenuContent>
       </DropdownMenu>
-    </h1>
+    </PageHeader>
   )
 }
 

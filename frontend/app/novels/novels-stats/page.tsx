@@ -5,6 +5,7 @@ import React, {useState, useEffect} from 'react';
 import { fetch_backend } from "@/utils/fetch_backend.ts";
 import Loading from "@/components/derived/Loading.tsx";
 import { NovelBarChart } from "./charts.tsx";
+import PageHeader from "@/components/derived/PageHeader.tsx";
 
 export default function Page() {
   const [stats, setStats] = useState<Stats | null>(null);
@@ -35,7 +36,7 @@ export default function Page() {
 
   return (
     <>
-      <h1 className="text-4xl text-center pb-5 font-medium">My Webnovel Stats</h1>
+      <PageHeader>My Webnovel Stats</PageHeader>
       {body}
     </>
   );

@@ -48,8 +48,13 @@ export default async function NavBar() {
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
-      </NavigationMenuList>
 
+        <NavigationMenuItem key="Image To Tetris">
+          <NavigationMenuLink href="/image-to-tetris" className={navigationMenuTriggerStyle()}>
+            Image To Tetris
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+      </NavigationMenuList>
 
       <NavigationMenuList className="flex pr-5">
         <NavigationMenuItem key="theme" className="px-4">
