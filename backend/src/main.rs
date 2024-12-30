@@ -6,7 +6,7 @@ mod image_to_tetris;
 mod novel_entry;
 mod stats;
 
-use std::{env, path::PathBuf, sync::Arc};
+use std::{borrow::ToOwned, env, path::PathBuf, sync::Arc};
 
 use anyhow::Result;
 use axum::{
@@ -47,7 +47,7 @@ async fn main() -> Result<()> {
     cli::run_cli(&conn).await?;
 
     // build our application with a route
-    let payload_limit = 5000000; // 5 megabytes
+    let payload_limit = 5_000_000; // 5 megabytes
     let state = AppState { conn, rng };
     let domain = env::var("DOMAIN")?;
     let app = Router::new()
@@ -99,13 +99,13 @@ async fn upload_novels_backup(state: State<AppState>, mut multipart: Multipart) 
     // parse the multipart form into novel entries
     let mut rows = Vec::new();
     while let Some(field) = multipart.next_field()
-        .await.map_err(|e| mtp_err(e))?
+        .await.map_err(|e| mtp_err(&e))?
     {
         if let Some(filename) = field.file_name() {
             if filename.to_lowercase().ends_with(".json") {
                 let bytes = match field.bytes().await {
                     Ok(bytes) => bytes,
-                    Err(e) => return Err(mtp_err(e)),
+                    Err(e) => return Err(mtp_err(&e)),
                 };
 
                 match serde_json::from_slice::<Vec<NovelEntry>>(&bytes) {
@@ -180,41 +180,36 @@ async fn image_to_tetris(mut multipart: Multipart) -> impl IntoResponse {
     let mut board_width: Option<u32> = None;
     let mut board_height: Option<u32> = None;
     while let Some(field) = multipart.next_field().await
-        .map_err(|e| mtp_err(e))?
+        .map_err(|e| mtp_err(&e))?
     {
         match field.name() {
             Some("image") => {
-                image_format = PathBuf::try_from(
+                image_format = PathBuf::from(
                         &field.file_name()
-                        .ok_or((StatusCode::BAD_REQUEST, Json(format!("No file name found"))))?
+                        .ok_or((StatusCode::BAD_REQUEST, Json("No file name found".to_string())))?
                     )
-                    .map_err(|_| (StatusCode::BAD_REQUEST, Json(format!("Invalid file name"))))?
                     .extension()
                     .and_then(|ext| ext.to_str())
-                    .map(|s| s.to_owned());
-                image = Some(field.bytes().await.map_err(|e| mtp_err(e))?.to_vec());
+                    .map(ToOwned::to_owned);
+                image = Some(field.bytes().await.map_err(|e| mtp_err(&e))?.to_vec());
             },
             Some("board_width") => board_width = parse_mtp_int(field).await?,
             Some("board_height") => board_height = parse_mtp_int(field).await?,
-            _ => return Err((StatusCode::BAD_REQUEST, Json(format!("Invalid field"))))
+            _ => return Err((StatusCode::BAD_REQUEST, Json("Invalid field".to_string())))
         }
     }
 
-    let image = match image {
-        Some(image) => image,
-        None => return Err((StatusCode::BAD_REQUEST, Json(format!("No image field found")))),
+    let Some(image) = image else {
+        return Err((StatusCode::BAD_REQUEST, Json("No image field found".to_string())));
     };
-    let image_format = match image_format {
-        Some(extension) => extension,
-        None => return Err((StatusCode::BAD_REQUEST, Json(format!("No image format found (ex: png, jpg)")))),
+    let Some(image_format) = image_format else {
+        return Err((StatusCode::BAD_REQUEST, Json("No image format found (ex: png, jpg)".to_string())));
     };
-    let board_width = match board_width {
-        Some(board_width) => board_width,
-        None => return Err((StatusCode::BAD_REQUEST, Json(format!("No board width field found")))),
+    let Some(board_width) = board_width else {
+        return Err((StatusCode::BAD_REQUEST, Json("No board width field found".to_string())));
     };
-    let board_height = match board_height {
-        Some(board_height) => board_height,
-        None => return Err((StatusCode::BAD_REQUEST, Json(format!("No board height field found")))),
+    let Some(board_height) = board_height else {
+        return Err((StatusCode::BAD_REQUEST, Json("No board height field found".to_string())));
     };
 
     // then process the image
@@ -234,17 +229,17 @@ async fn image_to_tetris(mut multipart: Multipart) -> impl IntoResponse {
 
 // function helpers for routes
 type ErrorRes = (StatusCode, Json<String>);
-fn mtp_err(e: MultipartError) -> ErrorRes {
+fn mtp_err(e: &MultipartError) -> ErrorRes {
     (e.status(), Json(e.to_string()))
 }
 
 async fn parse_mtp_int(field: Field<'_>) -> Result<Option<u32>, ErrorRes> {
     let data = match field.bytes().await {
         Ok(data) => data,
-        Err(e) => return Err(mtp_err(e)),
+        Err(e) => return Err(mtp_err(&e)),
     };
     Ok(Some(u32::from_le_bytes(data[0..4]
         .try_into()
-        .map_err(|_| (StatusCode::BAD_REQUEST, Json(format!("Invalid integer"))))?
+        .map_err(|_| (StatusCode::BAD_REQUEST, Json("Invalid integer".to_string())))?
     )))
 }
