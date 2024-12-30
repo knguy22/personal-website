@@ -1,11 +1,10 @@
 "use client"
 
 import PageHeader from "@/components/derived/PageHeader";
-import { Bordered } from "@/components/derived/Bordered";
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ChangeEvent, FormEvent, MouseEventHandler, useState } from "react"
+import { ChangeEvent, FormEvent, useState } from "react"
 
 export default function Page() {
   return (
@@ -20,6 +19,7 @@ export default function Page() {
 function UploadImage() {
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<Blob | null>(null);
+  const [uploading, setUploading] = useState<boolean>(false);
   const [options, setOptions] = useState<TetrisOptions>({
     board_height: 100,
     board_width: 100,
@@ -27,7 +27,7 @@ function UploadImage() {
 
   const file_url = file ? URL.createObjectURL(file) : null;
   const result_url = result ? URL.createObjectURL(result) : null;
-  const not_sendable = !file || !options.board_width || !options.board_height;
+  const not_sendable = !file || !options.board_width || !options.board_height || uploading;
 
   const handleFileClear = () => {
     setFile(null);
@@ -57,6 +57,7 @@ function UploadImage() {
     if (!file) {
       return
     }
+    setUploading(true);
 
     // send the image
     const formData = new FormData();
@@ -78,12 +79,12 @@ function UploadImage() {
     } catch (e) {
       console.log(e)
     }
-    
-    // download the result image if can do
+
+    // handle the result
+    setUploading(false);
     if (!res || !res.ok) {
       return;
     }
-
     setResult(await res.blob());
   }
 
