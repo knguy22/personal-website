@@ -2,7 +2,7 @@
 
 import PageHeader from "@/components/derived/PageHeader";
 
-import { ChangeEvent, FormEvent, useState, useEffect, useRef, ReactNode } from "react";
+import { ChangeEvent, FormEvent, useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/hooks/use-toast";
@@ -26,7 +26,7 @@ function UploadImage() {
     board_width: 100,
   });
 
-  const {toast, dismiss} = useToast();
+  const {toast} = useToast();
 
   const file_url = file ? URL.createObjectURL(file) : null;
   const result_url = result ? URL.createObjectURL(result) : null;
