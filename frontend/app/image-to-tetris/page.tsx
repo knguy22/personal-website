@@ -2,10 +2,10 @@
 
 import PageHeader from "@/components/derived/PageHeader";
 
-import { useEffect, useRef } from "react";
+import { ChangeEvent, FormEvent, useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ChangeEvent, FormEvent, useState } from "react"
+import { useToast } from "@/components/hooks/use-toast";
 
 export default function Page() {
   return (
@@ -16,7 +16,6 @@ export default function Page() {
   );
 }
 
-
 function UploadImage() {
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<Blob | null>(null);
@@ -25,6 +24,8 @@ function UploadImage() {
     board_height: 100,
     board_width: 100,
   });
+
+  const {toast} = useToast();
 
   const file_url = file ? URL.createObjectURL(file) : null;
   const result_url = result ? URL.createObjectURL(result) : null;
@@ -59,6 +60,7 @@ function UploadImage() {
       return
     }
     setUploading(true);
+    toast({title: "Uploading"});
 
     // send the image
     const formData = new FormData();
@@ -75,10 +77,10 @@ function UploadImage() {
     try {
       res = await fetch("api/image_to_tetris", init);
       if (!res.ok) {
-        console.error(`Error from server: ${ await res.text() || "Unknown error"}`);
+        toast({title: `Error converting image to Tetris`});
       }
     } catch (e) {
-      console.log(e)
+      toast({title: `Error converting image to Tetris`});
     }
 
     // handle the result
@@ -94,13 +96,13 @@ function UploadImage() {
       <div className="w-3/4 sm:w-1/3 text-left px-3">
         {`Upload an image to approximate it using Tetris blocks! Uploaded images are deleted from the server.`}
       </div>
-      <form onSubmit={onSubmit} className="py-2 space-y-3">
+      <form onSubmit={onSubmit} className="flex flex-col py-2 space-y-3 items-center">
         <Input
           type="file"
           id="file"
           onChange={handleFileChange}
           accept="image/*"
-          className="w-full"
+          className="w-3/4 sm:w-full"
         />
         <div className="grid grid-cols-3">
           <Button type="reset" variant="secondary" disabled={not_sendable} onClick={handleFileClear}>

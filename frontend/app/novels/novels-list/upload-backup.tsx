@@ -15,6 +15,7 @@ import { ChangeEvent, FormEvent, useState } from "react"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
+import { toast, useToast } from "@/components/hooks/use-toast"
 
 import { fetch_backend } from "@/lib/fetch_backend"
 
@@ -45,6 +46,8 @@ export function UploadBackupDialog() {
     // if so, refresh the entire page
     if (!res.error) {
       window.location.reload();
+    } else {
+      toast({title: "Error uploading backup"})
     }
   }
 

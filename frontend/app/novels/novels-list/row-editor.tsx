@@ -26,6 +26,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { buttonVariants } from "@/components/ui/button"
 import { Bordered } from "@/components/derived/Bordered"
+import { useToast } from "@/components/hooks/use-toast"
 
 import { CellContext } from "@tanstack/react-table"
 import { Provider, Status, NovelEntry, NovelEntryApi, api_to_entry, entry_to_api, novel_entries_equal, novel_col_names } from "./novel-types"
@@ -37,6 +38,7 @@ const modified: string = "bg-secondary text-secondary-foreground";
 export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
   const [novel, setNovel] = useState<NovelEntry>(row.original)
   const {data: session} = useSession();
+  const {toast} = useToast();
   const date_modified = new Date(row.original.date_modified);
 
   async function update_novel(novel: NovelEntry) {
@@ -47,6 +49,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
     // try to update backend
     let result = await update_row(novel);
     if (!result) {
+      toast({title: "Error updating novel..."});
       return;
     }
 

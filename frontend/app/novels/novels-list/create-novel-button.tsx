@@ -5,6 +5,7 @@ import { Table as TanstackTable } from "@tanstack/react-table"
 import { Button } from "../../../components/ui/button"
 import { api_to_entry, NovelEntry, NovelEntryApi } from "./novel-types"
 import { fetch_backend } from "@/lib/fetch_backend"
+import { useToast } from "@/components/hooks/use-toast"
 
 interface CreateNovelButtonProps {
   table: TanstackTable<NovelEntry>,
@@ -13,6 +14,8 @@ interface CreateNovelButtonProps {
 }
 
 export function CreateNovelButton({ tableData, setTableData }: CreateNovelButtonProps) {
+  const {toast} = useToast();
+
   return (
     <Button
       variant="outline"
@@ -20,6 +23,7 @@ export function CreateNovelButton({ tableData, setTableData }: CreateNovelButton
       onClick={() => {
         create_novel().then((novel) => {
           if (!novel) {
+            toast({title: "Error creating novel"})
             return;
           }
           const tableDataCopy = [...tableData];
