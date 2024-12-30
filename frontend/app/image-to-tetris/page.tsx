@@ -24,6 +24,7 @@ function UploadImage() {
   const [options, setOptions] = useState<TetrisOptions>({
     board_height: 100,
     board_width: 100,
+    prioritize_tetrominos: true,
   });
 
   const {toast} = useToast();
@@ -67,6 +68,7 @@ function UploadImage() {
     formData.append('image', file);
     formData.append('board_width', intToBlob(options.board_width));
     formData.append('board_height', intToBlob(options.board_height));
+    formData.append('prioritize_tetrominos', intToBlob(+options.prioritize_tetrominos));
 
     const init = {
       method: "POST",
@@ -143,6 +145,7 @@ function UploadImage() {
 type TetrisOptions = {
   board_width: number,
   board_height: number,
+  prioritize_tetrominos: boolean,
 };
 
 interface TetrisOptionsDashboardProps {
@@ -160,9 +163,9 @@ function TetrisOptionsDashboard( {options, setOptions}: TetrisOptionsDashboardPr
 
   return (
     <div className="w-3/5 sm:w-1/3 py-4 space-y-4">
-      <div className="w-full grid grid-cols-2 gap-2">
+      <div className="w-full grid grid-cols-2 gap-3">
         <div className="flex flex-col">
-          <div>{"Board Width (minos)"}:</div>
+          <div>{"Board Width (Minos)"}:</div>
           <Input
             value={options.board_width || ""}
             type="number"
@@ -172,7 +175,7 @@ function TetrisOptionsDashboard( {options, setOptions}: TetrisOptionsDashboardPr
           />
         </div>
         <div className="flex flex-col">
-          <div>{"Board Height (minos)"}:</div>
+          <div>{"Board Height (Minos)"}:</div>
           <Input
             value={options.board_height || ""}
             type="number"
@@ -181,8 +184,17 @@ function TetrisOptionsDashboard( {options, setOptions}: TetrisOptionsDashboardPr
             className="h-12 w-full"
           />
         </div>
+        <div className="flex flex-row items-center space-x-2">
+          <div>{"Prioritize Tetrominos Over Garbage Minos"}:</div>
+          <Input
+            type="checkbox"
+            onChange={e => setOption("prioritize_tetrominos", e.target.checked)}
+            placeholder="Prioritize Tetrominos"
+            checked={options.prioritize_tetrominos}
+          />
+        </div>
       </div>
-      <div className="text-sm">
+      <div className="pt-1 text-sm">
         {"Note: Board dimensions cannot be set higher than the amount of pixels in the image. \
         If an image is 200x150, you can only set the board width and board height to 200 and 150 respectively."}
       </div>
