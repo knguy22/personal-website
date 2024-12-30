@@ -16,6 +16,14 @@ defaults:
 
 jobs:
   build:
+    env:
+      BACKEND_URL: http://localhost:3000
+      NEXTAUTH_URL: https://intermittence.dev
+      NEXTAUTH_SECRET: ${{secrets.NEXTAUTH_SECRET}}
+      APP_GITHUB_ID: ${{secrets.APP_GITHUB_ID}}
+      APP_GITHUB_SECRET: ${{secrets.APP_GITHUB_SECRET}}
+      ADMIN_EMAIL: kevinngguyen1@gmail.com
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

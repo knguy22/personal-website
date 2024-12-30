@@ -1,18 +1,29 @@
+mod cli;
 mod data_ingestion;
 mod db;
 mod entity;
+mod image_to_tetris;
 mod novel_entry;
-mod cli;
 mod stats;
 
-use std::{env, sync::Arc};
+use std::{borrow::ToOwned, env, path::PathBuf, sync::Arc};
 
 use anyhow::Result;
 use axum::{
-    response::{IntoResponse, Json},
-    extract::{State, multipart::Multipart},
-    routing::{get, post, delete},
-    http::StatusCode, Router,
+    extract::{
+        multipart::{Field, Multipart, MultipartError},
+        DefaultBodyLimit,
+        State},
+    http::{
+        header,
+        StatusCode},
+        response::{IntoResponse, Json},
+    routing::{
+        delete,
+        get,
+        post
+    },
+    Router
 };
 use dotenv::dotenv;
 use novel_entry::NovelEntry;
@@ -36,6 +47,7 @@ async fn main() -> Result<()> {
     cli::run_cli(&conn).await?;
 
     // build our application with a route
+    let payload_limit = 5_000_000; // 5 megabytes
     let state = AppState { conn, rng };
     let domain = env::var("DOMAIN")?;
     let app = Router::new()
@@ -46,7 +58,9 @@ async fn main() -> Result<()> {
         .route("/api/delete_novel", delete(delete_novel_handler))
         .route("/api/novels_stats", get(get_novels_stats))
         .route("/api/random_novels", post(get_random_novels))
-        .with_state(state);
+        .route("/api/image_to_tetris", post(image_to_tetris))
+        .with_state(state)
+        .layer(DefaultBodyLimit::max(payload_limit));
 
     // run it
     let listener = tokio::net::TcpListener::bind(domain.clone())
@@ -82,27 +96,21 @@ async fn update_novels_handler(state: State<AppState>, Json(rows): Json<Vec<nove
 async fn upload_novels_backup(state: State<AppState>, mut multipart: Multipart) -> impl IntoResponse {
     println!("Uploading novels backup");
 
+    // parse the multipart form into novel entries
     let mut rows = Vec::new();
-    while let Some(field) = multipart.next_field().await.map_err(|op| (StatusCode::BAD_REQUEST, Json(op.to_string())))?{
+    while let Some(field) = multipart.next_field()
+        .await.map_err(|e| mtp_err(&e))?
+    {
         if let Some(filename) = field.file_name() {
             if filename.to_lowercase().ends_with(".json") {
-                // Read the JSON file content
                 let bytes = match field.bytes().await {
                     Ok(bytes) => bytes,
-                    Err(e) => return Err((StatusCode::UNPROCESSABLE_ENTITY, Json(e.to_string()))),
+                    Err(e) => return Err(mtp_err(&e)),
                 };
 
-                // Deserialize JSON into MyData struct
                 match serde_json::from_slice::<Vec<NovelEntry>>(&bytes) {
-                    Ok(data) => {
-                        rows.extend(data);
-                    }
-                    Err(err) => {
-                        return Err((
-                            StatusCode::UNPROCESSABLE_ENTITY,
-                            Json(err.to_string()),
-                        ))
-                    }
+                    Ok(data) => rows.extend(data),
+                    Err(err) => return Err((StatusCode::UNPROCESSABLE_ENTITY, Json(err.to_string()))),
                 }
             }
         }
@@ -161,4 +169,77 @@ async fn get_random_novels(state: State<AppState>, num_novels: Json<usize>) -> i
     let random_novels: Vec<NovelEntry> = novels
         .choose_multiple(&mut *rng, amount).cloned().collect();
     Json(random_novels)
+}
+
+async fn image_to_tetris(mut multipart: Multipart) -> impl IntoResponse {
+    println!("Performing image to tetris");
+
+    // parse the multipart into the arguments
+    let mut image: Option<Vec<u8>> = None;
+    let mut image_format: Option<String> = None;
+    let mut board_width: Option<u32> = None;
+    let mut board_height: Option<u32> = None;
+    while let Some(field) = multipart.next_field().await
+        .map_err(|e| mtp_err(&e))?
+    {
+        match field.name() {
+            Some("image") => {
+                image_format = PathBuf::from(
+                        &field.file_name()
+                        .ok_or((StatusCode::BAD_REQUEST, Json("No file name found".to_string())))?
+                    )
+                    .extension()
+                    .and_then(|ext| ext.to_str())
+                    .map(ToOwned::to_owned);
+                image = Some(field.bytes().await.map_err(|e| mtp_err(&e))?.to_vec());
+            },
+            Some("board_width") => board_width = parse_mtp_int(field).await?,
+            Some("board_height") => board_height = parse_mtp_int(field).await?,
+            _ => return Err((StatusCode::BAD_REQUEST, Json("Invalid field".to_string())))
+        }
+    }
+
+    let Some(image) = image else {
+        return Err((StatusCode::BAD_REQUEST, Json("No image field found".to_string())));
+    };
+    let Some(image_format) = image_format else {
+        return Err((StatusCode::BAD_REQUEST, Json("No image format found (ex: png, jpg)".to_string())));
+    };
+    let Some(board_width) = board_width else {
+        return Err((StatusCode::BAD_REQUEST, Json("No board width field found".to_string())));
+    };
+    let Some(board_height) = board_height else {
+        return Err((StatusCode::BAD_REQUEST, Json("No board height field found".to_string())));
+    };
+
+    // then process the image
+    let body = image_to_tetris::run(board_width, board_height, &image, &image_format).await
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string())))?;
+
+    let headers = [
+        (header::CONTENT_TYPE, "image/png; charset=utf-8"),
+        (
+            header::CONTENT_DISPOSITION,
+            "attachment; filename=result.png",
+        ),
+    ];
+
+    Ok((StatusCode::OK, (headers, body)))
+}
+
+// function helpers for routes
+type ErrorRes = (StatusCode, Json<String>);
+fn mtp_err(e: &MultipartError) -> ErrorRes {
+    (e.status(), Json(e.to_string()))
+}
+
+async fn parse_mtp_int(field: Field<'_>) -> Result<Option<u32>, ErrorRes> {
+    let data = match field.bytes().await {
+        Ok(data) => data,
+        Err(e) => return Err(mtp_err(&e)),
+    };
+    Ok(Some(u32::from_le_bytes(data[0..4]
+        .try_into()
+        .map_err(|_| (StatusCode::BAD_REQUEST, Json("Invalid integer".to_string())))?
+    )))
 }
