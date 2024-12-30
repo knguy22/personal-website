@@ -25,7 +25,7 @@ function UploadImage() {
     board_width: 100,
   });
 
-  const {toast} = useToast();
+  const {toast, dismiss} = useToast();
 
   const file_url = file ? URL.createObjectURL(file) : null;
   const result_url = result ? URL.createObjectURL(result) : null;
@@ -76,6 +76,7 @@ function UploadImage() {
     let res = null;
     try {
       res = await fetch("api/image_to_tetris", init);
+      dismiss();
       if (!res.ok) {
         toast({title: `Error converting image to Tetris`});
       }
