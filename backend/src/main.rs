@@ -6,7 +6,7 @@ mod image_to_tetris;
 mod novel_entry;
 mod stats;
 
-use std::{env, path::{Path, PathBuf}, sync::Arc};
+use std::{env, path::PathBuf, sync::Arc};
 
 use anyhow::Result;
 use axum::{
@@ -29,7 +29,7 @@ use dotenv::dotenv;
 use novel_entry::NovelEntry;
 use rand::{rngs::StdRng, seq::SliceRandom, SeedableRng};
 use sea_orm::DatabaseConnection;
-use tokio::{fs, sync::Mutex};
+use tokio::sync::Mutex;
 
 // global state for routing
 #[derive(Clone)]
@@ -218,10 +218,8 @@ async fn image_to_tetris(mut multipart: Multipart) -> impl IntoResponse {
     };
 
     // then process the image
-    let source_path = Path::new("tmp_source").with_extension(image_format);
-    fs::write(&source_path, image).await.unwrap();
-    let body = image_to_tetris::run(board_width, board_height, &source_path).await.unwrap();
-    fs::remove_file(source_path).await.unwrap();
+    let body = image_to_tetris::run(board_width, board_height, &image, &image_format).await
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string())))?;
 
     let headers = [
         (header::CONTENT_TYPE, "image/png; charset=utf-8"),
@@ -230,7 +228,6 @@ async fn image_to_tetris(mut multipart: Multipart) -> impl IntoResponse {
             "attachment; filename=result.png",
         ),
     ];
-
 
     Ok((StatusCode::OK, (headers, body)))
 }
