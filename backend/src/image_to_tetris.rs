@@ -1,13 +1,13 @@
 use anyhow::{Error, Result};
 use tokio::{fs, process::Command};
-use tempdir::TempDir;
+use tempfile::tempdir;
 
 use std::env;
 
 pub async fn run(board_width: u32, board_height: u32, source_image: &[u8], image_format: &str) -> Result<Vec<u8>> {
-    let tmp_dir = TempDir::new("image-to-tetris")?;
-    let source_path = tmp_dir.path().join("source").with_extension(image_format);
-    let output_path = tmp_dir.path().join("output.png");
+    let temp_dir = tempdir()?;
+    let source_path = temp_dir.path().join("source").with_extension(image_format);
+    let output_path = temp_dir.path().join("output.png");
     let image_to_tetris_binary = env::var("IMAGE_TO_TETRIS_PATH")?;
 
     fs::write(&source_path, source_image).await?;
