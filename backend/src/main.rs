@@ -179,6 +179,7 @@ async fn image_to_tetris(mut multipart: Multipart) -> impl IntoResponse {
     let mut image_format: Option<String> = None;
     let mut board_width: Option<u32> = None;
     let mut board_height: Option<u32> = None;
+    let mut prioritize_tetrominos: Option<bool> = None;
     while let Some(field) = multipart.next_field().await
         .map_err(|e| mtp_err(&e))?
     {
@@ -195,6 +196,7 @@ async fn image_to_tetris(mut multipart: Multipart) -> impl IntoResponse {
             },
             Some("board_width") => board_width = parse_mtp_int(field).await?,
             Some("board_height") => board_height = parse_mtp_int(field).await?,
+            Some("prioritize_tetrominos") => prioritize_tetrominos = parse_mtp_int(field).await?.map(|f| f != 0),
             _ => return Err((StatusCode::BAD_REQUEST, Json("Invalid field".to_string())))
         }
     }
@@ -211,9 +213,12 @@ async fn image_to_tetris(mut multipart: Multipart) -> impl IntoResponse {
     let Some(board_height) = board_height else {
         return Err((StatusCode::BAD_REQUEST, Json("No board height field found".to_string())));
     };
+    let Some(prioritize_tetrominos) = prioritize_tetrominos else {
+        return Err((StatusCode::BAD_REQUEST, Json("No prioritize tetrominos field found".to_string())));
+    };
 
     // then process the image
-    let body = image_to_tetris::run(board_width, board_height, &image, &image_format).await
+    let body = image_to_tetris::run(board_width, board_height, prioritize_tetrominos, &image, &image_format).await
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string())))?;
 
     let headers = [
