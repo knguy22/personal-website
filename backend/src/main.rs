@@ -10,11 +10,20 @@ use std::{env, path::{Path, PathBuf}, sync::Arc};
 
 use anyhow::Result;
 use axum::{
-    extract::{multipart::Multipart, DefaultBodyLimit, State},
-    http::{header, StatusCode},
-    response::{IntoResponse, Json},
-    routing::{delete, get, post},
-    Router,
+    extract::{
+        multipart::{Field, Multipart, MultipartError},
+        DefaultBodyLimit,
+        State},
+    http::{
+        header,
+        StatusCode},
+        response::{IntoResponse, Json},
+    routing::{
+        delete,
+        get,
+        post
+    },
+    Router
 };
 use dotenv::dotenv;
 use novel_entry::NovelEntry;
@@ -90,13 +99,13 @@ async fn upload_novels_backup(state: State<AppState>, mut multipart: Multipart) 
     // parse the multipart form into novel entries
     let mut rows = Vec::new();
     while let Some(field) = multipart.next_field()
-        .await.map_err(|e| (e.status(), Json(e.to_string())))?
+        .await.map_err(|e| mtp_err(e))?
     {
         if let Some(filename) = field.file_name() {
             if filename.to_lowercase().ends_with(".json") {
                 let bytes = match field.bytes().await {
                     Ok(bytes) => bytes,
-                    Err(e) => return Err((StatusCode::UNPROCESSABLE_ENTITY, Json(e.to_string()))),
+                    Err(e) => return Err(mtp_err(e)),
                 };
 
                 match serde_json::from_slice::<Vec<NovelEntry>>(&bytes) {
@@ -171,24 +180,22 @@ async fn image_to_tetris(mut multipart: Multipart) -> impl IntoResponse {
     let mut board_width: Option<u32> = None;
     let mut board_height: Option<u32> = None;
     while let Some(field) = multipart.next_field().await
-        .map_err(|e| (e.status(), Json(e.to_string())))? 
+        .map_err(|e| mtp_err(e))?
     {
         match field.name() {
             Some("image") => {
-                image_format = PathBuf::try_from(&field.file_name().unwrap()).unwrap()
+                image_format = PathBuf::try_from(
+                        &field.file_name()
+                        .ok_or((StatusCode::BAD_REQUEST, Json(format!("No file name found"))))?
+                    )
+                    .map_err(|_| (StatusCode::BAD_REQUEST, Json(format!("Invalid file name"))))?
                     .extension()
                     .and_then(|ext| ext.to_str())
                     .map(|s| s.to_owned());
-                image = Some(field.bytes().await.unwrap().to_vec());
+                image = Some(field.bytes().await.map_err(|e| mtp_err(e))?.to_vec());
             },
-            Some("board_width") => {
-                let data = field.bytes().await.unwrap();
-                board_width = Some(u32::from_le_bytes(data[0..4].try_into().unwrap()))
-            },
-            Some("board_height") => {
-                let data = field.bytes().await.unwrap();
-                board_height = Some(u32::from_le_bytes(data[0..4].try_into().unwrap()))
-            },
+            Some("board_width") => board_width = parse_mtp_int(field).await?,
+            Some("board_height") => board_height = parse_mtp_int(field).await?,
             _ => return Err((StatusCode::BAD_REQUEST, Json(format!("Invalid field"))))
         }
     }
@@ -220,10 +227,27 @@ async fn image_to_tetris(mut multipart: Multipart) -> impl IntoResponse {
         (header::CONTENT_TYPE, "image/png; charset=utf-8"),
         (
             header::CONTENT_DISPOSITION,
-            "attachment; filename=example.png",
+            "attachment; filename=result.png",
         ),
     ];
 
 
     Ok((StatusCode::OK, (headers, body)))
+}
+
+// function helpers for routes
+type ErrorRes = (StatusCode, Json<String>);
+fn mtp_err(e: MultipartError) -> ErrorRes {
+    (e.status(), Json(e.to_string()))
+}
+
+async fn parse_mtp_int(field: Field<'_>) -> Result<Option<u32>, ErrorRes> {
+    let data = match field.bytes().await {
+        Ok(data) => data,
+        Err(e) => return Err(mtp_err(e)),
+    };
+    Ok(Some(u32::from_le_bytes(data[0..4]
+        .try_into()
+        .map_err(|_| (StatusCode::BAD_REQUEST, Json(format!("Invalid integer"))))?
+    )))
 }
