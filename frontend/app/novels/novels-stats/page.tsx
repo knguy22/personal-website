@@ -25,7 +25,7 @@ export default function Page() {
   }, [setStats, setLoading]);
 
   // handle loading and errors
-  let body = <Loading/>;
+  let body = <Loading className="absolute top-1/3 left-0 right-4"/>;
   if (!isLoading) {
     if (stats === null) {
       body = <h2 className="text-center text-2xl">Failed to load stats</h2>;

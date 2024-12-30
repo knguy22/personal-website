@@ -2,10 +2,11 @@
 
 import PageHeader from "@/components/derived/PageHeader";
 
-import { ChangeEvent, FormEvent, useState, useEffect, useRef } from "react";
+import { ChangeEvent, FormEvent, useState, useEffect, useRef, ReactNode } from "react";
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/hooks/use-toast";
+import Loading from "@/components/derived/Loading";
 
 export default function Page() {
   return (
@@ -60,7 +61,6 @@ function UploadImage() {
       return
     }
     setUploading(true);
-    toast({title: "Uploading"});
 
     // send the image
     const formData = new FormData();
@@ -76,7 +76,6 @@ function UploadImage() {
     let res = null;
     try {
       res = await fetch("api/image_to_tetris", init);
-      dismiss();
       if (!res.ok) {
         toast({title: `Error converting image to Tetris`});
       }
@@ -123,8 +122,11 @@ function UploadImage() {
         </div>
         <div className="w-1/3 flex flex-col items-center transition-colors space-y-2">
           <div className="text-xl">Tetris Image</div>
-          <DynamicImage url={result_url} alt="Tetris Image"></DynamicImage>
-          {result_url ? 
+          {uploading ?
+            <Loading/> :
+            <DynamicImage url={result_url} alt="Tetris Image"></DynamicImage>
+          }
+          {result_url && !uploading ? 
               (<a href={result_url || undefined}>
                 <Button variant="default" size="lg">
                   Download Image

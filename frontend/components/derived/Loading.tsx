@@ -1,10 +1,15 @@
 /* Taken from https://github.com/loadingio/css-spinner/ */
 
 import styles from './Loading.module.css';
+import { cn } from '@/lib/utils';
 
-export default function Loading() {
+interface LoadingProps {
+  className?: string
+}
+
+export default function Loading( {className} : LoadingProps) {
   return (
-    <div className="flex items-center justify-center min-h-96">
+    <div className={cn("flex items-center justify-center", className)}>
       <div className={styles.ldsRing}>
       <div></div>
       <div></div>
