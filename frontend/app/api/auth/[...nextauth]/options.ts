@@ -16,8 +16,8 @@ export const authOptions = {
             role: userRole
         }
       },
-      clientId: process.env.GITHUB_ID ? process.env.GITHUB_ID : '',
-      clientSecret: process.env.GITHUB_SECRET ? process.env.GITHUB_SECRET : '',
+      clientId: process.env.APP_GITHUB_ID ? process.env.APP_GITHUB_ID : '',
+      clientSecret: process.env.APP_GITHUB_SECRET ? process.env.APP_GITHUB_SECRET : '',
     }),
   ],
 

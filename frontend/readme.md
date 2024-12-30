@@ -14,8 +14,8 @@
     * yourFrontendUrl
 * NEXTAUTH_SECRET
     * Generate your own
-* GITHUB_ID
-* GITHUB_SECRET
+* APP_GITHUB_ID
+* APP_GITHUB_SECRET
     * Create a Github OAuth App to obtain these
 * ADMIN_EMAIL
 
