@@ -127,7 +127,7 @@ function UploadImage() {
             <DynamicImage url={result_url} alt="Tetris Image"></DynamicImage>
           }
           {result_url && !uploading ? 
-              (<a href={result_url || undefined}>
+              (<a href={result_url || undefined} download={true}>
                 <Button variant="default" size="lg">
                   Download Image
                 </Button>
