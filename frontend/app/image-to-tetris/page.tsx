@@ -2,16 +2,17 @@
 
 import PageHeader from "@/components/derived/PageHeader";
 
+import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ChangeEvent, FormEvent, useState } from "react"
 
 export default function Page() {
   return (
-    <>
+    <div className="pb-5">
       <PageHeader>Image To Tetris</PageHeader>
       <UploadImage/>
-    </>
+    </div>
   );
 }
 
@@ -153,26 +154,32 @@ function TetrisOptionsDashboard( {options, setOptions}: TetrisOptionsDashboardPr
   }
 
   return (
-    <div className="w-3/5 sm:w-1/3 grid grid-cols-2 py-8 gap-2">
-      <div className="flex flex-col">
-        <div>{"Board Width (minos)"}:</div>
-        <Input
-          value={options.board_width || ""}
-          type="number"
-          onChange={e => setOption("board_width", +e.target.value)}
-          placeholder="Board Width"
-          className="h-12 w-full"
-        />
+    <div className="w-3/5 sm:w-1/3 py-4 space-y-4">
+      <div className="w-full grid grid-cols-2 gap-2">
+        <div className="flex flex-col">
+          <div>{"Board Width (minos)"}:</div>
+          <Input
+            value={options.board_width || ""}
+            type="number"
+            onChange={e => setOption("board_width", +e.target.value)}
+            placeholder="Board Width"
+            className="h-12 w-full"
+          />
+        </div>
+        <div className="flex flex-col">
+          <div>{"Board Height (minos)"}:</div>
+          <Input
+            value={options.board_height || ""}
+            type="number"
+            onChange={e => setOption("board_height", +e.target.value)}
+            placeholder="Board Height"
+            className="h-12 w-full"
+          />
+        </div>
       </div>
-      <div className="flex flex-col">
-        <div>{"Board Height (minos)"}:</div>
-        <Input
-          value={options.board_height || ""}
-          type="number"
-          onChange={e => setOption("board_height", +e.target.value)}
-          placeholder="Board Height"
-          className="h-12 w-full"
-        />
+      <div className="text-sm">
+        {"Note: Board dimensions cannot be set higher than the amount of pixels in the image. \
+        If an image is 200x150, you can only set the board width and board height to 200 and 150 respectively."}
       </div>
     </div>
   )
@@ -184,6 +191,34 @@ interface DynamicImageProps {
 }
 
 function DynamicImage( {url, alt}: DynamicImageProps ) {
+  const [dimensions, setDimensions] = useState<{ width: number; height: number } | null>(null);
+  const imgRef = useRef<HTMLImageElement | null>(null);
+
+  useEffect(() => {
+    if (!url || !imgRef.current) return;
+
+    const img = imgRef.current;
+
+    const updateDimensions = () => {
+      setDimensions({
+        width: img.naturalWidth,
+        height: img.naturalHeight,
+      });
+    };
+
+    // Ensure the image is already loaded or attach the load event listener
+    if (img.complete) {
+      updateDimensions();
+    } else {
+      img.addEventListener('load', updateDimensions);
+    }
+
+    // Clean up event listener on component unmount
+    return () => {
+      img.removeEventListener('load', updateDimensions);
+    };
+  }, [url]);
+
   if (!url) {
     return null;
   }
@@ -191,8 +226,11 @@ function DynamicImage( {url, alt}: DynamicImageProps ) {
   return (
     <div className="flex flex-col items-center space-y-2">
       <picture>
-        <img src={url} alt={alt}></img>
+        <img ref={imgRef} src={url} alt={alt} />
       </picture>
+      {dimensions && (
+        <div>{`${dimensions.width}x${dimensions.height} image dimensions`}</div>
+      )}
     </div>
-  )
+  );
 }
