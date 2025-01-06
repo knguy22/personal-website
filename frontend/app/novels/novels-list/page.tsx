@@ -15,7 +15,7 @@ export default function Page() {
     <div className="items-center justify-center">
       <TableDropdown setNovels={setNovels} setLoading={setLoading} />
       {isLoading
-        ? <Loading className='absolute top-1/3 left-0 right-0'/>
+        ? <Loading className='w-full h-halfscreen flex justify-center align-middle'/>
         : <DataTable columns={novel_columns} data={novels} setData={setNovels} />
       }
     </div>
