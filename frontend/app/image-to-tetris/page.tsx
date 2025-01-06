@@ -81,7 +81,7 @@ function UploadImage() {
       if (!res.ok) {
         toast({title: `Error converting image to Tetris`});
       }
-    } catch (e) {
+    } catch {
       toast({title: `Error converting image to Tetris`});
     }
 

@@ -7,6 +7,13 @@ export default tseslint.config(
   eslint.configs.recommended,
   tseslint.configs.recommended,
   {
-    ignores: [".*", "tailwind.config.ts", "components/ui/*", "app/api/auth/*/options.ts"],
+    ignores: [
+      ".*",
+      "*.mjs",
+      "tailwind.config.ts",
+      "components/ui/*",
+      "components/hooks/*",
+      "app/api/auth/*/options.ts"
+    ],
   }
 );

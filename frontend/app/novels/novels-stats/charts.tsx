@@ -1,4 +1,4 @@
-import { Bar, BarChart, CartesianGrid, Label, LabelList, XAxis, YAxis} from "recharts"
+import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis} from "recharts"
 import { ChartConfig, ChartContainer } from "@/components/ui/chart"
 
 const chartConfig = {

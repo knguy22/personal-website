@@ -15,7 +15,7 @@ import { ChangeEvent, FormEvent, useState } from "react"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
-import { toast, useToast } from "@/components/hooks/use-toast"
+import { toast } from "@/components/hooks/use-toast"
 
 import { fetch_backend } from "@/lib/fetch_backend"
 

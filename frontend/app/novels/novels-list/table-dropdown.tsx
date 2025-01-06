@@ -95,7 +95,7 @@ interface fetch_table_data_props {
 
 async function fetch_table_data( { dropdown, setLoading, setNovels, setValue }: fetch_table_data_props) {
   setLoading(true);
-  let res = await fetch_backend(
+  const res = await fetch_backend(
     {path: dropdown.path, method: dropdown.method, body: dropdown.body, contentType: "application/json"}
   );
 

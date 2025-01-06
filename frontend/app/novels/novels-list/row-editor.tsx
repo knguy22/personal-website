@@ -47,7 +47,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
     }
 
     // try to update backend
-    let result = await update_row(novel);
+    const result = await update_row(novel);
     if (!result) {
       toast({title: "Error updating novel"});
       return;
