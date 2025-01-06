@@ -2,7 +2,7 @@
 
 .ldsRing {
   /* change color here */
-  color: #5a267b
+  color: #6f3c8e
 }
 .ldsRing,
 .ldsRing div {
@@ -11,17 +11,17 @@
 .ldsRing {
   display: inline-block;
   position: relative;
-  width: 10rem;
-  height: 10rem;
+  width: 7.5rem;
+  height: 7.5em;
 }
 .ldsRing div {
   box-sizing: border-box;
   display: block;
   position: absolute;
-  width: 8rem;
-  height: 8rem;
-  margin: 1rem;
-  border: 1rem solid currentColor;
+  width: 6rem;
+  height: 6rem;
+  margin: 0.75rem;
+  border: 0.75rem solid currentColor;
   border-radius: 50%;
   animation: ldsRing 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
   border-color: currentColor transparent transparent transparent;
