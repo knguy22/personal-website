@@ -40,9 +40,10 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
   const {data: session} = useSession();
   const {toast} = useToast();
   const date_modified = new Date(row.original.date_modified);
+  const can_update = !novel_entries_equal(novel, row.original);
 
   async function update_novel(novel: NovelEntry) {
-    if (novel_entries_equal(novel, row.original)) {
+    if (!can_update) {
       return;
     }
 
@@ -63,7 +64,7 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
     <div className="grid grid-cols-3 pt-3">
       <DeleteRowButton row={row} table={table} />
       <div></div>
-      <Button size="sm" variant="default" onClick={() => update_novel(novel)}>Save</Button>
+      <Button size="sm" variant="default" disabled={!can_update} onClick={() => update_novel(novel)}>Save</Button>
     </div> :
     null
   ;
