@@ -178,14 +178,14 @@ function LargeEditorInputProps({ column_id, display_name, novel_diffs, ...props 
 }
 
 
-interface DropdownInputProps {
-  column_id: keyof NovelEntry
+interface DropdownInputProps<K extends keyof NovelEntry> {
+  column_id: K
   display_name: string
   novel_diffs: NovelDiffs
-  cell_values: { [key: string]: string };
+  cell_values: Record<string, NovelEntry[K]>
 }
 
-function DropdownInput({ column_id, display_name, novel_diffs, cell_values}: DropdownInputProps) {
+function DropdownInput<K extends keyof NovelEntry>({ column_id, display_name, novel_diffs, cell_values}: DropdownInputProps<K>) {
   const {data: session} = useSession();
   const modified_css = novel_diffs.novel[column_id] === novel_diffs.orig_novel[column_id] ? "" : modified;
 
