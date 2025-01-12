@@ -2,12 +2,11 @@
 
 import { Column, ColumnDef, FilterFn } from "@tanstack/react-table"
 import { ArrowUpDown} from "lucide-react"
+import { CellContext } from "@tanstack/react-table"
 
 import { Button } from "@/components/ui/button"
 import { NovelEntry } from './novel-types';
-import { ReadOnlyCell } from '@/app/novels/novels-list/read-only-cell';
 
-import { DateCell } from "./date-cell";
 import { RowEditor } from "./row-editor";
 
 declare module '@tanstack/table-core' {
@@ -84,5 +83,21 @@ function ColumnHeader( { title, column }: { title: string, column: Column<NovelE
       {title}
       <ArrowUpDown className="ml-1" />
     </Button>
+  )
+}
+
+function ReadOnlyCell<TData>({ getValue }: CellContext<TData, string>) {
+  return <div className="text-md">{getValue()}</div>
+}
+
+function DateCell({ getValue } : CellContext<NovelEntry, string>) {
+  const date = new Date(getValue());
+  
+  return (
+    <div>
+      {date.toDateString()}
+      <br />
+      {date.toLocaleTimeString()}
+    </div>
   )
 }
