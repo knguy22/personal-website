@@ -82,7 +82,7 @@ export function DataTable ({
       }
     },
     meta: {
-      updateCell: (rowIndex: number, columnId: string, value: string | number | null) => {
+      updateCell: <K extends keyof NovelEntry,>(rowIndex: number, columnId: K, value: NovelEntry[K]) => {
         setData((old) =>
           old.map((row, index) => {
             if (index === rowIndex) {

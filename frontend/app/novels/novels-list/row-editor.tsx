@@ -35,12 +35,24 @@ import { fetch_backend } from "@/lib/fetch_backend"
 
 const modified: string = "bg-secondary text-secondary-foreground";
 
+interface NovelDiffs {
+  orig_novel: NovelEntry
+  novel: NovelEntry
+  setNovel: (novel: NovelEntry) => void
+}
+
 export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
   const [novel, setNovel] = useState<NovelEntry>(row.original)
   const {data: session} = useSession();
   const {toast} = useToast();
   const date_modified = new Date(row.original.date_modified);
   const can_update = !novel_entries_equal(novel, row.original);
+
+  const novel_diffs: NovelDiffs = {
+    orig_novel: row.original,
+    novel,
+    setNovel,
+  }
 
   async function update_novel(novel: NovelEntry) {
     if (!can_update) {
@@ -81,13 +93,13 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
         </DialogHeader>
         <div className="p-1 grid grid-cols-6 gap-x-4 gap-y-3">
           <div className="col-span-6">
-            <EditorInput column_id="title" display_name="Title" orig_novel={row.original} novel={novel} setNovel={setNovel}/>
+            <EditorInput column_id="title" display_name="Title" novel_diffs={novel_diffs}/>
           </div>
-          <EditorInput column_id="country" display_name="Country" orig_novel={row.original} novel={novel} setNovel={setNovel} />
-          <EditorInput column_id="chapter" display_name="Chapter" orig_novel={row.original} novel={novel} setNovel={setNovel} />
-          <RatingEditorInput column_id="rating" display_name="Rating" orig_novel={row.original} novel={novel} setNovel={setNovel} />
-          <DropdownInput column_id="status" display_name="Status" orig_novel={row.original} novel={novel} setNovel={setNovel} cell_values={Status} />
-          <DropdownInput column_id="provider" display_name="Provider" orig_novel={row.original} novel={novel} setNovel={setNovel} cell_values={Provider} />
+          <EditorInput column_id="country" display_name="Country" novel_diffs={novel_diffs} />
+          <EditorInput column_id="chapter" display_name="Chapter" novel_diffs={novel_diffs} />
+          <RatingEditorInput column_id="rating" display_name="Rating" novel_diffs={novel_diffs} />
+          <DropdownInput column_id="status" display_name="Status" novel_diffs={novel_diffs} cell_values={Status} />
+          <DropdownInput column_id="provider" display_name="Provider" novel_diffs={novel_diffs} cell_values={Provider} />
           <div className="col-span-4 flex flex-col space-y-1">
             <div className="text-md">{"Date Modified"}</div>
             <Bordered>
@@ -97,10 +109,10 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
               </div>
             </Bordered>
           </div>
-          <DatePicker column_id="date_started" display_name="Date Started" orig_novel={row.original} novel={novel} setNovel={setNovel} />
-          <DatePicker column_id="date_completed" display_name="Date Completed" orig_novel={row.original} novel={novel} setNovel={setNovel} />
-          <LargeEditorInputProps column_id="notes" display_name="Notes" orig_novel={row.original} novel={novel} setNovel={setNovel} />
-          <LargeEditorInputProps column_id="tags" display_name="Tags" orig_novel={row.original} novel={novel} setNovel={setNovel} />
+          <DatePicker column_id="date_started" display_name="Date Started" novel_diffs={novel_diffs} />
+          <DatePicker column_id="date_completed" display_name="Date Completed" novel_diffs={novel_diffs} />
+          <LargeEditorInputProps column_id="notes" display_name="Notes" novel_diffs={novel_diffs} />
+          <LargeEditorInputProps column_id="tags" display_name="Tags" novel_diffs={novel_diffs} />
         </div>
         {dialog_buttons}
       </DialogContent>
@@ -111,22 +123,20 @@ export function RowEditor({ row, table }: CellContext<NovelEntry, string>) {
 interface EditorInputProps {
   column_id: keyof NovelEntry
   display_name: string
-  orig_novel: NovelEntry
-  novel: NovelEntry
-  setNovel: (novel: NovelEntry) => void
+  novel_diffs: NovelDiffs
 }
 
-function EditorInput({ column_id, display_name, orig_novel, novel, setNovel, ...props } : EditorInputProps) {
+function EditorInput({ column_id, display_name, novel_diffs, ...props } : EditorInputProps) {
   const {data: session} = useSession();
-  const modified_css = novel[column_id] === orig_novel[column_id] ? "" : modified;
+  const modified_css = novel_diffs.novel[column_id] === novel_diffs.orig_novel[column_id] ? "" : modified;
 
   return (
     <div className="col-span-2 flex flex-col space-y-1">
       <div className="text-md">{display_name}</div>
       <Input
-        value={novel[column_id] || ""}
+        value={novel_diffs.novel[column_id] || ""}
         readOnly={session?.user?.role !== 'admin'}
-        onChange={e => setNovel({...novel, [column_id]: e.target.value})}
+        onChange={e => novel_diffs.setNovel({...novel_diffs.novel, [column_id]: e.target.value})}
         className={cn('w-full', modified_css)}
         {...props}
       />
@@ -148,39 +158,57 @@ function RatingEditorInput(props: EditorInputProps) {
   )
 }
 
-interface DropdownInputProps {
-  column_id: keyof NovelEntry
-  display_name: string
-  orig_novel: NovelEntry
-  novel: NovelEntry
-  setNovel: (novel: NovelEntry) => void
-  cell_values: { [key: string]: string };
+function LargeEditorInputProps({ column_id, display_name, novel_diffs, ...props } : EditorInputProps) {
+  const {data: session} = useSession();
+  const modified_css = novel_diffs.novel[column_id] === novel_diffs.orig_novel[column_id] ? "" : modified;
+
+  return (
+    <div className="col-span-6 flex flex-col space-y-1">
+      <div className="text-md">{display_name}</div>
+      <Textarea
+        value={novel_diffs.novel[column_id] || ""}
+        readOnly={session?.user?.role !== 'admin'}
+        onChange={e => novel_diffs.setNovel({...novel_diffs.novel, [column_id]: e.target.value})}
+        rows={4}
+        className={cn('w-full', modified_css)}
+        {...props}
+      />
+    </div>
+  )
 }
 
-function DropdownInput({ column_id, display_name, orig_novel, novel, setNovel, cell_values}: DropdownInputProps) {
+
+interface DropdownInputProps<K extends keyof NovelEntry> {
+  column_id: K
+  display_name: string
+  novel_diffs: NovelDiffs
+  cell_values: Record<string, NovelEntry[K]>
+}
+
+function DropdownInput<K extends keyof NovelEntry>({ column_id, display_name, novel_diffs, cell_values}: DropdownInputProps<K>) {
   const {data: session} = useSession();
-  const modified_css = novel[column_id] === orig_novel[column_id] ? "" : modified;
+  const modified_css = novel_diffs.novel[column_id] === novel_diffs.orig_novel[column_id] ? "" : modified;
 
   // only allow editing for admins
   let content;
   if (session?.user?.role !== 'admin') {
-    content = novel[column_id];
+    content = novel_diffs.novel[column_id];
   } else {
     content =
       <DropdownMenu>
-        <DropdownMenuTrigger className="w-full text-left">{novel[column_id] || "Unselected"}</DropdownMenuTrigger>
+        <DropdownMenuTrigger className="w-full text-left">{novel_diffs.novel[column_id] || "Unselected"}</DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuSeparator />
           {
             Object.keys(cell_values).map((key) => {
               return (
-                <DropdownMenuItem key={key} onClick={() => setNovel({...novel, [column_id]: cell_values[key]})}>
+                <DropdownMenuItem key={key} onClick={() => novel_diffs.setNovel({...novel_diffs.novel, [column_id]: cell_values[key]})}>
                   {cell_values[key]}
                 </DropdownMenuItem>
               )
             })
           }
-          <DropdownMenuItem key={null} onClick={() => setNovel({...novel, [column_id]: null})}>
+          <DropdownMenuItem key={null} onClick={() => novel_diffs.setNovel({...novel_diffs.novel, [column_id]: null})}>
             Unselected
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -195,48 +223,19 @@ function DropdownInput({ column_id, display_name, orig_novel, novel, setNovel, c
   )
 }
 
-interface LargeEditorInputProps {
-  column_id: keyof NovelEntry
-  display_name: string
-  orig_novel: NovelEntry
-  novel: NovelEntry
-  setNovel: (novel: NovelEntry) => void
-}
-
-function LargeEditorInputProps({ column_id, display_name, orig_novel, novel, setNovel, ...props } : EditorInputProps) {
-  const {data: session} = useSession();
-  const modified_css = novel[column_id] === orig_novel[column_id] ? "" : modified;
-
-  return (
-    <div className="col-span-6 flex flex-col space-y-1">
-      <div className="text-md">{display_name}</div>
-      <Textarea
-        value={novel[column_id] || ""}
-        readOnly={session?.user?.role !== 'admin'}
-        onChange={e => setNovel({...novel, [column_id]: e.target.value})}
-        rows={4}
-        className={cn('w-full', modified_css)}
-        {...props}
-      />
-    </div>
-  )
-}
-
 interface DatePickerProps {
   column_id: keyof NovelEntry
   display_name: string
-  orig_novel: NovelEntry
-  novel: NovelEntry
-  setNovel: (novel: NovelEntry) => void
+  novel_diffs: NovelDiffs
 }
 
-function DatePicker({column_id, display_name, orig_novel, novel, setNovel}: DatePickerProps) {
+function DatePicker({column_id, display_name, novel_diffs}: DatePickerProps) {
   function reprDate(date: Date | null) {
     return date ? date.toISOString().split('T')[0] : "";
   }
 
-  const date = novel[column_id] ? new Date(novel[column_id] as string) : null;
-  const orig_date = orig_novel[column_id] ? new Date(orig_novel[column_id] as string) : null;
+  const date = novel_diffs.novel[column_id] ? new Date(novel_diffs.novel[column_id] as string) : null;
+  const orig_date = novel_diffs.orig_novel[column_id] ? new Date(novel_diffs.orig_novel[column_id] as string) : null;
   const {data: session} = useSession();
 
   // two null dates are the same
@@ -256,16 +255,16 @@ function DatePicker({column_id, display_name, orig_novel, novel, setNovel}: Date
           value={reprDate(date)}
           onChange={(e) => {
             if (!e.target.value) {
-              setNovel({...novel, [column_id]: null});
+              novel_diffs.setNovel({...novel_diffs.novel, [column_id]: null});
               return;
             }
             const new_date = new Date(e.target.value);
-            setNovel({...novel, [column_id]: new_date.toISOString()});
+            novel_diffs.setNovel({...novel_diffs.novel, [column_id]: new_date.toISOString()});
           }}
           className={cn("w-full", modified_css)}
         />
         <Button 
-          onClick={() => setNovel({...novel, [column_id]: null})}
+          onClick={() => novel_diffs.setNovel({...novel_diffs.novel, [column_id]: null})}
           variant="secondary_muted"
           className="w-full"
         >
