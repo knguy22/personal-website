@@ -10,65 +10,90 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import { NovelEntry } from "./novel-types"
+import { Input } from "@/components/ui/input"
+
+import { NovelEntry, Provider, Status } from "./novel-types"
+
+const FilterType = {
+  Text: "Text",
+  Dropdown: "Dropdown",
+} as const;
+type FilterType = keyof typeof FilterType;
+
+interface Filter {
+  display: string,
+  key: keyof NovelEntry,
+  type: FilterType,
+  cell_values?: Record<string, string>
+};
+
+const filter_config: Filter[] = [
+  {display: "Title", key: "title", type: FilterType.Text},
+  {display: "Country", key: "country", type: FilterType.Text},
+  {display: "Tags", key: "tags", type: FilterType.Text},
+  {display: "Rating", key: "rating", type: FilterType.Text},
+  {display: "Status", key: "status", type: FilterType.Dropdown, cell_values: Status},
+  {display: "Provider", key: "provider", type: FilterType.Dropdown, cell_values: Provider},
+  {display: "Notes", key: "notes", type: FilterType.Text},
+];
 
 interface FilterListProp {
   table: TanstackTable<NovelEntry>,
 }
 
-import { Input } from "@/components/ui/input"
-
 export function FilterList({ table }: FilterListProp) {
+  const [currFilter, setCurrFilter] = React.useState<Filter>(filter_config[0]);
 
-  function findKeyByValue(obj: { [key: string]: keyof NovelEntry }, value: keyof NovelEntry): string | undefined {
-    return Object.entries(obj).find(([, val]) => val === value)?.[0];
+  let inputMethod;
+  switch (currFilter.type) {
+    case FilterType.Text: {
+      inputMethod =  
+        <TextFilter
+          table={table}
+          placeholder={"Filter by " + currFilter.key}
+          col_name={currFilter.key}
+        />;
+      break;
+    }
+    case FilterType.Dropdown: {
+      inputMethod = 
+        <DropdownFilter
+          table={table}
+          col_name={currFilter.key}
+          cell_values={currFilter.cell_values!}
+        />
+      break;
+    }
   }
-
-  const filter_keys: { [key: string]: keyof NovelEntry } = {
-    "Country": "country",
-    "Title": "title",
-    "Tags": "tags",
-    "Rating": "rating",
-    "Status": "status",
-    "Notes": "notes",
-  };
-
-  const [dropDownVal, setDropDownVal] = React.useState<keyof NovelEntry>(filter_keys.Title);
 
   return (
     <div className="flex items-center space-x-2">
       <div className="border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md p-2">
         <DropdownMenu>
-          {/* val to key for dropdown label */}
-          <DropdownMenuTrigger>{findKeyByValue(filter_keys, dropDownVal)}</DropdownMenuTrigger>
+          <DropdownMenuTrigger>{currFilter.display}</DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuLabel>{"Filter by"}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {Object.keys(filter_keys).map((key) => (
-              <DropdownMenuItem key={key} onClick={() => setDropDownVal(filter_keys[key])}>{key}</DropdownMenuItem>
+            {filter_config.map((filter) => (
+              <DropdownMenuItem key={filter.key} onClick={() => setCurrFilter(filter)}>{filter.display}</DropdownMenuItem>
             ))
             }
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
-      {/* Filter adjusted based on dropdown */}
-      <Filter
-        table={table}
-        placeholder={"Filter by " + dropDownVal}
-        col_name={dropDownVal}
-      />
+      {inputMethod}
     </div>
   )
 }
 
-interface FilterProps {
+interface TextFilterProps {
   table: TanstackTable<NovelEntry>,
   placeholder: string
   col_name: keyof NovelEntry
 }
 
-function Filter({table, placeholder, col_name}: FilterProps) {
+function TextFilter({table, placeholder, col_name}: TextFilterProps) {
   return (
     <Input
       type="search"
@@ -80,6 +105,37 @@ function Filter({table, placeholder, col_name}: FilterProps) {
       }
       className="w-10/12 px-2"
     />
+  )
+}
+
+interface DropdownFilterProps<K extends keyof NovelEntry> {
+  table: TanstackTable<NovelEntry>,
+  col_name: K
+  cell_values: Record<string, NovelEntry[K]>
+}
+
+function DropdownFilter<K extends keyof NovelEntry>({table, col_name, cell_values}: DropdownFilterProps<K>) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger className="w-full text-left">
+        {(table.getColumn(col_name)?.getFilterValue() as string) ?? "Unselected"}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuSeparator />
+        {
+          Object.keys(cell_values).map((key) => {
+            return (
+              <DropdownMenuItem key={key} onClick={() => table.getColumn(col_name)?.setFilterValue(key)}>
+                {cell_values[key]}
+              </DropdownMenuItem>
+            )
+          })
+        }
+        <DropdownMenuItem key={null} onClick={() => table.getColumn(col_name)?.setFilterValue(null)}>
+          Unselected
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 
