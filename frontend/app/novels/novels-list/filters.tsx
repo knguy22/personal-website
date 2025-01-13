@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input"
 
 import { NovelEntry, Provider, Status } from "./novel-types"
+import { Bordered } from "@/components/derived/Bordered"
 
 const FilterType = {
   Text: "Text",
@@ -68,7 +69,7 @@ export function FilterList({ table }: FilterListProp) {
 
   return (
     <div className="flex items-center space-x-2">
-      <div className="border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md p-2">
+      <Bordered size="sm" flex="empty">
         <DropdownMenu>
           <DropdownMenuTrigger>{currFilter.display}</DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -80,7 +81,7 @@ export function FilterList({ table }: FilterListProp) {
             }
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
+      </Bordered>
 
       {inputMethod}
     </div>
@@ -116,26 +117,28 @@ interface DropdownFilterProps<K extends keyof NovelEntry> {
 
 function DropdownFilter<K extends keyof NovelEntry>({table, col_name, cell_values}: DropdownFilterProps<K>) {
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger className="w-full text-left">
-        {(table.getColumn(col_name)?.getFilterValue() as string) ?? "Unselected"}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuSeparator />
-        {
-          Object.keys(cell_values).map((key) => {
-            return (
-              <DropdownMenuItem key={key} onClick={() => table.getColumn(col_name)?.setFilterValue(key)}>
-                {cell_values[key]}
-              </DropdownMenuItem>
-            )
-          })
-        }
-        <DropdownMenuItem key={null} onClick={() => table.getColumn(col_name)?.setFilterValue(null)}>
-          Unselected
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Bordered size="sm" flex="empty">
+      <DropdownMenu>
+        <DropdownMenuTrigger className="w-full text-left">
+          {(table.getColumn(col_name)?.getFilterValue() as string) ?? "Unselected"}
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuSeparator />
+          {
+            Object.keys(cell_values).map((key) => {
+              return (
+                <DropdownMenuItem key={key} onClick={() => table.getColumn(col_name)?.setFilterValue(key)}>
+                  {cell_values[key]}
+                </DropdownMenuItem>
+              )
+            })
+          }
+          <DropdownMenuItem key={null} onClick={() => table.getColumn(col_name)?.setFilterValue(null)}>
+            Unselected
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </Bordered>
   )
 }
 

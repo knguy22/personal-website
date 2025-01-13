@@ -20,12 +20,7 @@ declare module '@tanstack/table-core' {
 }
 
 export const novel_columns: ColumnDef<NovelEntry, string>[] = [
-  {
-    accessorKey: "country",
-    header: ({ column }) => { return ColumnHeader({ title: "Country", column }) },
-    filterFn: 'includesString',
-    cell: ReadOnlyCell,
-  },
+  // visible columns
   {
     accessorKey: "title",
     header: ({ column }) => { return ColumnHeader({ title: "Title", column }) },
@@ -50,18 +45,6 @@ export const novel_columns: ColumnDef<NovelEntry, string>[] = [
     cell: ReadOnlyCell,
   },
   {
-    accessorKey: "tags",
-    header: ({ column }) => { return ColumnHeader({ title: "Tags", column }) },
-    filterFn: 'filterTags',
-    cell: ReadOnlyCell,
-  },
-  {
-    accessorKey: "notes",
-    header: ({ column }) => { return ColumnHeader({ title: "Notes", column }) },
-    filterFn: 'includesString',
-    cell: ReadOnlyCell,
-  },
-  {
     accessorKey: "date_modified",
     header: ({ column }) => { return ColumnHeader({ title: "Date Modified", column }) },
     cell: DateCell,
@@ -70,7 +53,29 @@ export const novel_columns: ColumnDef<NovelEntry, string>[] = [
     accessorKey: "Edit Row",
     header: () => { return <></> },
     cell: RowEditor
-  }
+  },
+
+  // invisible columns
+  {
+    accessorKey: "country",
+    header: ({ column }) => { return ColumnHeader({ title: "Country", column }) },
+    filterFn: 'includesString',
+  },
+  {
+    accessorKey: "provider",
+    header: ({ column }) => { return ColumnHeader({ title: "Provider", column }) },
+    filterFn: 'includesString',
+  },
+  {
+    accessorKey: "tags",
+    header: ({ column }) => { return ColumnHeader({ title: "Tags", column }) },
+    filterFn: 'filterTags',
+  },
+  {
+    accessorKey: "notes",
+    header: ({ column }) => { return ColumnHeader({ title: "Notes", column }) },
+    filterFn: 'includesString',
+  },
 ];
 
 function ColumnHeader( { title, column }: { title: string, column: Column<NovelEntry, string> } ) {

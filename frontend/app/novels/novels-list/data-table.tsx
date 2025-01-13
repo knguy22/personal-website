@@ -79,6 +79,7 @@ export function DataTable ({
         country: false,
         tags: false,
         notes: false,
+        provider: false,
       }
     },
     meta: {
