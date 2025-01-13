@@ -16,6 +16,7 @@ const borderedVariants = cva(
     },
     defaultVariants: {
       size: "default",
+      flex: "default",
     },
   }
 )
@@ -25,9 +26,9 @@ interface BorderedProps extends VariantProps<typeof borderedVariants> {
   classname?: string
 }
 
-export function Bordered({ children, classname, size}: BorderedProps) {
+export function Bordered({ children, classname, size, flex}: BorderedProps) {
   return (
-    <div className={cn(borderedVariants({size}), classname)}>
+    <div className={cn(borderedVariants({size, flex}), classname)}>
       {children}
     </div>
   )
