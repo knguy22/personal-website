@@ -11,7 +11,6 @@ export function DownloadJsonButton({ tableData }: DownloadJsonButtonProps) {
   return (
     <Button
       variant="outline"
-      size="sm"
       onClick={() => {
         // export to api since it can be used in the backend
         const novelTableData = tableData.map(entry_to_api);

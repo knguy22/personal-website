@@ -19,7 +19,6 @@ export function CreateNovelButton({ tableData, setTableData }: CreateNovelButton
   return (
     <Button
       variant="outline"
-      size="sm"
       onClick={() => {
         create_novel().then((novel) => {
           if (!novel) {

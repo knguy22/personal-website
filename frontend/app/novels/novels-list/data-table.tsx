@@ -135,7 +135,6 @@ function TableOptionsRow({ table, tableData, setTableData }: TableOptionsRowProp
         {session?.user?.role === 'admin' ?  <CreateNovelButton table={table} tableData={tableData} setTableData={setTableData}/> : null }
         <Button
           variant="outline"
-          size="sm"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
@@ -143,7 +142,6 @@ function TableOptionsRow({ table, tableData, setTableData }: TableOptionsRowProp
         </Button>
         <Button
           variant="outline"
-          size="sm"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >

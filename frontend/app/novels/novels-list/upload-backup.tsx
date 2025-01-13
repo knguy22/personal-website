@@ -53,7 +53,7 @@ export function UploadBackupDialog() {
 
   return (
     <Dialog>
-      <DialogTrigger className={cn(buttonVariants({ variant: "outline", size: "sm", className: "" }))}>
+      <DialogTrigger className={cn(buttonVariants({ variant: "outline" }))}>
         Upload Backup
       </DialogTrigger>
       <DialogContent>
