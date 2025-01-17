@@ -134,8 +134,8 @@ fn json_value_to_vec_str(val: &JsonValue) -> Result<Vec<String>> {
 pub fn filter_sus_novels(novels: &[NovelEntry]) -> Vec<NovelEntry> {
     novels
         .iter()
+        .filter(|&novel| novel.tags.iter().all(|tag| !is_sus(tag)))
         .cloned()
-        .filter(|novel| novel.tags.iter().all(|tag| !is_sus(tag)))
         .collect_vec()
 }
 
@@ -180,7 +180,7 @@ mod tests {
         assert!(!is_sus("Three"));
 
         assert!(is_sus("Adult"));
-        assert!(is_sus("Mature"));
+        assert!(is_sus("Pe*verted Protagonist"));
     }
 
     #[test]
@@ -189,7 +189,7 @@ mod tests {
         assert_eq!(filter_sus_novels(&good_novels).len(), 2);
 
         let mut bad_novels = vec![NovelEntry::empty(0), NovelEntry::empty(1)];
-        bad_novels[1].tags.push("Mature".to_string());
+        bad_novels[1].tags.push("Pe*verted Protagonist".to_string());
         assert_eq!(filter_sus_novels(&bad_novels).len(), 1);
     }
 }
