@@ -4,7 +4,7 @@ pub mod royalroad;
 pub mod csv;
 
 use crate::{db, novel_entry::Provider};
-use crate::novel_entry::NovelEntry;
+use crate::novel_entry::{NovelEntry, NovelSubsets};
 
 use anyhow::{Error, Result};
 use itertools::Itertools;
@@ -14,7 +14,7 @@ use tokio::time::sleep;
 use std::time::Duration;
 
 pub async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<()> {
-    let novels = db::fetch_novel_entries(conn).await?;
+    let novels = db::fetch_novel_entries(conn, NovelSubsets::All).await?;
     let novels_to_fetch = novels.iter()
         .filter(|novel| novel.tags.is_empty())
         .filter(|novel| novel.provider.is_some())

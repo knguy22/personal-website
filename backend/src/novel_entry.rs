@@ -40,6 +40,12 @@ pub struct NovelEntry {
     pub date_completed: Option<DateTime<Utc>>,
 }
 
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq)]
+pub enum NovelSubsets {
+    All,
+    NotSus,
+}
+
 // used when importing from csv
 #[derive(Debug)]
 pub struct NovelTagsRecordParsed {
@@ -137,9 +143,8 @@ fn is_sus(tag: &str) -> bool {
     const SUS_TAGS: &[&str] = &[
         "Adult",
         "Ecchi",
-        "Mature",
-        "R-15",
         "F*llatio",
+        "Pe*verted Protagonist"
     ];
 
     // we don't need to worry about casing

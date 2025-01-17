@@ -26,7 +26,7 @@ use axum::{
     Router
 };
 use dotenv::dotenv;
-use novel_entry::NovelEntry;
+use novel_entry::{NovelEntry, NovelSubsets};
 use rand::{rngs::StdRng, seq::SliceRandom, SeedableRng};
 use sea_orm::DatabaseConnection;
 use tokio::sync::Mutex;
@@ -51,7 +51,7 @@ async fn main() -> Result<()> {
     let state = AppState { conn, rng };
     let domain = env::var("DOMAIN")?;
     let app = Router::new()
-        .route("/api/novels", get(novel_handler))
+        .route("/api/novels", post(novels_handler))
         .route("/api/update_novels", post(update_novels_handler))
         .route("/api/upload_novels_backup", post(upload_novels_backup))
         .route("/api/create_novel", get(create_novel_row_handler))
@@ -77,9 +77,9 @@ return a non-null JSON
 return a status code (can be implicit)
 */
 
-async fn novel_handler(state: State<AppState>) -> impl IntoResponse {
-    println!("Fetching novels");
-    let novels = db::fetch_novel_entries(&state.conn).await.unwrap_or_default();
+async fn novels_handler(state: State<AppState>, subset: Json<NovelSubsets>) -> impl IntoResponse {
+    println!("Fetching novels: {subset:?}");
+    let novels = db::fetch_novel_entries(&state.conn, *subset).await.unwrap_or_default();
     Json(novels)
 }
 
@@ -158,10 +158,11 @@ async fn get_novels_stats(state: State<AppState>) -> impl IntoResponse {
     }
 }
 
-async fn get_random_novels(state: State<AppState>, num_novels: Json<usize>) -> impl IntoResponse {
-    println!("Fetching random novels: {}", *num_novels);
+async fn get_random_novels(state: State<AppState>, subset: Json<NovelSubsets>) -> impl IntoResponse {
+    println!("Fetching random novels: {subset:?}");
 
-    let novels = db::fetch_novel_entries(&state.conn).await.unwrap_or_default();
+    let num_novels: usize = 10;
+    let novels = db::fetch_novel_entries(&state.conn, *subset).await.unwrap_or_default();
     let amount = num_novels.min(novels.len());
 
     // access the rng in a thread-safe way
