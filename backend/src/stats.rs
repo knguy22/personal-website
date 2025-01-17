@@ -1,4 +1,4 @@
-use crate::db;
+use crate::{db, novel_entry::NovelSubsets};
 use crate::novel_entry::NovelEntry;
 
 use std::collections::HashMap;
@@ -40,7 +40,7 @@ pub struct Stats {
 
 #[allow(clippy::cast_precision_loss)]
 pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats> {
-    let novels = db::fetch_novel_entries(db).await?;
+    let novels = db::fetch_novel_entries(db, NovelSubsets::All).await?;
     let novel_count = u32::try_from(novels.len())?;
     let chapter_count = novels.iter().map(|novel| novel.chapter.parse().unwrap_or(0)).sum();
     let volumes_completed: u32 = novels.iter().map(|novel| completed_volume(&novel.chapter)).sum();

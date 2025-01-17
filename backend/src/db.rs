@@ -1,5 +1,5 @@
 use crate::entity::{novels, prelude::Novels};
-use crate::novel_entry::{NovelEntry, NovelTagsRecordParsed};
+use crate::novel_entry::{filter_sus_novels, NovelEntry, NovelSubsets, NovelTagsRecordParsed};
 use std::{env, time::Duration};
 
 use anyhow::{Result, Error};
@@ -39,7 +39,7 @@ pub async fn init() -> Result<DatabaseConnection> {
     Ok(db)
 }
 
-pub async fn fetch_novel_entries(db: &DatabaseConnection) -> Result<Vec<NovelEntry>> {
+pub async fn fetch_novel_entries(db: &DatabaseConnection, subset: NovelSubsets) -> Result<Vec<NovelEntry>> {
     let models = Novels::find()
         .all(db)
         .await?;
@@ -48,6 +48,11 @@ pub async fn fetch_novel_entries(db: &DatabaseConnection) -> Result<Vec<NovelEnt
     for model in models {
         novel_entries.push(NovelEntry::from_model(model));
     }
+
+    if subset == NovelSubsets::NotSus {
+        novel_entries = filter_sus_novels(&novel_entries);
+    }
+
     Ok(novel_entries)
 }
 

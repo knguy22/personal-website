@@ -4,6 +4,7 @@ use crate::entity::novels;
 
 use anyhow::{Result, Error};
 use chrono::{DateTime, Local, Utc};
+use itertools::Itertools;
 use sea_orm::{IntoActiveModel, JsonValue};
 use serde::{Deserialize, Serialize};
 use strum::{Display, EnumString};
@@ -37,6 +38,12 @@ pub struct NovelEntry {
     pub date_modified: DateTime<Utc>,
     pub date_started: Option<DateTime<Utc>>,
     pub date_completed: Option<DateTime<Utc>>,
+}
+
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq)]
+pub enum NovelSubsets {
+    All,
+    NotSus,
 }
 
 // used when importing from csv
@@ -123,12 +130,33 @@ fn json_value_to_vec_str(val: &JsonValue) -> Result<Vec<String>> {
     }
 }
 
+// some things should not be shown to the public
+pub fn filter_sus_novels(novels: &[NovelEntry]) -> Vec<NovelEntry> {
+    novels
+        .iter()
+        .filter(|&novel| novel.tags.iter().all(|tag| !is_sus(tag)))
+        .cloned()
+        .collect_vec()
+}
+
+fn is_sus(tag: &str) -> bool {
+    const SUS_TAGS: &[&str] = &[
+        "Adult",
+        "Ecchi",
+        "F*llatio",
+        "Pe*verted Protagonist"
+    ];
+
+    // we don't need to worry about casing
+    SUS_TAGS.contains(&tag)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_display_status() {
+    fn display_status() {
         assert_eq!(Status::Reading.to_string(), "Reading");
         assert_eq!(Status::Completed.to_string(), "Completed");
         assert_eq!(Status::Waiting.to_string(), "Waiting");
@@ -137,11 +165,31 @@ mod tests {
     }
 
     #[test]
-    fn test_convert_status() {
+    fn convert_status() {
         assert_eq!(Status::from_str("Reading").unwrap(), Status::Reading);
         assert_eq!(Status::from_str("Completed").unwrap(), Status::Completed);
         assert_eq!(Status::from_str("Waiting").unwrap(), Status::Waiting);
         assert_eq!(Status::from_str("Dropped").unwrap(), Status::Dropped);
         assert_eq!(Status::from_str("Hiatus").unwrap(), Status::Hiatus);
+    }
+
+    #[test]
+    fn sus_tags() {
+        assert!(!is_sus("One"));
+        assert!(!is_sus("Two"));
+        assert!(!is_sus("Three"));
+
+        assert!(is_sus("Adult"));
+        assert!(is_sus("Pe*verted Protagonist"));
+    }
+
+    #[test]
+    fn filter_sus() {
+        let good_novels = vec![NovelEntry::empty(0), NovelEntry::empty(1)];
+        assert_eq!(filter_sus_novels(&good_novels).len(), 2);
+
+        let mut bad_novels = vec![NovelEntry::empty(0), NovelEntry::empty(1)];
+        bad_novels[1].tags.push("Pe*verted Protagonist".to_string());
+        assert_eq!(filter_sus_novels(&bad_novels).len(), 1);
     }
 }

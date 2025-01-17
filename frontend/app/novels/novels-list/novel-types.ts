@@ -1,3 +1,8 @@
+export const NovelSubsets = {
+  All: "All",
+  NotSus: "NotSus",
+} as const;
+export type NovelSubset = typeof NovelSubsets[keyof typeof NovelSubsets];
 
 export type NovelEntryApi = {
   id: number,

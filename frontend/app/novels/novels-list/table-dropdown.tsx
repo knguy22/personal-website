@@ -9,6 +9,7 @@ Currently, two tables are supported:
 'use client'
 
 import { useEffect, useState } from "react"
+import { useSession } from 'next-auth/react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,14 +19,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { fetch_backend } from "@/lib/fetch_backend"
-import { NovelEntry, NovelEntryApi, api_to_entry } from "./novel-types"
+import { NovelEntry, NovelEntryApi, NovelSubsets, api_to_entry } from "./novel-types"
 import PageHeader from "@/components/derived/PageHeader"
 
 type DropdownConfig = {
   label: string;
   path: string;
   method: "GET" | "POST" | "PUT" | "DELETE";
-  body: BodyInit
 }
 
 const num_rand_novels = 10;
@@ -33,14 +33,12 @@ const table_dropdown_config: DropdownConfig[] = [
   {
     label: "My Webnovels List",
     path: "/api/novels",
-    method: "GET",
-    body: JSON.stringify(undefined),
+    method: "POST",
   },
   {
     label: `${num_rand_novels} Random Novels`,
     path: `/api/random_novels`,
     method: "POST",
-    body: JSON.stringify(num_rand_novels),
   }
 ]
 
@@ -51,15 +49,18 @@ interface TableDropdownProps {
 
 export function TableDropdown({ setNovels, setLoading } : TableDropdownProps) {
   const [value, setValue] = useState(table_dropdown_config[0].label);
+  const {data: session} = useSession();
+  const is_admin = session?.user?.role === 'admin';
 
   // by default just load the entire novel list
   useEffect(() => {
     fetch_table_data({ 
       dropdown: table_dropdown_config[0],
+      is_admin,
       setLoading,
       setNovels,
       setValue});
-  }, [setLoading, setNovels, setValue]);
+  }, [is_admin, setLoading, setNovels, setValue]);
 
   return (
     <PageHeader>
@@ -74,7 +75,7 @@ export function TableDropdown({ setNovels, setLoading } : TableDropdownProps) {
           {
             table_dropdown_config.map((dropdown) => {
               return (
-                <DropdownMenuItem key={dropdown.label} onClick={() => fetch_table_data({ dropdown, setLoading, setNovels, setValue })}>
+                <DropdownMenuItem key={dropdown.label} onClick={() => fetch_table_data({ dropdown, is_admin, setLoading, setNovels, setValue })}>
                   {dropdown.label}
                 </DropdownMenuItem>
               )
@@ -88,15 +89,23 @@ export function TableDropdown({ setNovels, setLoading } : TableDropdownProps) {
 
 interface fetch_table_data_props {
   dropdown: DropdownConfig,
+  is_admin: boolean,
   setLoading: (loading: boolean) => void,
   setNovels: (novels: NovelEntry[]) => void,
   setValue: (value: string) => void
 }
 
-async function fetch_table_data( { dropdown, setLoading, setNovels, setValue }: fetch_table_data_props) {
+async function fetch_table_data( { dropdown, is_admin, setLoading, setNovels, setValue }: fetch_table_data_props) {
   setLoading(true);
+
+  const body = JSON.stringify(
+    is_admin ?
+    NovelSubsets.All : 
+    NovelSubsets.NotSus
+  );
+
   const res = await fetch_backend(
-    {path: dropdown.path, method: dropdown.method, body: dropdown.body, contentType: "application/json"}
+    {path: dropdown.path, method: dropdown.method, body: body, contentType: "application/json"}
   );
 
   let novels = res.data as NovelEntryApi[] | null;
