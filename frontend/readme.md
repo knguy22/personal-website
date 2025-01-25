@@ -2,8 +2,7 @@
 
 ## Prerequisites:
 * Node
-* PostgreSQL (make sure to have a postgres username and password ready)
-
+ 
 ## Steps
 1. Install the dependencies: `npm i`
 2. Create .env.local to store your environmental variables. The backend requires you to declare:
