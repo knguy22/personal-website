@@ -265,6 +265,7 @@ function DatePicker({column_id, display_name, novel_diffs}: DatePickerProps) {
         />
         <Button 
           onClick={() => novel_diffs.setNovel({...novel_diffs.novel, [column_id]: null})}
+          disabled={!date}
           variant="secondary_muted"
           className="w-full"
         >
