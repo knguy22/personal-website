@@ -16,7 +16,11 @@ export default function Page() {
       <TableDropdown setNovels={setNovels} setLoading={setLoading} />
       {isLoading
         ? <Loading className='w-full h-halfscreen flex justify-center align-middle'/>
-        : <DataTable columns={novel_columns} data={novels} setData={setNovels} />
+        : <DataTable 
+            columns={novel_columns}
+            data={novels}
+            setData={setNovels}
+          />
       }
     </div>
   );

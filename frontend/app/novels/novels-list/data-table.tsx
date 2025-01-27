@@ -1,6 +1,6 @@
 'use client'
 
-import * as React from "react"
+import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 
 import {
@@ -35,6 +35,11 @@ import { UploadBackupDialog } from "./upload-backup"
 
 import { NovelEntry } from "./novel-types"
 
+export interface Pagination {
+  pageIndex: number,
+  pageSize: number,
+}
+
 interface DataTableProps {
   columns: ColumnDef<NovelEntry, string>[]
   data: NovelEntry[]
@@ -47,16 +52,16 @@ export function DataTable ({
   setData,
 }: DataTableProps) {
 
-  const [pagination, setPagination] = React.useState({
+  const [pagination, setPagination] = useState<Pagination>({
     pageIndex: 0,
     pageSize: 50,
-  });
+  })
 
-  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [sorting, setSorting] = useState<SortingState>([]);
 
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     []
-  )
+  );
 
   const table = useReactTable({
     data: data,
@@ -68,6 +73,7 @@ export function DataTable ({
     onPaginationChange: setPagination,
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    autoResetPageIndex: false, // it's annoying to reset whenever deleting a novel
     filterFns: {
       filterTags,
     },
@@ -100,7 +106,7 @@ export function DataTable ({
         setData(data);
       }
     }
-  })
+  });
 
   return (
     <div className="pb-10">
@@ -186,7 +192,7 @@ function DataTableHeader({ table }: DataTableHeaderProps) {
 interface DataTableBodyProps {
   table: TanstackTable<NovelEntry>
   columns: ColumnDef<NovelEntry, string>[]
-  pagination: { pageIndex: number, pageSize: number }
+  pagination: Pagination
 }
 
 function DataTableBody({ table, columns, pagination }: DataTableBodyProps) {
