@@ -55,7 +55,7 @@ export function DataTable ({
   const [pagination, setPagination] = useState<Pagination>({
     pageIndex: 0,
     pageSize: 50,
-  })
+  });
 
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -67,11 +67,17 @@ export function DataTable ({
     data: data,
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
-    onSortingChange: setSorting,
+    onSortingChange: (newSorting) => {
+      table.resetPageIndex();
+      setSorting(newSorting);
+    },
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
-    onColumnFiltersChange: setColumnFilters,
+    onColumnFiltersChange: (newFilters) => {
+      table.resetPageIndex();
+      setColumnFilters(newFilters);
+    },
     getFilteredRowModel: getFilteredRowModel(),
     autoResetPageIndex: false, // it's annoying to reset whenever deleting a novel
     filterFns: {
