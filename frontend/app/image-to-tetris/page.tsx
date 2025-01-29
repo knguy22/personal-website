@@ -209,7 +209,7 @@ function TetrisOptionsDashboard( {options, setOptions}: TetrisOptionsDashboardPr
       </div>
       <div className="pt-1 text-sm">
         {"Note: Board dimensions cannot be set higher than the amount of pixels in the image. \
-        If an image is 200x150, you can only set the board width and board height to 200 and 150 respectively."}
+        If an image is 200x150, you can only set the board width and board height to a maximum of 200 and 150 respectively."}
       </div>
     </div>
   )
