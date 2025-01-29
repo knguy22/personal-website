@@ -20,6 +20,9 @@ export default function Page() {
 function UploadImage() {
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<Blob | null>(null);
+  const [file_url, setFileUrl] = useState<string | null>(null);
+  const [result_url, setResultUrl] = useState<string | null>(null);
+  const [use_default, setUseDefault] = useState<boolean>(true);
   const [uploading, setUploading] = useState<boolean>(false);
   const [options, setOptions] = useState<TetrisOptions>({
     board_height: 100,
@@ -29,8 +32,17 @@ function UploadImage() {
 
   const {toast} = useToast();
 
-  const file_url = file ? URL.createObjectURL(file) : null;
-  const result_url = result ? URL.createObjectURL(result) : null;
+  useEffect(() => {
+    if (use_default) {
+      setFileUrl("image-to-tetris/sunset_1280.jpg");
+      setResultUrl("image-to-tetris/sunset_1280_tetris.png");
+      return;
+    }
+    // allow the dynamic images to be null once the user starts choosing their files
+    setFileUrl(file ? URL.createObjectURL(file) : null);
+    setResultUrl(result ? URL.createObjectURL(result) : null);
+  }, [use_default, file, result]);
+
   const not_sendable = !file || !options.board_width || !options.board_height || uploading;
 
   const handleFileClear = () => {
@@ -46,6 +58,7 @@ function UploadImage() {
     const selectedFile = event.target.files ? event.target.files[0] : null;
     setFile(selectedFile);
     setResult(null);
+    setUseDefault(false);
   }
 
   function intToBlob(i: number) : Blob {
