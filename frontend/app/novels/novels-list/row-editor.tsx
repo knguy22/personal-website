@@ -245,7 +245,6 @@ function DatePicker({column_id, display_name, novel_diffs}: DatePickerProps) {
   }
 
   const date = novel_diffs.novel[column_id] ? new Date(novel_diffs.novel[column_id] as string) : null;
-  const orig_date = novel_diffs.orig_novel[column_id] ? new Date(novel_diffs.orig_novel[column_id] as string) : null;
   const {data: session} = useSession();
 
   // two null dates are the same
