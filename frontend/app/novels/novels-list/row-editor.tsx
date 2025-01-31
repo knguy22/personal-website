@@ -29,7 +29,17 @@ import { Bordered } from "@/components/derived/Bordered"
 import { useToast } from "@/components/hooks/use-toast"
 
 import { CellContext } from "@tanstack/react-table"
-import { Provider, Status, NovelEntry, NovelEntryApi, api_to_entry, entry_to_api, novel_entries_equal, novel_col_names } from "./novel-types"
+import {
+  Provider,
+  Status,
+  NovelEntry,
+  NovelEntryApi,
+  api_to_entry,
+  entry_to_api,
+  novel_entries_equal,
+  novel_col_names,
+  dates_equal
+} from "./novel-types"
 import { DeleteRowButton } from "./delete-row-button"
 import { fetch_backend } from "@/lib/fetch_backend"
 
@@ -240,11 +250,7 @@ function DatePicker({column_id, display_name, novel_diffs}: DatePickerProps) {
 
   // two null dates are the same
   // two valid dates are the same if units at least a day long are the same
-  let same_date = !date && !orig_date;
-  if (date && orig_date) {
-    same_date = same_date || (date.toISOString() === orig_date.toISOString());
-  }
-  const modified_css = same_date ? "" : modified;
+  const modified_css = dates_equal(novel_diffs.novel[column_id] as string | null, novel_diffs.orig_novel[column_id] as string | null) ? "" : modified;
 
   let content = <Bordered>{reprDate(date)}</Bordered>;
   if (session?.user?.role === 'admin') {

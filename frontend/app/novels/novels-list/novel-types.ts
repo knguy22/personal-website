@@ -108,7 +108,14 @@ export function novel_entries_equal(a: NovelEntry, b: NovelEntry) {
       continue;
     }
 
-    if (a[key] !== b[key]) {
+    if (key === "date_started" || key === "date_completed") {
+      // idk why dates_equal has to be in a nested if statement but it doesn't work otherwise
+      if (!dates_equal(a[key], b[key])) {
+        return false;
+      }
+    }
+
+    else if (a[key] !== b[key]) {
       return false;
     }
   }
@@ -120,4 +127,16 @@ export function process_tags(tags: string | undefined): string[] {
     return [];
   }
   return tags.split(',').map((tag) => tag.trim());
+}
+
+// two null dates are the same
+// two valid dates are the same if units at least a day long are the same
+export function dates_equal(l: string | null, r: string | null): boolean {
+  let same_date = !l && !r;
+  if (l && r) {
+    let l_date = new Date(l);
+    let r_date = new Date(r);
+    same_date = same_date || (l_date.toISOString() === r_date.toISOString());
+  }
+  return same_date;
 }
