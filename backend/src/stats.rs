@@ -81,40 +81,6 @@ pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats> {
     })
 }
 
-// volumes without any trailing information can be naively counted fully
-// novels with volumes can take the form of v{number} or v{number}{trailing info}
-// volumes with trailing info can only count of to {number - 1} completed
-// Ex: V11 = 11 volumes completed
-// Ex: V11C3 = 10 volumes completed
-fn completed_volume(chapter: &str) -> u32 {
-    // check if the novel contains volumes
-    if !chapter.starts_with('v') && !chapter.starts_with('V') {
-        return 0
-    }
-
-    // check if the rest of the chapter can be parsed as an integer
-    // if so, that means there is no trailing information
-    let volumes = chapter[1..].parse::<u32>().unwrap_or(u32::MAX);
-    if volumes != u32::MAX {
-        return volumes;
-    }
-
-    // handle the case where there is trailing information
-    // the last novel isn't completed
-    let mut volumes = 0;
-    for c in chapter[1..].chars() {
-        match c.to_digit(10) {
-            Some(digit) => {
-                volumes *= 10;
-                volumes += digit;
-            },
-            None => break,
-        }
-    }
-
-    volumes - 1
-}
-
 fn find_status_dist(novels: &[NovelEntry]) -> HashMap<String, u32> {
     let mut status_dist = HashMap::<String, u32>::new();
     for novel in novels {
@@ -164,19 +130,4 @@ fn find_chapter_country_dist(novels: &[NovelEntry]) -> (HashMap<String, u32>, Ha
     chapter_dist.insert(format!("{}+", last_bucket.0), last_value);
 
     (country_dist, chapter_dist)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_completed_volume() {
-        assert_eq!(completed_volume("v0"), 0);
-        assert_eq!(completed_volume("v1"), 1);
-        assert_eq!(completed_volume("v10"), 10);
-        assert_eq!(completed_volume("v11"), 11);
-        assert_eq!(completed_volume("v11C3"), 10);
-        assert_eq!(completed_volume("v22C3P2"), 21);
-    }
 }

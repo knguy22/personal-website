@@ -1,4 +1,5 @@
 mod cli;
+mod chapter;
 mod data_ingestion;
 mod db;
 mod entity;

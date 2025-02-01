@@ -1,9 +1,10 @@
 use std::str::FromStr;
 
 use crate::entity::novels;
+use crate::chapter::Chapter;
 
 use anyhow::{Result, Error};
-use chrono::{serde::ts_seconds::serialize, DateTime, Local, Utc};
+use chrono::{DateTime, Local, Utc};
 use itertools::Itertools;
 use sea_orm::{IntoActiveModel, JsonValue};
 use serde::{Deserialize, Serialize};
@@ -30,98 +31,6 @@ pub enum Status {
     Hiatus,
 }
 
-#[derive(Clone, Debug)]
-pub enum Chapter {
-    Standard{ 
-        volume: Option<u32>,
-        chapter: Option<u32>,
-        part: Option<u32>
-    },
-    Other{ 
-        value: String
-    },
-}
-
-impl Chapter {
-    pub fn from(raw: &str) -> Self {
-        todo!()
-    }
-
-    pub fn count_chapters(&self) -> u32 {
-        match self {
-            Chapter::Standard { chapter, .. } => chapter.unwrap_or(0),
-            _ => 0,
-        }
-    }
-
-    pub fn count_volumes(&self) -> u32 {
-        match self {
-            Chapter::Standard { volume, ..} => volume.unwrap_or(0),
-            _ => 0,
-        }
-    }
-
-    pub fn unstarted(&self) -> bool {
-        match self {
-            Chapter::Standard { volume, chapter, part } => {
-                volume.is_none() && chapter.is_none() && part.is_none()
-            },
-            Chapter::Other { value } => value.is_empty(),
-        }
-    }
-
-    fn to_string(&self) -> String {
-        todo!()
-    }
-}
-
-impl Serialize for Chapter {
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer 
-    {
-        match self {
-            Chapter::Standard { volume, chapter, part } => {
-                let mut parts: String = String::new();
-
-                // three general categories:
-                // V1C1P1
-                // 32
-                // 32P1
-
-                if let Some(v) = volume {
-                    parts.push_str(&format!("v{v}"));
-                    
-                    // adding a chapter is redundant if there isn't a volume
-                    if chapter.is_some() {
-                        parts.push('c');
-                    }
-                }
-
-                if let Some(c) = chapter {
-                    parts.push_str(&format!("{c}"));
-                }
-
-                if let Some(p) = part {
-                    parts.push_str(&format!("p{p}"));
-                }
-
-                serializer.serialize_str(&parts)
-            },
-            Chapter::Other { value } => serializer.serialize_str(value),
-        }
-    }
-
-}
-
-impl<'de> Deserialize<'de> for Chapter {
-    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
-        where
-            D: serde::Deserializer<'de>
-    {
-        todo!()
-    }
-}
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NovelEntry {
@@ -192,7 +101,7 @@ impl NovelEntry {
             id: model.id,
             country: model.country,
             title: model.title,
-            chapter: Chapter::from(&model.chapter),
+            chapter: Chapter::from(&model.chapter).unwrap(),
             rating: model.rating.unwrap_or_default() as u32,
             status: model.status.as_ref().map(|status| Status::from_str(status).unwrap()),
             tags: json_value_to_vec_str(&model.tags).unwrap_or_default(),
