@@ -42,9 +42,9 @@ pub struct Stats {
 pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats> {
     let novels = db::fetch_novel_entries(db, NovelSubsets::All).await?;
     let novel_count = u32::try_from(novels.len())?;
-    let chapter_count = novels.iter().map(|novel| novel.chapter.parse().unwrap_or(0)).sum();
-    let volumes_completed: u32 = novels.iter().map(|novel| completed_volume(&novel.chapter)).sum();
-    let novels_not_started = u32::try_from(novels.iter().filter(|novel| novel.chapter.is_empty()).count())?;
+    let chapter_count = novels.iter().map(|novel| novel.chapter.count_chapters()).sum();
+    let volumes_completed: u32 = novels.iter().map(|novel| novel.chapter.count_volumes()).sum();
+    let novels_not_started = u32::try_from(novels.iter().filter(|novel| novel.chapter.unstarted()).count())?;
 
     let rating_sum: u32 = novels.iter().map(|novel| novel.rating).sum();
     let non_zero_ratings = novels.iter().filter(|novel| novel.rating > 0).count();
@@ -136,7 +136,7 @@ fn find_chapter_country_dist(novels: &[NovelEntry]) -> (HashMap<String, u32>, Ha
     let mut country_dist = HashMap::<String, u32>::new();
     for novel in novels {
         // count the frequency of each chapter count bucket
-        let chapter_count = novel.chapter.parse::<u32>().unwrap_or(0);
+        let chapter_count = novel.chapter.count_chapters();
         for (start, end) in &CHAPTER_COUNT_BUCKETS {
             if chapter_count >= *start && chapter_count <= *end {
                 *chapter_dist.entry((*start, *end)).or_insert(0) += 1;

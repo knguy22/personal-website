@@ -9,6 +9,12 @@ use sea_orm::{IntoActiveModel, JsonValue};
 use serde::{Deserialize, Serialize};
 use strum::{Display, EnumString};
 
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq)]
+pub enum NovelSubsets {
+    All,
+    NotSus,
+}
+
 #[derive(Clone, Debug, PartialEq, Display, EnumString, Deserialize, Serialize)]
 pub enum Provider {
     NovelUpdates,
@@ -24,12 +30,70 @@ pub enum Status {
     Hiatus,
 }
 
+#[derive(Clone, Debug)]
+pub enum Chapter {
+    Standard{ volume: Option<u32>, chapter: Option<u32>, part: Option<u32> },
+    Other{ value: String },
+}
+
+impl Chapter {
+    pub fn from(raw: &str) -> Self {
+        todo!()
+    }
+
+    pub fn count_chapters(&self) -> u32 {
+        match self {
+            Chapter::Standard { chapter, .. } => chapter.unwrap_or(0),
+            _ => 0,
+        }
+    }
+
+    pub fn count_volumes(&self) -> u32 {
+        match self {
+            Chapter::Standard { volume, ..} => volume.unwrap_or(0),
+            _ => 0,
+        }
+    }
+
+    pub fn unstarted(&self) -> bool {
+        match self {
+            Chapter::Standard { volume, chapter, part } => {
+                volume.is_none() && chapter.is_none() && part.is_none()
+            },
+            Chapter::Other { value } => value.is_empty(),
+        }
+    }
+
+    fn to_string(&self) -> String {
+        todo!()
+    }
+}
+
+impl Serialize for Chapter {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer 
+    {
+        todo!()
+    }
+
+}
+
+impl<'de> Deserialize<'de> for Chapter {
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+        where
+            D: serde::Deserializer<'de>
+    {
+        todo!()
+    }
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NovelEntry {
     pub id: i32,
     pub country: String,
     pub title: String,
-    pub chapter: String,
+    pub chapter: Chapter,
     pub rating: u32,
     pub status: Option<Status>,
     pub tags: Vec<String>,
@@ -38,12 +102,6 @@ pub struct NovelEntry {
     pub date_modified: DateTime<Utc>,
     pub date_started: Option<DateTime<Utc>>,
     pub date_completed: Option<DateTime<Utc>>,
-}
-
-#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq)]
-pub enum NovelSubsets {
-    All,
-    NotSus,
 }
 
 // used when importing from csv
@@ -59,7 +117,7 @@ impl NovelEntry {
             id,
             country: String::new(),
             title: String::new(),
-            chapter: String::new(),
+            chapter: Chapter::Other { value: "".into() },
             rating: 0,
             status: None,
             tags: Vec::new(),
@@ -81,7 +139,7 @@ impl NovelEntry {
             id: self.id,
             country: self.country.clone(),
             title: self.title.clone(),
-            chapter: self.chapter.clone(),
+            chapter: self.chapter.to_string(),
             rating: Some(self.rating as i32),
             status: self.status.as_ref().map(ToString::to_string),
             tags: serde_json::to_value(self.tags.clone()).unwrap(),
@@ -99,7 +157,7 @@ impl NovelEntry {
             id: model.id,
             country: model.country,
             title: model.title,
-            chapter: model.chapter,
+            chapter: Chapter::from(&model.chapter),
             rating: model.rating.unwrap_or_default() as u32,
             status: model.status.as_ref().map(|status| Status::from_str(status).unwrap()),
             tags: json_value_to_vec_str(&model.tags).unwrap_or_default(),
