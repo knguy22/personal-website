@@ -33,6 +33,7 @@ const filter_config: Filter[] = [
   {display: "Country", key: "country", type: FilterType.Text},
   {display: "Tags", key: "tags", type: FilterType.Text},
   {display: "Rating", key: "rating", type: FilterType.Text},
+  {display: "Chapter", key: "chapter", type: FilterType.Text},
   {display: "Status", key: "status", type: FilterType.Dropdown, cell_values: Status},
   {display: "Provider", key: "provider", type: FilterType.Dropdown, cell_values: Provider},
   {display: "Notes", key: "notes", type: FilterType.Text},

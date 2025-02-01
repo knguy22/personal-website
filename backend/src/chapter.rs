@@ -21,22 +21,16 @@ pub enum Chapter {
 impl Chapter {
     pub fn from(raw: &str) -> Result<Self> {
         // these regexes are static to avoid recompiling them over and over
-        static STANDARD_RE: LazyLock<Regex> = LazyLock::new( ||
-            Regex::new(r"^(v\d+)?(c\d+)?(p\d+)?$|^(\d+)(p\d+)?$").unwrap()
-        );
         static RE_SPLIT: LazyLock<Regex> = LazyLock::new( ||
-            Regex::new(r"(v\d+|c\d+|p\d+)|(\d+)").unwrap()
+            Regex::new(r"(v\d+|c\d+|p\d+)").unwrap()
+        );
+        static RE_FIRST_DIGITS: LazyLock<Regex> = LazyLock::new( ||
+            Regex::new(r"^\d+").unwrap()
         );
 
         // using lowercase makes regex easier
         let lower = raw.to_ascii_lowercase();
 
-        // either follow v1c1p1 or c1p1 or 1p1
-        if !STANDARD_RE.is_match(&lower) {
-            return Ok(Self::Other { value: raw.into() });
-        }
-
-        // now we can safely use this regex without worrying about extra components
         let mut volume = None;
         let mut chapter = None;
         let mut part = None;
@@ -50,13 +44,16 @@ impl Chapter {
                     chapter = s[1..].parse().ok();
                 } else if s.starts_with('p') {
                     part = s[1..].parse().ok();
-                }
-            } else if let Some(m) = cap.get(2) {
-                // If there's an isolated number, assume it's a chapter if no 'c' exists
-                if chapter.is_none() {
-                    chapter = m.as_str().parse().ok();
-                }
+                } 
             }
+        }
+
+        // integers at the beginning of the string are assumed to be chapter counts if not argued against otherwise
+        if chapter.is_none() {
+            chapter = match RE_FIRST_DIGITS.find(&lower) {
+                Some(s) => s.as_str().parse::<u32>().ok(),
+                None => None,
+            };
         }
 
         if volume.is_none() && chapter.is_none() && part.is_none() {
@@ -83,8 +80,8 @@ impl Chapter {
 
     pub fn count_volumes(&self) -> u32 {
         match self {
-            Chapter::Standard { volume, chapter, part, ..} => {
-                match volume {
+            Chapter::Standard { volume, chapter, part, value} => {
+                let res = match volume {
                     Some(v) => {
                         // prevent underflow
                         if *v == 0 {
@@ -95,9 +92,15 @@ impl Chapter {
                         v - if chapter.is_some() || part.is_some() {1} else {0}
                     }
                     None => 0,
+                };
+                if res != 0 {
+                    println!("{} {}", value, res);
                 }
+                res
             },
-            _ => 0,
+            Chapter::Other {..} => {
+                0
+            },
         }
     }
 
@@ -162,15 +165,7 @@ mod tests {
 
     #[test]
     fn other_non_empty() {
-        let raw = "Arc 3, C1";
-        let chapter = Chapter::from(raw).unwrap();
-        assert_eq!(chapter, Chapter::Other { value: raw.into() });
-        assert_eq!(chapter.to_string(), raw);
-    }
-
-    #[test]
-    fn other_non_empty_2() {
-        let raw = "Y1V1C1P1";
+        let raw = "asldkfjas";
         let chapter = Chapter::from(raw).unwrap();
         assert_eq!(chapter, Chapter::Other { value: raw.into() });
         assert_eq!(chapter.to_string(), raw);
@@ -195,6 +190,15 @@ mod tests {
     #[test]
     fn labeled_chap() {
         let raw = "c10";
+        let chapter = Chapter::from(raw).unwrap();
+        assert_eq!(chapter, Chapter::Standard { volume: None, chapter: Some(10), part: None, value: raw.into() });
+        assert_eq!(chapter.to_string(), raw);
+    }
+
+
+    #[test]
+    fn unlabled_labeled_chap() {
+        let raw = "12c10";
         let chapter = Chapter::from(raw).unwrap();
         assert_eq!(chapter, Chapter::Standard { volume: None, chapter: Some(10), part: None, value: raw.into() });
         assert_eq!(chapter.to_string(), raw);
@@ -225,6 +229,30 @@ mod tests {
     }
 
     #[test]
+    fn extra_vol_chap_part() {
+        let raw = "Y1V1C1P1";
+        let chapter = Chapter::from(raw).unwrap();
+        assert_eq!(chapter, Chapter::Standard { volume: Some(1), chapter: Some(1), part: Some(1), value: raw.into() });
+        assert_eq!(chapter.to_string(), raw);
+    }
+
+    #[test]
+    fn extra_vol_chap_part_2() {
+        let raw = "Arc 3 V1C1P1";
+        let chapter = Chapter::from(raw).unwrap();
+        assert_eq!(chapter, Chapter::Standard { volume: Some(1), chapter: Some(1), part: Some(1), value: raw.into() });
+        assert_eq!(chapter.to_string(), raw);
+    }
+
+    #[test]
+    fn vol_prologue() {
+        let raw = "v3 prologue";
+        let chapter = Chapter::from(raw).unwrap();
+        assert_eq!(chapter, Chapter::Standard { volume: Some(3), chapter: None, part: None, value: raw.into() });
+        assert_eq!(chapter.to_string(), raw);
+    }
+
+    #[test]
     fn count_chapters() {
         assert_eq!(Chapter::from("0").unwrap().count_chapters(), 0);
         assert_eq!(Chapter::from("32").unwrap().count_chapters(), 32);
@@ -242,6 +270,7 @@ mod tests {
         assert_eq!(Chapter::from("v0c1").unwrap().count_volumes(), 0);
         assert_eq!(Chapter::from("v1").unwrap().count_volumes(), 1);
         assert_eq!(Chapter::from("v1c1").unwrap().count_volumes(), 0);
+        assert_eq!(Chapter::from("v1c0").unwrap().count_volumes(), 0);
         assert_eq!(Chapter::from("v10").unwrap().count_volumes(), 10);
         assert_eq!(Chapter::from("v11C3").unwrap().count_volumes(), 10);
         assert_eq!(Chapter::from("V22C3P2").unwrap().count_volumes(), 21);
