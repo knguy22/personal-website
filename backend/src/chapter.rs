@@ -19,7 +19,7 @@ pub enum Chapter {
 }
 
 impl Chapter {
-    pub fn from(raw: &str) -> Result<Self> {
+    pub fn from(raw: &str) -> Self {
         // these regexes are static to avoid recompiling them over and over
         static RE_SPLIT: LazyLock<Regex> = LazyLock::new( ||
             Regex::new(r"(v\d+|c\d+|p\d+)").unwrap()
@@ -38,12 +38,12 @@ impl Chapter {
         for cap in RE_SPLIT.captures_iter(&lower) {
             if let Some(m) = cap.get(1) {
                 let s = m.as_str();
-                if s.starts_with('v') {
-                    volume = s[1..].parse().ok();
-                } else if s.starts_with('c') {
-                    chapter = s[1..].parse().ok();
-                } else if s.starts_with('p') {
-                    part = s[1..].parse().ok();
+                if let Some(stripped) = s.strip_prefix('v') {
+                    volume = stripped.parse().ok();
+                } else if let Some(stripped) = s.strip_prefix('c') {
+                    chapter = stripped.parse().ok();
+                } else if let Some(stripped) = s.strip_prefix('p') {
+                    part = stripped.parse().ok();
                 } 
             }
         }
@@ -57,31 +57,23 @@ impl Chapter {
         }
 
         if volume.is_none() && chapter.is_none() && part.is_none() {
-            return Ok(Self::Other { value: raw.into() });
+            return Self::Other { value: raw.into() };
         }
 
-        Ok(Self::Standard { volume, chapter, part, value: raw.into() })
-    }
-
-    pub fn to_string(&self) -> String {
-        match self {
-            // value is used directly for standard due to c1p1 vs 1p1 being the same
-            Chapter::Standard { value, ..} => value.clone(),
-            Chapter::Other { value } => value.clone(),
-        }
+        Self::Standard { volume, chapter, part, value: raw.into() }
     }
 
     pub fn count_chapters(&self) -> u32 {
         match self {
             Chapter::Standard { chapter, .. } => chapter.unwrap_or(0),
-            _ => 0,
+            Chapter::Other { .. } => 0,
         }
     }
 
     pub fn count_volumes(&self) -> u32 {
         match self {
-            Chapter::Standard { volume, chapter, part, value} => {
-                let res = match volume {
+            Chapter::Standard { volume, chapter, part, ..} => {
+                match volume {
                     Some(v) => {
                         // prevent underflow
                         if *v == 0 {
@@ -89,14 +81,10 @@ impl Chapter {
                         }
 
                         // don't count a volume currently reading
-                        v - if chapter.is_some() || part.is_some() {1} else {0}
+                        v - u32::from(chapter.is_some() || part.is_some())
                     }
                     None => 0,
-                };
-                if res != 0 {
-                    println!("{} {}", value, res);
                 }
-                res
             },
             Chapter::Other {..} => {
                 0
@@ -111,6 +99,16 @@ impl Chapter {
             },
             Chapter::Other { value } => value.is_empty(),
         }
+    }
+}
+
+impl fmt::Display for Chapter {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let val = match self {
+            // value is used directly for standard due to c1p1 vs 1p1 being the same
+            Chapter::Standard { value, ..} | Chapter::Other { value } => value.clone(),
+        };
+        write!(f, "{val}")
     }
 }
 
@@ -132,7 +130,7 @@ impl<'de> Deserialize<'de> for Chapter {
     {
         struct ChapterVisitor;
 
-        impl<'de> Visitor<'de> for ChapterVisitor {
+        impl Visitor<'_> for ChapterVisitor {
             type Value = Chapter;
 
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
@@ -143,7 +141,7 @@ impl<'de> Deserialize<'de> for Chapter {
             where
                 E: de::Error,
             {
-                Chapter::from(value).map_err(de::Error::custom)
+                Ok(Chapter::from(value))
             }
         }
 
@@ -158,7 +156,7 @@ mod tests {
     #[test]
     fn empty() {
         let raw = "";
-        let chapter = Chapter::from(raw).unwrap();
+        let chapter = Chapter::from(raw);
         assert_eq!(chapter, Chapter::Other { value: raw.into() });
         assert_eq!(chapter.to_string(), raw);
     }
@@ -166,7 +164,7 @@ mod tests {
     #[test]
     fn other_non_empty() {
         let raw = "asldkfjas";
-        let chapter = Chapter::from(raw).unwrap();
+        let chapter = Chapter::from(raw);
         assert_eq!(chapter, Chapter::Other { value: raw.into() });
         assert_eq!(chapter.to_string(), raw);
     }
@@ -174,7 +172,7 @@ mod tests {
     #[test]
     fn unlabeled_chap() {
         let raw = "10";
-        let chapter = Chapter::from(raw).unwrap();
+        let chapter = Chapter::from(raw);
         assert_eq!(chapter, Chapter::Standard { volume: None, chapter: Some(10), part: None, value: raw.into() });
         assert_eq!(chapter.to_string(), raw);
     }
@@ -182,7 +180,7 @@ mod tests {
     #[test]
     fn unlabeled_chap_part() {
         let raw = "10p3";
-        let chapter = Chapter::from(raw).unwrap();
+        let chapter = Chapter::from(raw);
         assert_eq!(chapter, Chapter::Standard { volume: None, chapter: Some(10), part: Some(3), value: raw.into() });
         assert_eq!(chapter.to_string(), raw);
     }
@@ -190,7 +188,7 @@ mod tests {
     #[test]
     fn labeled_chap() {
         let raw = "c10";
-        let chapter = Chapter::from(raw).unwrap();
+        let chapter = Chapter::from(raw);
         assert_eq!(chapter, Chapter::Standard { volume: None, chapter: Some(10), part: None, value: raw.into() });
         assert_eq!(chapter.to_string(), raw);
     }
@@ -199,7 +197,7 @@ mod tests {
     #[test]
     fn unlabled_labeled_chap() {
         let raw = "12c10";
-        let chapter = Chapter::from(raw).unwrap();
+        let chapter = Chapter::from(raw);
         assert_eq!(chapter, Chapter::Standard { volume: None, chapter: Some(10), part: None, value: raw.into() });
         assert_eq!(chapter.to_string(), raw);
     }
@@ -207,7 +205,7 @@ mod tests {
     #[test]
     fn vol() {
         let raw = "v343";
-        let chapter = Chapter::from(raw).unwrap();
+        let chapter = Chapter::from(raw);
         assert_eq!(chapter, Chapter::Standard { volume: Some(343), chapter: None, part: None, value: raw.into() });
         assert_eq!(chapter.to_string(), raw);
     }
@@ -215,7 +213,7 @@ mod tests {
     #[test]
     fn vol_chap() {
         let raw = "v3c98";
-        let chapter = Chapter::from(raw).unwrap();
+        let chapter = Chapter::from(raw);
         assert_eq!(chapter, Chapter::Standard { volume: Some(3), chapter: Some(98), part: None, value: raw.into() });
         assert_eq!(chapter.to_string(), raw);
     }
@@ -223,7 +221,7 @@ mod tests {
     #[test]
     fn vol_chap_part() {
         let raw = "v3c98p2";
-        let chapter = Chapter::from(raw).unwrap();
+        let chapter = Chapter::from(raw);
         assert_eq!(chapter, Chapter::Standard { volume: Some(3), chapter: Some(98), part: Some(2), value: raw.into() });
         assert_eq!(chapter.to_string(), raw);
     }
@@ -231,7 +229,7 @@ mod tests {
     #[test]
     fn extra_vol_chap_part() {
         let raw = "Y1V1C1P1";
-        let chapter = Chapter::from(raw).unwrap();
+        let chapter = Chapter::from(raw);
         assert_eq!(chapter, Chapter::Standard { volume: Some(1), chapter: Some(1), part: Some(1), value: raw.into() });
         assert_eq!(chapter.to_string(), raw);
     }
@@ -239,7 +237,7 @@ mod tests {
     #[test]
     fn extra_vol_chap_part_2() {
         let raw = "Arc 3 V1C1P1";
-        let chapter = Chapter::from(raw).unwrap();
+        let chapter = Chapter::from(raw);
         assert_eq!(chapter, Chapter::Standard { volume: Some(1), chapter: Some(1), part: Some(1), value: raw.into() });
         assert_eq!(chapter.to_string(), raw);
     }
@@ -247,32 +245,32 @@ mod tests {
     #[test]
     fn vol_prologue() {
         let raw = "v3 prologue";
-        let chapter = Chapter::from(raw).unwrap();
+        let chapter = Chapter::from(raw);
         assert_eq!(chapter, Chapter::Standard { volume: Some(3), chapter: None, part: None, value: raw.into() });
         assert_eq!(chapter.to_string(), raw);
     }
 
     #[test]
     fn count_chapters() {
-        assert_eq!(Chapter::from("0").unwrap().count_chapters(), 0);
-        assert_eq!(Chapter::from("32").unwrap().count_chapters(), 32);
-        assert_eq!(Chapter::from("c1").unwrap().count_chapters(), 1);
-        assert_eq!(Chapter::from("v10").unwrap().count_chapters(), 0);
-        assert_eq!(Chapter::from("v11C3").unwrap().count_chapters(), 3);
-        assert_eq!(Chapter::from("V22C30P2").unwrap().count_chapters(), 30);
+        assert_eq!(Chapter::from("0").count_chapters(), 0);
+        assert_eq!(Chapter::from("32").count_chapters(), 32);
+        assert_eq!(Chapter::from("c1").count_chapters(), 1);
+        assert_eq!(Chapter::from("v10").count_chapters(), 0);
+        assert_eq!(Chapter::from("v11C3").count_chapters(), 3);
+        assert_eq!(Chapter::from("V22C30P2").count_chapters(), 30);
     }
 
     #[test]
     fn count_volumes() {
-        assert_eq!(Chapter::from("0").unwrap().count_volumes(), 0);
-        assert_eq!(Chapter::from("11").unwrap().count_volumes(), 0);
-        assert_eq!(Chapter::from("v0").unwrap().count_volumes(), 0);
-        assert_eq!(Chapter::from("v0c1").unwrap().count_volumes(), 0);
-        assert_eq!(Chapter::from("v1").unwrap().count_volumes(), 1);
-        assert_eq!(Chapter::from("v1c1").unwrap().count_volumes(), 0);
-        assert_eq!(Chapter::from("v1c0").unwrap().count_volumes(), 0);
-        assert_eq!(Chapter::from("v10").unwrap().count_volumes(), 10);
-        assert_eq!(Chapter::from("v11C3").unwrap().count_volumes(), 10);
-        assert_eq!(Chapter::from("V22C3P2").unwrap().count_volumes(), 21);
+        assert_eq!(Chapter::from("0").count_volumes(), 0);
+        assert_eq!(Chapter::from("11").count_volumes(), 0);
+        assert_eq!(Chapter::from("v0").count_volumes(), 0);
+        assert_eq!(Chapter::from("v0c1").count_volumes(), 0);
+        assert_eq!(Chapter::from("v1").count_volumes(), 1);
+        assert_eq!(Chapter::from("v1c1").count_volumes(), 0);
+        assert_eq!(Chapter::from("v1c0").count_volumes(), 0);
+        assert_eq!(Chapter::from("v10").count_volumes(), 10);
+        assert_eq!(Chapter::from("v11C3").count_volumes(), 10);
+        assert_eq!(Chapter::from("V22C3P2").count_volumes(), 21);
     }
 }
