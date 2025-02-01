@@ -47,6 +47,8 @@ pub async fn fetch_novel_entries(db: &DatabaseConnection, subset: NovelSubsets) 
     let mut novel_entries = Vec::new();
     for model in models {
         novel_entries.push(NovelEntry::from_model(model));
+        let last = novel_entries.last().unwrap();
+        println!("{}\n {:?}\n", last.title, last.chapter);
     }
 
     if subset == NovelSubsets::NotSus {

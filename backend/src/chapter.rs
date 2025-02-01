@@ -83,7 +83,20 @@ impl Chapter {
 
     pub fn count_volumes(&self) -> u32 {
         match self {
-            Chapter::Standard { volume, ..} => volume.unwrap_or(0),
+            Chapter::Standard { volume, chapter, part, ..} => {
+                match volume {
+                    Some(v) => {
+                        // prevent underflow
+                        if *v == 0 {
+                            return 0;
+                        }
+
+                        // don't count a volume currently reading
+                        v - if chapter.is_some() || part.is_some() {1} else {0}
+                    }
+                    None => 0,
+                }
+            },
             _ => 0,
         }
     }
@@ -223,11 +236,14 @@ mod tests {
 
     #[test]
     fn count_volumes() {
+        assert_eq!(Chapter::from("0").unwrap().count_volumes(), 0);
+        assert_eq!(Chapter::from("11").unwrap().count_volumes(), 0);
         assert_eq!(Chapter::from("v0").unwrap().count_volumes(), 0);
+        assert_eq!(Chapter::from("v0c1").unwrap().count_volumes(), 0);
         assert_eq!(Chapter::from("v1").unwrap().count_volumes(), 1);
+        assert_eq!(Chapter::from("v1c1").unwrap().count_volumes(), 0);
         assert_eq!(Chapter::from("v10").unwrap().count_volumes(), 10);
-        assert_eq!(Chapter::from("v11").unwrap().count_volumes(), 11);
-        assert_eq!(Chapter::from("v11C3").unwrap().count_volumes(), 11);
-        assert_eq!(Chapter::from("V22C3P2").unwrap().count_volumes(), 22);
+        assert_eq!(Chapter::from("v11C3").unwrap().count_volumes(), 10);
+        assert_eq!(Chapter::from("V22C3P2").unwrap().count_volumes(), 21);
     }
 }
