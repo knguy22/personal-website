@@ -3,7 +3,7 @@ use std::str::FromStr;
 use crate::entity::novels;
 
 use anyhow::{Result, Error};
-use chrono::{DateTime, Local, Utc};
+use chrono::{serde::ts_seconds::serialize, DateTime, Local, Utc};
 use itertools::Itertools;
 use sea_orm::{IntoActiveModel, JsonValue};
 use serde::{Deserialize, Serialize};
@@ -32,8 +32,14 @@ pub enum Status {
 
 #[derive(Clone, Debug)]
 pub enum Chapter {
-    Standard{ volume: Option<u32>, chapter: Option<u32>, part: Option<u32> },
-    Other{ value: String },
+    Standard{ 
+        volume: Option<u32>,
+        chapter: Option<u32>,
+        part: Option<u32>
+    },
+    Other{ 
+        value: String
+    },
 }
 
 impl Chapter {
@@ -74,7 +80,36 @@ impl Serialize for Chapter {
         where
             S: serde::Serializer 
     {
-        todo!()
+        match self {
+            Chapter::Standard { volume, chapter, part } => {
+                let mut parts: String = String::new();
+
+                // three general categories:
+                // V1C1P1
+                // 32
+                // 32P1
+
+                if let Some(v) = volume {
+                    parts.push_str(&format!("v{v}"));
+                    
+                    // adding a chapter is redundant if there isn't a volume
+                    if chapter.is_some() {
+                        parts.push('c');
+                    }
+                }
+
+                if let Some(c) = chapter {
+                    parts.push_str(&format!("{c}"));
+                }
+
+                if let Some(p) = part {
+                    parts.push_str(&format!("p{p}"));
+                }
+
+                serializer.serialize_str(&parts)
+            },
+            Chapter::Other { value } => serializer.serialize_str(value),
+        }
     }
 
 }
