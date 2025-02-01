@@ -123,7 +123,7 @@ async fn upload_novels_backup(state: State<AppState>, mut multipart: Multipart) 
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(err.to_string()),
         ))
-    };
+    }
 
     // upload the backup novels
     let res = db::insert_novel_entries(&state.conn, &rows).await;

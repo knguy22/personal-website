@@ -17,7 +17,7 @@ pub async fn scrape_tags(title: &str, sleep_duration: u64) -> Result<Vec<String>
     if let Err(e) = navigate_tab(title, &tab, sleep_duration).await {
         browser::screenshot("src/data_ingestion/final_error.png", &tab)?;
         Err(e)?;
-    };
+    }
 
     let html = tab.get_content()?;
     tab.close_with_unload()?;
