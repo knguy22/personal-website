@@ -42,9 +42,9 @@ pub struct Stats {
 pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats> {
     let novels = db::fetch_novel_entries(db, NovelSubsets::All).await?;
     let novel_count = u32::try_from(novels.len())?;
-    let chapter_count = novels.iter().map(|novel| novel.chapter.parse().unwrap_or(0)).sum();
-    let volumes_completed: u32 = novels.iter().map(|novel| completed_volume(&novel.chapter)).sum();
-    let novels_not_started = u32::try_from(novels.iter().filter(|novel| novel.chapter.is_empty()).count())?;
+    let chapter_count = novels.iter().map(|novel| novel.chapter.count_chapters()).sum();
+    let volumes_completed: u32 = novels.iter().map(|novel| novel.chapter.count_volumes()).sum();
+    let novels_not_started = u32::try_from(novels.iter().filter(|novel| novel.chapter.unstarted()).count())?;
 
     let rating_sum: u32 = novels.iter().map(|novel| novel.rating).sum();
     let non_zero_ratings = novels.iter().filter(|novel| novel.rating > 0).count();
@@ -81,40 +81,6 @@ pub async fn get_stats(db: &DatabaseConnection) -> Result<Stats> {
     })
 }
 
-// volumes without any trailing information can be naively counted fully
-// novels with volumes can take the form of v{number} or v{number}{trailing info}
-// volumes with trailing info can only count of to {number - 1} completed
-// Ex: V11 = 11 volumes completed
-// Ex: V11C3 = 10 volumes completed
-fn completed_volume(chapter: &str) -> u32 {
-    // check if the novel contains volumes
-    if !chapter.starts_with('v') && !chapter.starts_with('V') {
-        return 0
-    }
-
-    // check if the rest of the chapter can be parsed as an integer
-    // if so, that means there is no trailing information
-    let volumes = chapter[1..].parse::<u32>().unwrap_or(u32::MAX);
-    if volumes != u32::MAX {
-        return volumes;
-    }
-
-    // handle the case where there is trailing information
-    // the last novel isn't completed
-    let mut volumes = 0;
-    for c in chapter[1..].chars() {
-        match c.to_digit(10) {
-            Some(digit) => {
-                volumes *= 10;
-                volumes += digit;
-            },
-            None => break,
-        }
-    }
-
-    volumes - 1
-}
-
 fn find_status_dist(novels: &[NovelEntry]) -> HashMap<String, u32> {
     let mut status_dist = HashMap::<String, u32>::new();
     for novel in novels {
@@ -136,7 +102,7 @@ fn find_chapter_country_dist(novels: &[NovelEntry]) -> (HashMap<String, u32>, Ha
     let mut country_dist = HashMap::<String, u32>::new();
     for novel in novels {
         // count the frequency of each chapter count bucket
-        let chapter_count = novel.chapter.parse::<u32>().unwrap_or(0);
+        let chapter_count = novel.chapter.count_chapters();
         for (start, end) in &CHAPTER_COUNT_BUCKETS {
             if chapter_count >= *start && chapter_count <= *end {
                 *chapter_dist.entry((*start, *end)).or_insert(0) += 1;
@@ -164,19 +130,4 @@ fn find_chapter_country_dist(novels: &[NovelEntry]) -> (HashMap<String, u32>, Ha
     chapter_dist.insert(format!("{}+", last_bucket.0), last_value);
 
     (country_dist, chapter_dist)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_completed_volume() {
-        assert_eq!(completed_volume("v0"), 0);
-        assert_eq!(completed_volume("v1"), 1);
-        assert_eq!(completed_volume("v10"), 10);
-        assert_eq!(completed_volume("v11"), 11);
-        assert_eq!(completed_volume("v11C3"), 10);
-        assert_eq!(completed_volume("v22C3P2"), 21);
-    }
 }

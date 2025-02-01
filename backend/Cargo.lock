@@ -3622,6 +3622,7 @@ dependencies = [
  "html-escape",
  "itertools 0.13.0",
  "rand",
+ "regex",
  "scraper",
  "sea-orm",
  "serde",

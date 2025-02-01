@@ -26,7 +26,7 @@ pub async fn run(board_width: u32, board_height: u32, prioritize_tetrominos: boo
     let res = command.output().await?;
     if !res.status.success() {
         return Err(Error::msg(String::from_utf8_lossy(&res.stderr).to_string()));
-    };
+    }
 
     let output_img = fs::read(&output_path).await?;
     fs::remove_file(source_path).await?;

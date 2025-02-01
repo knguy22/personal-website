@@ -1,6 +1,7 @@
 use std::str::FromStr;
 
 use crate::entity::novels;
+use crate::chapter::Chapter;
 
 use anyhow::{Result, Error};
 use chrono::{DateTime, Local, Utc};
@@ -8,6 +9,12 @@ use itertools::Itertools;
 use sea_orm::{IntoActiveModel, JsonValue};
 use serde::{Deserialize, Serialize};
 use strum::{Display, EnumString};
+
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq)]
+pub enum NovelSubsets {
+    All,
+    NotSus,
+}
 
 #[derive(Clone, Debug, PartialEq, Display, EnumString, Deserialize, Serialize)]
 pub enum Provider {
@@ -24,12 +31,13 @@ pub enum Status {
     Hiatus,
 }
 
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NovelEntry {
     pub id: i32,
     pub country: String,
     pub title: String,
-    pub chapter: String,
+    pub chapter: Chapter,
     pub rating: u32,
     pub status: Option<Status>,
     pub tags: Vec<String>,
@@ -38,12 +46,6 @@ pub struct NovelEntry {
     pub date_modified: DateTime<Utc>,
     pub date_started: Option<DateTime<Utc>>,
     pub date_completed: Option<DateTime<Utc>>,
-}
-
-#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq)]
-pub enum NovelSubsets {
-    All,
-    NotSus,
 }
 
 // used when importing from csv
@@ -59,7 +61,7 @@ impl NovelEntry {
             id,
             country: String::new(),
             title: String::new(),
-            chapter: String::new(),
+            chapter: Chapter::Other { value: String::new() },
             rating: 0,
             status: None,
             tags: Vec::new(),
@@ -81,7 +83,7 @@ impl NovelEntry {
             id: self.id,
             country: self.country.clone(),
             title: self.title.clone(),
-            chapter: self.chapter.clone(),
+            chapter: self.chapter.to_string(),
             rating: Some(self.rating as i32),
             status: self.status.as_ref().map(ToString::to_string),
             tags: serde_json::to_value(self.tags.clone()).unwrap(),
@@ -99,7 +101,7 @@ impl NovelEntry {
             id: model.id,
             country: model.country,
             title: model.title,
-            chapter: model.chapter,
+            chapter: Chapter::from(&model.chapter),
             rating: model.rating.unwrap_or_default() as u32,
             status: model.status.as_ref().map(|status| Status::from_str(status).unwrap()),
             tags: json_value_to_vec_str(&model.tags).unwrap_or_default(),
