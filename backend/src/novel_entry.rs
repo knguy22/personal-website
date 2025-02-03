@@ -29,6 +29,7 @@ pub enum Status {
     Waiting,
     Dropped,
     Hiatus,
+    Planning,
 }
 
 

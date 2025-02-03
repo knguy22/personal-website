@@ -61,6 +61,7 @@ export const Status = {
   Waiting: "Waiting",
   Dropped: "Dropped",
   Hiatus: "Hiatus",
+  Planning: "Planning",
 } as const;
 export type Status = typeof Status[keyof typeof Status];
 
