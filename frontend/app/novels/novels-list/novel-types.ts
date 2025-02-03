@@ -65,10 +65,6 @@ export const Status = {
 } as const;
 export type Status = typeof Status[keyof typeof Status];
 
-export function status_to_str(status: Status): string {
-  return status.toString();
-}
-
 export function api_to_entry(novel: NovelEntryApi): NovelEntry {
   return {
     id: novel.id,
