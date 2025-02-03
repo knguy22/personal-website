@@ -56,12 +56,12 @@ export const Provider = {
 export type Provider = typeof Provider[keyof typeof Provider];
 
 export const Status = {
-  Reading: "Reading",
   Completed: "Completed",
-  Waiting: "Waiting",
   Dropped: "Dropped",
   Hiatus: "Hiatus",
   Planning: "Planning",
+  Reading: "Reading",
+  Waiting: "Waiting",
 } as const;
 export type Status = typeof Status[keyof typeof Status];
 
