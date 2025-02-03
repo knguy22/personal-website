@@ -24,11 +24,12 @@ pub enum Provider {
 
 #[derive(Clone, Debug, PartialEq, Display, EnumString, Deserialize, Serialize)]
 pub enum Status {
-    Reading,
     Completed,
-    Waiting,
     Dropped,
     Hiatus,
+    Planning,
+    Reading,
+    Waiting,
 }
 
 
