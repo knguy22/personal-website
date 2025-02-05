@@ -13,10 +13,10 @@ use tokio::time::sleep;
 
 use std::time::Duration;
 
-pub async fn fetch_novel_tags(conn: &DatabaseConnection) -> Result<()> {
+pub async fn fetch_novel_tags(conn: &DatabaseConnection, reset_novels: bool) -> Result<()> {
     let novels = db::fetch_novel_entries(conn, NovelSubsets::All).await?;
     let novels_to_fetch = novels.iter()
-        .filter(|novel| novel.tags.is_empty())
+        .filter(|novel| novel.tags.is_empty() || reset_novels)
         .filter(|novel| novel.provider.is_some())
         .collect_vec();
     println!("Fetching tags for {} novels out of {}...", novels_to_fetch.len(), novels.len());
@@ -61,7 +61,7 @@ pub async fn single_fetch_novel_tags(conn: &DatabaseConnection, title: &str, url
         Some(Provider::RoyalRoad) => royalroad::scrape_tags(title, 3).await?,
         None => Err(Error::msg(format!("Novel doesn't contain a provider: {}", novel.title)))?
     };
-    let new_novel = vec![NovelEntry {
+    let new_novel = [NovelEntry {
         tags: scraped_tags,
         ..novel.clone()
     }];
