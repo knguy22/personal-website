@@ -188,10 +188,10 @@ mod tests {
 
     #[test]
     fn filter_sus() {
-        let good_novels = vec![NovelEntry::empty(0), NovelEntry::empty(1)];
+        let good_novels = [NovelEntry::empty(0), NovelEntry::empty(1)];
         assert_eq!(filter_sus_novels(&good_novels).len(), 2);
 
-        let mut bad_novels = vec![NovelEntry::empty(0), NovelEntry::empty(1)];
+        let mut bad_novels = [NovelEntry::empty(0), NovelEntry::empty(1)];
         bad_novels[1].tags.push("Pe*verted Protagonist".to_string());
         assert_eq!(filter_sus_novels(&bad_novels).len(), 1);
     }

@@ -61,7 +61,7 @@ pub async fn single_fetch_novel_tags(conn: &DatabaseConnection, title: &str, url
         Some(Provider::RoyalRoad) => royalroad::scrape_tags(title, 3).await?,
         None => Err(Error::msg(format!("Novel doesn't contain a provider: {}", novel.title)))?
     };
-    let new_novel = vec![NovelEntry {
+    let new_novel = [NovelEntry {
         tags: scraped_tags,
         ..novel.clone()
     }];
