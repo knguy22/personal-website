@@ -4,7 +4,7 @@ use crate::data_ingestion;
 use std::path::PathBuf;
 
 use anyhow::Result;
-use clap::{Parser, Subcommand};
+use clap::{ArgAction, Parser, Subcommand};
 use sea_orm::DatabaseConnection;
 
 #[derive(Debug, Parser)]
@@ -17,13 +17,21 @@ struct Cli {
 #[derive(Debug, Subcommand)]
 enum ManageNovels {
     /// Fetches all novel information from supported websites
-    FetchAllNovels,
+    FetchAllNovels {
+        #[clap(long, short, action=ArgAction::SetTrue)]
+        reset_novels: bool
+    },
 
     /// Manually fetches a single novel's information
-    FetchSingle{ title: String, url: Option<String> },
+    FetchSingle {
+        title: String,
+        url: Option<String>
+    },
 
     /// Imports novel tags and genres from a csv file (see <https://github.com/shaido987/novel-dataset>)
-    ImportCsv{ file: PathBuf },
+    ImportCsv {
+        file: PathBuf
+    },
 
     /// Drops everything currently in the novel table
     DropAllNovels,
@@ -34,7 +42,7 @@ pub async fn run_cli(conn: &DatabaseConnection) -> Result<()> {
 
     if let Some(command) = cli.manage_novels {
         match command {
-            ManageNovels::FetchAllNovels => data_ingestion::fetch_novel_tags(conn).await?,
+            ManageNovels::FetchAllNovels { reset_novels } => data_ingestion::fetch_novel_tags(conn, reset_novels).await?,
             ManageNovels::FetchSingle { title, url } => data_ingestion::single_fetch_novel_tags(conn, &title, url).await?,
             ManageNovels::ImportCsv { file } => {
                 let rows = data_ingestion::csv::read_novel_tags_csv(&file)?;
