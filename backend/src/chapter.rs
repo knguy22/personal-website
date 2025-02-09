@@ -104,11 +104,10 @@ impl Chapter {
 
 impl fmt::Display for Chapter {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let val = match self {
+        match self {
             // value is used directly for standard due to c1p1 vs 1p1 being the same
-            Chapter::Standard { value, ..} | Chapter::Other { value } => value.clone(),
-        };
-        write!(f, "{val}")
+            Chapter::Standard { value, ..} | Chapter::Other { value } => write!(f, "{value}"),
+        }
     }
 }
 
