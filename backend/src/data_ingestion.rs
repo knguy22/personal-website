@@ -31,6 +31,13 @@ pub async fn fetch_novel_tags(conn: &DatabaseConnection, reset_novels: bool) -> 
 
         match scraped_tags {
             Ok(new_tags) => {
+                // only update if the tags have been modified
+                // this prevents updating `date_modified` unnecessarily
+                if new_tags == novel.tags {
+                    println!("Unmodified: [{}]", novel.title);
+                    continue;
+                }
+
                 let new_novel = NovelEntry {
                     tags: new_tags,
                     ..novel.clone()
