@@ -54,7 +54,7 @@ pub async fn fetch_novel_tags(conn: &DatabaseConnection, reset_novels: bool) -> 
         }
     }
 
-    db::update_novel_entries(conn, &modified_novels).await?;
+    db::update_novel_entries(conn, &modified_novels, false).await?;
     println!("Finished modifying {} novels", modified_novels.len());
     Ok(())
 }
@@ -72,7 +72,7 @@ pub async fn single_fetch_novel_tags(conn: &DatabaseConnection, title: &str, url
         tags: scraped_tags,
         ..novel.clone()
     }];
-    db::update_novel_entries(conn, &new_novel).await?;
+    db::update_novel_entries(conn, &new_novel, false).await?;
 
     println!("Success: [{title}]");
     Ok(())
