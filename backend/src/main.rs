@@ -87,7 +87,7 @@ async fn novels_handler(state: State<AppState>, subset: Json<NovelSubsets>) -> i
 type UpdateNovelsResponse = Result<(StatusCode, Json<Vec<novel_entry::NovelEntry>>), (StatusCode, Json<String>)>;
 async fn update_novels_handler(state: State<AppState>, Json(rows): Json<Vec<novel_entry::NovelEntry>>) -> UpdateNovelsResponse {
     println!("Updating novels {}", rows.len());
-    let res = db::update_novel_entries(&state.conn, &rows).await;
+    let res = db::update_novel_entries(&state.conn, &rows, db::UpdateDateModified::True).await;
     match res {
         Ok(novels) => Ok((StatusCode::OK, Json(novels))),
         Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e.to_string()))),
