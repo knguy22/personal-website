@@ -3,8 +3,8 @@ pub mod novelupdates;
 pub mod royalroad;
 pub mod csv;
 
-use crate::{db, novel_entry::Provider};
-use crate::novel_entry::{NovelEntry, NovelSubsets};
+use crate::db::{self, UpdateDateModified};
+use crate::novel_entry::{NovelEntry, NovelSubsets, Provider};
 
 use anyhow::{Error, Result};
 use itertools::Itertools;
@@ -54,7 +54,7 @@ pub async fn fetch_novel_tags(conn: &DatabaseConnection, reset_novels: bool) -> 
         }
     }
 
-    db::update_novel_entries(conn, &modified_novels, false).await?;
+    db::update_novel_entries(conn, &modified_novels, UpdateDateModified::False).await?;
     println!("Finished modifying {} novels", modified_novels.len());
     Ok(())
 }
@@ -72,7 +72,7 @@ pub async fn single_fetch_novel_tags(conn: &DatabaseConnection, title: &str, url
         tags: scraped_tags,
         ..novel.clone()
     }];
-    db::update_novel_entries(conn, &new_novel, false).await?;
+    db::update_novel_entries(conn, &new_novel, UpdateDateModified::False).await?;
 
     println!("Success: [{title}]");
     Ok(())

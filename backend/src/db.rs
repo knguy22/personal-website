@@ -20,6 +20,12 @@ use sea_orm::{
     QueryOrder,
 };
 
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum UpdateDateModified {
+    True,
+    False,
+}
+
 pub async fn init() -> Result<DatabaseConnection> {
     // init database
     let database_url = env::var("DATABASE_URL")?;
@@ -78,7 +84,7 @@ pub async fn insert_novel_entries(db: &DatabaseConnection, rows: &Vec<NovelEntry
 }
 
 #[allow(clippy::cast_possible_wrap)]
-pub async fn update_novel_entries(db: &DatabaseConnection, rows: &[NovelEntry], update_date_modified: bool) -> Result<Vec<NovelEntry>> {
+pub async fn update_novel_entries(db: &DatabaseConnection, rows: &[NovelEntry], update_date_modified: UpdateDateModified) -> Result<Vec<NovelEntry>> {
     let mut updated_novels: Vec<NovelEntry> = Vec::new();
     for row in rows {
         let model = Novels::find()
@@ -90,7 +96,7 @@ pub async fn update_novel_entries(db: &DatabaseConnection, rows: &[NovelEntry], 
             // create the active model; everything should be updated already except for date_modified
             // date_modified is handeled by the backend to ensure time consistency
             let mut active_model = row.to_active_model().reset_all();
-            if update_date_modified {
+            if update_date_modified == UpdateDateModified::True {
                 active_model.date_modified = Set(Local::now().naive_utc());
             }
             active_model.id = Unchanged(row.id);
