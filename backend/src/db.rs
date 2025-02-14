@@ -157,23 +157,19 @@ pub async fn delete_novel_entry(db: &DatabaseConnection, id: i32) -> Result<()> 
 }
 
 pub async fn create_empty_row(db: &DatabaseConnection) -> Result<NovelEntry> {
-    let novel = NovelEntry::empty(get_next_id(db).await?);
-    let model = novel.to_active_model();
-    let _ = model.insert(db).await?;
-
-    Ok(novel)
-}
-
-pub async fn get_next_id(db: &DatabaseConnection) -> Result<i32> {
-    let model = Novels::find()
+    let curr_max_id = Novels::find()
         .order_by_desc(novels::Column::Id)
         .one(db)
         .await?;
+    let next_id = match curr_max_id {
+        Some(model) => model.id + 1,
+        None => 1,
+    };
 
-    match model {
-        Some(model) => Ok(model.id + 1),
-        None => Ok(1),
-    }
+    let novel = NovelEntry::empty(next_id);
+    let model = novel.to_active_model();
+    let _ = model.insert(db).await?;
+    Ok(novel)
 }
 
 #[cfg(test)]
