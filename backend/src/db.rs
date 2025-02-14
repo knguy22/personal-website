@@ -1,6 +1,10 @@
 use crate::entity::{novels, prelude::Novels};
 use crate::novel_entry::{filter_sus_novels, NovelEntry, NovelSubsets, NovelTagsRecordParsed};
-use std::{env, time::Duration};
+use std::{
+    env,
+    time::Duration,
+    sync::LazyLock,
+};
 
 use anyhow::{Result, Error};
 use chrono::Local;
@@ -19,6 +23,7 @@ use sea_orm::{
     QueryFilter,
     QueryOrder,
 };
+use tokio::sync::Mutex;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum UpdateDateModified {
@@ -157,23 +162,24 @@ pub async fn delete_novel_entry(db: &DatabaseConnection, id: i32) -> Result<()> 
 }
 
 pub async fn create_empty_row(db: &DatabaseConnection) -> Result<NovelEntry> {
-    let novel = NovelEntry::empty(get_next_id(db).await?);
-    let model = novel.to_active_model();
-    let _ = model.insert(db).await?;
+    // only allow one thread to create an empty row at a time
+    static LOCK: LazyLock<Mutex<()>> = LazyLock::new(|| Mutex::new(()));
+    let _guard = LOCK.lock().await;
 
-    Ok(novel)
-}
-
-pub async fn get_next_id(db: &DatabaseConnection) -> Result<i32> {
-    let model = Novels::find()
+    // we manually create the next id because I screwed up the postgres settings and autoincrement doesn't work
+    let curr_max_id = Novels::find()
         .order_by_desc(novels::Column::Id)
         .one(db)
         .await?;
+    let next_id = match curr_max_id {
+        Some(model) => model.id + 1,
+        None => 1,
+    };
 
-    match model {
-        Some(model) => Ok(model.id + 1),
-        None => Ok(1),
-    }
+    let novel = NovelEntry::empty(next_id);
+    let model = novel.to_active_model();
+    let _ = model.insert(db).await?;
+    Ok(novel)
 }
 
 #[cfg(test)]
