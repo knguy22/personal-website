@@ -22,7 +22,7 @@ pub async fn fetch_novel_tags(conn: &DatabaseConnection, reset_novels: bool) -> 
     println!("Fetching tags for {} novels out of {}...", novels_to_fetch.len(), novels.len());
 
     let mut modified_novels = Vec::new();
-    for novel in novels_to_fetch {
+    for (idx, novel) in novels_to_fetch.into_iter().enumerate() {
         // scrape as required
         let scraped_tags = match novel.provider.as_ref().expect("novels without providers should not be here") {
             Provider::NovelUpdates => novelupdates::scrape_genres_and_tags(&novel.title, 5, None).await,
@@ -34,7 +34,7 @@ pub async fn fetch_novel_tags(conn: &DatabaseConnection, reset_novels: bool) -> 
                 // only update if the tags have been modified
                 // this prevents updating `date_modified` unnecessarily
                 if new_tags == novel.tags {
-                    println!("Unmodified: [{}]", novel.title);
+                    println!("{}. Unmodified: [{}]", idx + 1, novel.title);
                     continue;
                 }
 
@@ -43,7 +43,7 @@ pub async fn fetch_novel_tags(conn: &DatabaseConnection, reset_novels: bool) -> 
                     ..novel.clone()
                 };
                 modified_novels.push(new_novel);
-                println!("Success: [{}]", novel.title);
+                println!("{}. Success: [{}]", idx + 1, novel.title);
             },
 
             Err(e) => {
