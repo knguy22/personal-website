@@ -18,7 +18,7 @@ function Intro() {
     <div className="text-lg flex flex-col justify-between w-1/2 pt-12 space-y-3 mx-auto">
       <div className='text-3xl font-bold text-center pb-4'>About Me:</div>
       <div>
-        {"I'm a computer science student who likes creating programs to solve interesting problems."}
+        {"I'm an aspiring software engineer who likes creating programs to solve interesting problems."}
       </div>
       <div>
         {"My work has spanned multiple domains including image manipulation, audio processing, and machine learning. I plan\
