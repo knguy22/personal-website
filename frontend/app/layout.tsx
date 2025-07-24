@@ -10,8 +10,8 @@ import AuthProvider from "../components/derived/AuthProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "intermittence.dev",
-  description: "A site managed by intermittence",
+  title: "kevinhnguyen.com",
+  description: "A personal website",
 };
 
 export default function RootLayout({
