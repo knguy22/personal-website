@@ -138,6 +138,8 @@ pub fn filter_sus_novels(novels: &[NovelEntry]) -> Vec<NovelEntry> {
     novels
         .iter()
         .filter(|&novel| novel.tags.iter().all(|tag| !is_sus(tag)))
+        // novels without tags aren't vetted
+        .filter(|&novel| !novel.tags.is_empty())
         .cloned()
         .collect_vec()
 }
@@ -187,12 +189,23 @@ mod tests {
     }
 
     #[test]
-    fn filter_sus() {
-        let good_novels = [NovelEntry::empty(0), NovelEntry::empty(1)];
-        assert_eq!(filter_sus_novels(&good_novels).len(), 2);
+    fn filter_empty_tags() {
+        let mut novels = [NovelEntry::empty(0), NovelEntry::empty(1)];
+        assert_eq!(filter_sus_novels(&novels).len(), 0);
 
-        let mut bad_novels = [NovelEntry::empty(0), NovelEntry::empty(1)];
-        bad_novels[1].tags.push("Pe*verted Protagonist".to_string());
-        assert_eq!(filter_sus_novels(&bad_novels).len(), 1);
+        novels[0].tags.push("Safe".into());
+        novels[1].tags.push("Innocent".into());
+        assert_eq!(filter_sus_novels(&novels).len(), 2);
+    }
+
+    #[test]
+    fn filter_sus() {
+        let mut novels = [NovelEntry::empty(0), NovelEntry::empty(1)];
+        novels[0].tags.push("Safe".into());
+        novels[1].tags.push("Innocent".into());
+        assert_eq!(filter_sus_novels(&novels).len(), 2);
+
+        novels[1].tags.push("Pe*verted Protagonist".to_string());
+        assert_eq!(filter_sus_novels(&novels).len(), 1);
     }
 }
