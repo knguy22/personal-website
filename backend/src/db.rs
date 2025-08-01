@@ -188,7 +188,7 @@ mod tests {
     use dotenv::dotenv;
 
     #[tokio::test]
-    #[ignore]
+    #[ignore = "requires DB setup"]
     async fn test_init() {
         dotenv().ok();
         init().await.unwrap();

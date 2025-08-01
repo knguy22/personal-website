@@ -42,7 +42,7 @@ mod tests {
     use std::path::Path;
 
     #[tokio::test]
-    #[ignore]
+    #[ignore = "computationally heavy"]
     async fn approx_image() {
         dotenv().ok();
         let source = Path::new("test_assets/blank.jpeg");

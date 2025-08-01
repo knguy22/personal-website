@@ -86,7 +86,7 @@ mod tests {
     use dotenv::dotenv;
 
     #[tokio::test]
-    #[ignore]
+    #[ignore = "network intensive"]
     async fn scrape_orellen() {
         dotenv().ok();
         let res = scrape_tags("The Last Orellen", 3).await.unwrap();
@@ -94,7 +94,7 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore]
+    #[ignore = "network intensive"]
     async fn scrape_carousel() {
         dotenv().ok();
         let res = scrape_tags("The Game at Carousel: A Horror Movie LitRPG", 3).await.unwrap();
@@ -102,7 +102,7 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore]
+    #[ignore = "network intensive"]
     async fn scrape_blood_and_fur() {
         dotenv().ok();
         let res = scrape_tags("Blood & Fur", 3).await.unwrap();
@@ -110,7 +110,7 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore]
+    #[ignore = "network intensive"]
     async fn scrape_invalid() {
         dotenv().ok();
         let res = scrape_tags("lkasjdfklasjdflajklsdf", 3).await;
