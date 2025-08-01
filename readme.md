@@ -1,6 +1,6 @@
 # Personal Website
 
-This is where I put whatever I want to host on the internet. I plan on installing multiple unrelated functionalities here, and to see them, you can check out the website [here](https://intermittence.dev/).
+This is where I put whatever I want to host on the internet. I plan on installing multiple unrelated functionalities here, and to see them, you can check out the website [here](https://kevinhnguyen.com/).
 
 # Running the Production Server
 
