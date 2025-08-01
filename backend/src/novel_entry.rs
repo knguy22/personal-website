@@ -149,6 +149,7 @@ fn is_sus(tag: &str) -> bool {
         "Adult",
         "Ecchi",
         "F*llatio",
+        "First-time Interc**rse",
         "Pe*verted Protagonist"
     ];
 
