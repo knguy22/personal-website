@@ -203,7 +203,7 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore]
+    #[ignore = "network intensive"]
     async fn scrape_lotm() {
         dotenv().ok();
         let res = scrape_genres_and_tags("Lord of the Mysteries", 5, None).await.unwrap();
@@ -211,7 +211,7 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore]
+    #[ignore = "network intensive"]
     async fn scrape_invalid() {
         dotenv().ok();
         let res = scrape_genres_and_tags("laksjdflkajsdglh", 2, None).await;
