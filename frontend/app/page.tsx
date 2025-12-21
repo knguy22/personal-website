@@ -35,24 +35,23 @@ function Socials() {
         Check me out or contact me:
       </div>
       <div className="flex justify-center space-x-16 pt-12">
-        <IconLink 
-          description="Link to Github profile" 
-          imageUrl="/icons/github-mark.png" 
+        <IconLink
+          description="Link to Github profile"
+          imageUrl="/icons/github-mark.png"
           hrefUrl="https://github.com/knguy22"
           width={100}
-          height={100} 
+          height={100}
         />
-        <IconLink 
-          description="Link to LinkedIn profile" 
-          imageUrl="/icons/linkedin.png" 
-          hrefUrl="https://www.linkedin.com/in/kevin-nguyen-89326a242/" 
+        <IconLink
+          description="Link to LinkedIn profile"
+          imageUrl="/icons/linkedin.png"
+          hrefUrl="https://www.linkedin.com/in/kevin-nguyen-89326a242/"
           width={100}
           height={100}
         />
       </div>
       <div className="flex justify-center flex-col text-center space-y-2 pt-10 pb-12 text-lg">
         <div>Email: kevinngguyen1@gmail.com</div>
-        <div>Discord: @intermittence</div>
       </div>
     </div>
   )
