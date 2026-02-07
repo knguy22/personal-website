@@ -131,8 +131,8 @@ export function process_tags(tags: string | undefined): string[] {
 export function dates_equal(l: string | null, r: string | null): boolean {
   let same_date = !l && !r;
   if (l && r) {
-    let l_date = new Date(l);
-    let r_date = new Date(r);
+    const l_date = new Date(l);
+    const r_date = new Date(r);
     same_date = same_date || (l_date.toISOString() === r_date.toISOString());
   }
   return same_date;
